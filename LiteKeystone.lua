@@ -228,8 +228,10 @@ function LiteKeystone:ReceiveAstralKey(content)
             weekTime=weekTime
         }
 
-    local mapName = C_ChallengeMode.GetMapUIInfo(mapID)
-    printf('Got key: %s %s (%d)', playerName, mapName, keyLevel)
+    if playerName ~= self.playerName then
+        local mapName = C_ChallengeMode.GetMapUIInfo(mapID)
+        printf('Got key: %s %s (%d)', playerName, mapName, keyLevel)
+    end
 end
 
 function LiteKeystone:GuildPush(recipient)
