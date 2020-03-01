@@ -203,7 +203,7 @@ end
 function LiteKeystone:ReceiveAstralKey(content)
     local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, playerFaction = string.split(':', content)
 
-    if not playerName then return end
+    if not playerName or playerName == self.playerName then return end
 
     local weekTime = WeekTime()
 
