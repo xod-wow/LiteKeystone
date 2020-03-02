@@ -234,7 +234,7 @@ function LiteKeystone:ReceiveAstralKey(content, source)
             mapID=tonumber(mapID),
             keyLevel=tonumber(keyLevel),
             weekBest=tonumber(weekBest),
-            weekTime=weekTime()
+            weekTime=weekTime
         }
 
     if playerName ~= self.playerName then
