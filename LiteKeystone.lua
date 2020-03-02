@@ -75,6 +75,8 @@ function LiteKeystone:SlashCommand(arg)
         n = arg2:len()
         if arg2 == ('guild'):sub(1,n) then
             self:PrintKeys('GUILD')
+        elseif arg2 == ('party'):sub(1,n) then
+            self:PrintKeys('PARTY')
         elseif arg2 == ('say'):sub(1,n) then
             self:PrintKeys('SAY')
         else
@@ -156,7 +158,8 @@ function LiteKeystone:ScanForKey()
             mapID=tonumber(mapID),
             keyLevel=tonumber(keyLevel),
             weekBest=tonumber(weekBest),
-            weekTime=WeekTime()
+            weekTime=WeekTime(),
+            source='mine'
         }
 end
 
@@ -200,10 +203,16 @@ function LiteKeystone:SendAstralKey()
     end
 end
 
-function LiteKeystone:ReceiveAstralKey(content)
+function LiteKeystone:ReceiveAstralKey(content, source)
     local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, playerFaction = string.split(':', content)
 
-    if not playerName or playerName == self.playerName then return end
+    if not playerName then return end
+
+    -- Don't accept our own keys back from other people
+    if self.db.playerKeys[playerName] and
+       self.db.playerKeys[playerName].source == 'mine' then
+        return
+    end
 
     local weekTime = WeekTime()
 
@@ -225,7 +234,7 @@ function LiteKeystone:ReceiveAstralKey(content)
             mapID=tonumber(mapID),
             keyLevel=tonumber(keyLevel),
             weekBest=tonumber(weekBest),
-            weekTime=weekTime
+            weekTime=weekTime()
         }
 
     if playerName ~= self.playerName then
@@ -335,14 +344,14 @@ function LiteKeystone:PrintKeys(chatType, chatArg)
     end
 end
 
-function LiteKeystone:ProcessAddonMessage(text)
+function LiteKeystone:ProcessAddonMessage(text, source)
     local action, content = text:match('^(%S+)%s+(.-)$')
 
     if action == 'updateV8' or action == 'update4' then
-        self:ReceiveAstralKey(content)
+        self:ReceiveAstralKey(content, source)
     elseif action == 'sync5' then
         for entry in content:gmatch('[^_]+') do
-            self:ReceiveAstralKey(entry)
+            self:ReceiveAstralKey(entry, source)
         end
     end
 end
@@ -354,7 +363,11 @@ end
 function LiteKeystone:CHAT_MSG_ADDON(prefix, text, chatType, sender)
     if prefix ~= 'AstralKeys' then return end
     -- print(format("%s - %s - %s - %s", prefix, text, chatType, sender))
-    self:ProcessAddonMessage(text)
+    if chatType == 'WHISPER' or chatType == 'BN_WHISPER' then
+        self:ProcessAddonMessage(text, sender)
+    else
+        self:ProcessAddonMessage(text, chatType)
+    end
 end
 
 LiteKeystone.BN_CHAT_MSG_ADDON = LiteKeystone.CHAT_MSG_ADDON
@@ -373,7 +386,6 @@ function LiteKeystone:CHALLENGE_MODE_COMPLETED()
 end
 
 function LiteKeystone:MYTHIC_PLUS_CURRENT_AFFIX_UPDATE()
-    self:Reset()
     self:ScanForKey()
     self:SendAstralKey()
 end
