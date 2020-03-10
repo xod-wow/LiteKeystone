@@ -2,4 +2,71 @@
 
   <Script file="LiteKeystone.lua"/>
 
+  <Button name="LiteKeystoneInfoButtonTemplate" virtual="true">
+    <Size y="42" />
+
+    <Backdrop edgefile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+        <EdgeSize val="8" />
+        <TileSize val="8" />
+        <BackgroundInsets>
+            <AbsInset left="1" right="1" top="1" bottom="1" />
+        </BackgroundInsets>
+    </Backdrop>
+
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="keyLevel" inherits="GameFontHighlightLarge">
+          <Anchors>
+            <Anchor point="LEFT" x="8" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="keyDungeon" inherits="GameFontHighlightLarge">
+          <Anchors>
+            <Anchor point="LEFT" x="48" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="playerName" inherits="GameFontHighlightLarge">
+          <Anchors>
+            <Anchor point="LEFT" x="208" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="weeklyBest" inherits="GameFontHighlightLarge">
+          <Anchors>
+            <Anchor point="right" x="-8" />
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+  </Button>
+
+  <Frame name="LiteKeystoneDisplay" parent="UIParent" hidden="true">
+    <Size x="400" y="600" />
+
+    <Anchors>
+      <Anchor point="CENTER" />
+    </Anchors>
+
+    <Layers>
+      <Layer level="ARTWORK">
+      </Layer>
+    </Layers>
+
+    <Frames>
+      <Button parentKey="info1" inherits="LiteKeystoneInfoButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" />
+          <Anchor point="TOPRIGHT" />
+        </Anchors>
+      </Button>
+    </Frames>
+
+    <Scripts>
+      <OnLoad>
+        self.info1.keyLevel:SetText('11')
+        self.info1.keyDungeon:SetText('Tol Dagor')
+        self.info1.playerName:SetText('Tanvia')
+        self.info1.weeklyBest:SetText('9')
+      </OnLoad>
+    </Scripts>
+  </Frame>
 </Ui>

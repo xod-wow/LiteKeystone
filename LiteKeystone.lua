@@ -158,6 +158,7 @@ function LiteKeystone:ScanForKey()
             mapID=tonumber(mapID),
             keyLevel=tonumber(keyLevel),
             weekBest=tonumber(weekBest),
+            weekNum=WeekNum(),
             weekTime=WeekTime(),
             source='mine'
         }
@@ -188,9 +189,10 @@ function LiteKeystone:GetKeySyncString(key)
 end
 
 function LiteKeystone:RemoveExpiredKeys()
-    for i = #self.db.playerKeys, 1, -1 do
-        if self.db.playerKeys[i].weekTime >= 604800 then
-            table.remove(self.db.playerKeys, i)
+    local thisWeek = WeekNum()
+    for player,key in pairs(self.db.playerKeys) do
+        if key.weekNum ~= thisWeek then
+            self.db.playerKeys[player] = nil
         end
     end
 end
@@ -234,7 +236,9 @@ function LiteKeystone:ReceiveAstralKey(content, source)
             mapID=tonumber(mapID),
             keyLevel=tonumber(keyLevel),
             weekBest=tonumber(weekBest),
-            weekTime=weekTime
+            weekNum=weekNum,
+            weekTime=weekTime,
+            source=source
         }
 
     if playerName ~= self.playerName then
