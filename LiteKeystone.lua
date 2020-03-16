@@ -208,7 +208,9 @@ end
 function LiteKeystone:ReceiveAstralKey(content, source)
     local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, playerFaction = string.split(':', content)
 
-    if not playerName then return end
+    -- Sometimes we seem to get trunkated messages from AstralKeys so make
+    -- sure we got all the fields.
+    if not playerFaction then return end
 
     -- Don't accept our own keys back from other people
     if self.db.playerKeys[playerName] and
