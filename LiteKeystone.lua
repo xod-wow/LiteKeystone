@@ -142,11 +142,11 @@ function LiteKeystone:ScanForKey()
     local mapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
     if not mapID then return end
 
-    local weekBest, weekItemLevel = C_MythicPlus.GetWeeklyChestRewardLevel()
-    if weekBest == 0 and weekItemLevel < 0 then return end
-
     local keyLevel =  C_MythicPlus.GetOwnedKeystoneLevel()
 
+    if not keyLevel then return end
+
+    local weekBest, weekItemLevel = C_MythicPlus.GetWeeklyChestRewardLevel()
     if C_MythicPlus.IsWeeklyRewardAvailable() then
         weekBest = 0
     end
