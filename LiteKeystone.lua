@@ -335,11 +335,10 @@ end
 
 function LiteKeystone:PrintKeys(chatType, chatArg)
     local sortedKeys = {}
-    for k in pairs(self.db.playerKeys) do table.insert(sortedKeys, k) end
-    table.sort(sortedKeys)
+    for _,v in pairs(self.db.playerKeys) do table.insert(sortedKeys, v) end
+    table.sort(sortedKeys, function (a,b) return a.keyLevel < b.keyLevel end)
 
-    for _, k in ipairs(sortedKeys) do
-        local key = self.db.playerKeys[k]
+    for _,key in ipairs(sortedKeys) do
         if chatType then
             local msg = self:GetPrintString(key)
             SendChatMessage(msg, chatType, nil, chatArg)
