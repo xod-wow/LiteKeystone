@@ -155,9 +155,9 @@ function LiteKeystone:ScanForKey()
             playerName=self.playerName,
             playerClass=self.playerClass,
             playerFaction=self.playerFaction,
-            mapID=tonumber(mapID),
-            keyLevel=tonumber(keyLevel),
-            weekBest=tonumber(weekBest),
+            mapID=mapID,
+            keyLevel=keyLevel,
+            weekBest=weekBest,
             weekNum=WeekNum(),
             weekTime=WeekTime(),
             source='mine'
@@ -238,7 +238,7 @@ function LiteKeystone:ReceiveAstralKey(content, source)
             mapID=tonumber(mapID),
             keyLevel=tonumber(keyLevel),
             weekBest=tonumber(weekBest),
-            weekNum=weekNum,
+            weekNum=tonumber(weekNum),
             weekTime=weekTime,
             source=source
         }
