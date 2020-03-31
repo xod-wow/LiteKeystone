@@ -198,10 +198,11 @@ function LiteKeystone:RemoveExpiredKeys()
 end
 
 function LiteKeystone:SendAstralKey()
-    local key = self.db.playerKeys[self.playerName]
-    if key then
-        local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
-        C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
+    for _, key in pairs(self.db.playerKeys) do
+        if key.source == 'mine' then
+            local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
+            C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
+        end
     end
 end
 
