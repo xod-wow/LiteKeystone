@@ -395,10 +395,9 @@ function LiteKeystone:MYTHIC_PLUS_CURRENT_AFFIX_UPDATE()
     self:SendAstralKey()
 end
 
-function LiteKeystone:ITEM_PUSH(bag, itemID)
-    if itemID == 525134 then
+function LiteKeystone:ITEM_PUSH(bag, iconID)
+    if iconID == 525134 then
         self:ScanForKey()
         self:SendAstralKey()
     end
 end
-
