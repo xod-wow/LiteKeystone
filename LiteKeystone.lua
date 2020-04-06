@@ -139,6 +139,8 @@ function LiteKeystone:Reset()
 end
 
 function LiteKeystone:ScanForKey()
+    C_MythicPlus.RequestRewards()
+
     local mapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
     if not mapID then return end
 
