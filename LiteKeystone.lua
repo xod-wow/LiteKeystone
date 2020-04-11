@@ -71,16 +71,14 @@ function LiteKeystone:SlashCommand(arg)
         return true
     end
 
-    if arg1 == ('send'):sub(1,n) and arg2 then
-        n = arg2:len()
-        if arg2 == ('guild'):sub(1,n) then
-            self:PrintKeys('GUILD')
-        elseif arg2 == ('party'):sub(1,n) then
-            self:PrintKeys('PARTY')
-        elseif arg2 == ('say'):sub(1,n) then
-            self:PrintKeys('SAY')
+    local isMyKey = function (key) return key.source == 'mine' end
+
+    if arg1 == ('report'):sub(1,n) then
+        n = arg2 and arg2:len() or 0
+        if not arg2 or arg2 == ('guild'):sub(1,n) then
+            self:ReportKeys(isMyKey, 'GUILD')
         else
-            self:PrintKeys('WHISPER', arg2)
+            self:ReportKeys(isMyKey, 'PARTY')
         end
         return true
     end
@@ -89,8 +87,6 @@ function LiteKeystone:SlashCommand(arg)
     printf(' /lk list')
     printf(' /lk push')
     printf(' /lk request')
-    printf(' /lk send guild')
-    printf(' /lk send <player>')
     return true
 end
 
@@ -336,19 +332,36 @@ function LiteKeystone:GetPrintString(key, useColor)
     return string.format('%s : %s : best %d', p, link, key.weekBest)
 end
 
-function LiteKeystone:PrintKeys(chatType, chatArg)
+function LiteKeystone:PrintKeys()
     local sortedKeys = {}
-    for _,v in pairs(self.db.playerKeys) do table.insert(sortedKeys, v) end
+    for _,key in pairs(self.db.playerKeys) do table.insert(sortedKeys, key) end
+    table.sort(sortedKeys, function (a,b) return a.keyLevel < b.keyLevel end)
+
+    if #sortedKeys == 0 then return end
+
+    printf("Keystones:")
+    for _,key in ipairs(sortedKeys) do
+        local msg = self:GetPrintString(key, true)
+        if key.source == 'mine' then
+            printf("* " .. msg)
+        elseif key.source == 'GUILD' then
+            printf(msg)
+        end
+    end
+end
+
+function LiteKeystone:ReportKeys(filterFunc, chatType, chatArg)
+    local sortedKeys = {}
+    for _,key in pairs(self.db.playerKeys) do
+        if not filterFunc or filterFunc(key) then
+            table.insert(sortedKeys, key)
+        end
+    end
     table.sort(sortedKeys, function (a,b) return a.keyLevel < b.keyLevel end)
 
     for _,key in ipairs(sortedKeys) do
-        if chatType then
-            local msg = self:GetPrintString(key)
-            SendChatMessage(msg, chatType, nil, chatArg)
-        else
-            local msg = self:GetPrintString(key, true)
-            printf(msg)
-        end
+        local msg = self:GetPrintString(key)
+        SendChatMessage(msg, chatType, nil, chatArg)
     end
 end
 
@@ -400,7 +413,9 @@ end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
     if iconID == 525134 then
-        self:ScanForKey()
-        self:SendAstralKey()
+        C_Timer.After(5, function ()
+            self:ScanForKey()
+            self:SendAstralKey()
+        end)
     end
 end
