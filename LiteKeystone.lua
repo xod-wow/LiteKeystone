@@ -39,6 +39,14 @@ local regionStartTimes = {
     [3] = 1500505200,   -- CN
 }
 
+local function isMyKey(key)
+    return key.source == 'mine'
+end
+
+local function isGuildKey(key)
+    return key.source == 'GUILD' or key.source == 'mine'
+end
+
 -- Astral Key's idea of the week number
 local function WeekNum()
     local r = GetCurrentRegion()
@@ -57,7 +65,14 @@ function LiteKeystone:SlashCommand(arg)
     local n = arg1:len()
 
     if  arg1 == '' or arg1 == ('list'):sub(1,n) then
-        self:PrintKeys()
+        n = arg2 and arg2:len() or 0
+        if not arg2 or arg2 == ('guild'):sub(1,n) then
+            self:ShowKeys('guild')
+        elseif arg2 == ('all'):sub(1,n) then
+            self:ShowKeys('all')
+        elseif arg2 == ('mine'):sub(1,n) then
+            self:ShowKeys('mine')
+        end
         return true
     end
 
@@ -71,8 +86,6 @@ function LiteKeystone:SlashCommand(arg)
         return true
     end
 
-    local isMyKey = function (key) return key.source == 'mine' end
-
     if arg1 == ('report'):sub(1,n) then
         n = arg2 and arg2:len() or 0
         if not arg2 or arg2 == ('guild'):sub(1,n) then
@@ -83,10 +96,17 @@ function LiteKeystone:SlashCommand(arg)
         return true
     end
 
+    if arg1 == ('scan'):sub(1,n) then
+        C_MythicPlus.RequestRewards()
+        return true
+    end
+
     printf('Usage:')
     printf(' /lk list')
     printf(' /lk push')
+    printf(' /lk report [party]')
     printf(' /lk request')
+    printf(' /lk scan')
     return true
 end
 
@@ -111,20 +131,18 @@ function LiteKeystone:Initialize()
 
     self:RemoveExpiredKeys()
 
-    C_MythicPlus.RequestMapInfo()
-    C_MythicPlus.RequestCurrentAffixes()
-    C_MythicPlus.RequestRewards()
-
     C_ChatInfo.RegisterAddonMessagePrefix('AstralKeys')
 
     self:RegisterEvent('CHAT_MSG_ADDON')
     self:RegisterEvent('BN_CHAT_MSG_ADDON')
     self:RegisterEvent('GUILD_ROSTER_UPDATE')
     self:RegisterEvent('CHALLENGE_MODE_COMPLETED')
-    self:RegisterEvent('MYTHIC_PLUS_CURRENT_AFFIX_UPDATE')
+    self:RegisterEvent('CHALLENGE_MODE_MAPS_UPDATE')
     self:RegisterEvent('ITEM_PUSH')
 
-    self:ScanForKey()
+    C_MythicPlus.RequestMapInfo()
+    C_MythicPlus.RequestCurrentAffixes()
+    C_MythicPlus.RequestRewards()
 
     printf('Initialized.')
 end
@@ -134,14 +152,12 @@ function LiteKeystone:Reset()
     self:ScanForKey()
 end
 
+-- Don't call C_MythicPlus.RequestRewards here or it'll infinite loop
 function LiteKeystone:ScanForKey()
-    C_MythicPlus.RequestRewards()
-
     local mapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
     if not mapID then return end
 
     local keyLevel =  C_MythicPlus.GetOwnedKeystoneLevel()
-
     if not keyLevel then return end
 
     local weekBest, weekItemLevel = C_MythicPlus.GetWeeklyChestRewardLevel()
@@ -252,6 +268,7 @@ function LiteKeystone:GuildPush(recipient)
     local guildKeys = {}
 
     for i = 1, GetNumGuildMembers() do
+        -- XXX FIXME XXX realm?
         local name = GetGuildRosterInfo(i)
         if self.db.playerKeys[name] then
             local msg = GetKeySyncString(self.db.playerKeys[name])
@@ -268,7 +285,7 @@ function LiteKeystone:RequestKeysFromGuild()
     C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'GUILD')
 
     local numGuild, numGuildOnline = GetNumGuildMembers()
-    for i = 1, numGuild do
+    for i = 1, numGuildOnline do
         local n = GetGuildRosterInfo(i)
         C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'WHISPER', nil, n)
     end
@@ -276,7 +293,7 @@ end
 
 function LiteKeystone:RequestKeysFromFriends()
     local numFriends, numFriendsOnline = BNGetNumFriends()
-    for i = 1, BNGetNumFriends() do
+    for i = 1, numFriendsOnline do
         local info = C_BattleNet.GetFriendAccountInfo(i)
         C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'BN_WHISPER', nil, info.accountName)
     end
@@ -332,22 +349,39 @@ function LiteKeystone:GetPrintString(key, useColor)
     return string.format('%s : %s : best %d', p, link, key.weekBest)
 end
 
-function LiteKeystone:PrintKeys()
+function LiteKeystone:ShowKeys(what)
     local sortedKeys = {}
-    for _,key in pairs(self.db.playerKeys) do table.insert(sortedKeys, key) end
+    local filter
+    if what == 'guild' then
+        filter = isGuildKey
+    elseif what == 'mine' then
+        filter = isMyKey
+    end
+
+    for _,key in pairs(self.db.playerKeys) do
+        if not filter or filter(key) then
+            table.insert(sortedKeys, key)
+        end
+    end
+
     table.sort(sortedKeys, function (a,b) return a.keyLevel < b.keyLevel end)
 
     if #sortedKeys == 0 then return end
 
-    printf("Keystones:")
+    local text = format("Keystones (%s):\n\n", what)
+
     for _,key in ipairs(sortedKeys) do
         local msg = self:GetPrintString(key, true)
         if key.source == 'mine' then
-            printf("* " .. msg)
-        elseif key.source == 'GUILD' then
-            printf(msg)
+            text = text .. '* ' .. msg .. "\n"
+        else
+            text = text .. msg .. "\n"
         end
     end
+
+    LiteKeystoneInfo.Scroll.Edit:SetText(text)
+    LiteKeystoneInfo:Show()
+    
 end
 
 function LiteKeystone:ReportKeys(filterFunc, chatType, chatArg)
@@ -401,21 +435,21 @@ function LiteKeystone:GUILD_ROSTER_UPDATE()
     end
 end
 
-function LiteKeystone:CHALLENGE_MODE_COMPLETED()
+-- This is fired after C_MythicPlus.RequestRewards() is called, which
+-- we will use as our primary way to force a keystone scan. It's also returned
+-- for like 50 other things, which is weird as hell.
+
+function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
     self:ScanForKey()
     self:SendAstralKey()
 end
 
-function LiteKeystone:MYTHIC_PLUS_CURRENT_AFFIX_UPDATE()
-    self:ScanForKey()
-    self:SendAstralKey()
+function LiteKeystone:CHALLENGE_MODE_COMPLETED()
+    C_MythicPlus.RequestRewards()
 end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
     if iconID == 525134 then
-        C_Timer.After(5, function ()
-            self:ScanForKey()
-            self:SendAstralKey()
-        end)
+        C_MythicPlus.RequestRewards()
     end
 end
