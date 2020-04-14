@@ -24,6 +24,7 @@
     <Scripts>
       <OnLoad>
         self:SetBackdropColor(0, 0, 0, 1)
+        tinsert(UISpecialFrames, self:GetName())
       </OnLoad>
     </Scripts>
 
@@ -36,13 +37,18 @@
         </Anchors>
 
         <ScrollChild>
-          <EditBox parentKey="Edit" multiline="true" maxletters="99999" enablemouse="true" autofocus="true">
+          <EditBox
+                parentKey="Edit"
+                multiline="true"
+                maxletters="99999"
+                enablemouse="true"
+                autofocus="true">
             <Size x="620" y="495" />
             <Scripts>
-              <OnEscapePressed>
-                self:GetParent():GetParent():Hide()
-                self:SetText("")
-              </OnEscapePressed>
+              <OnLoad>
+                self:SetSpacing(4)
+                self:SetEnabled(false)
+              </OnLoad>
             </Scripts>
 
             <FontString inherits="SystemFont_Med3" />
