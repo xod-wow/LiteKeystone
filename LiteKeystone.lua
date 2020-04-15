@@ -39,12 +39,26 @@ local regionStartTimes = {
     [3] = 1500505200,   -- CN
 }
 
-local function isMyKey(key)
+local function IsMyKey(key)
     return key.source == 'mine'
 end
 
-local function isGuildKey(key)
-    return key.source == 'GUILD' or key.source == 'mine'
+local function IsMyFactionKey(key)
+    if key.playerFaction ~= self.playerFaction then return false end
+    return key.source == 'mine'
+end
+
+local function IsGuildKey(key)
+    for i = 1, GetNumGuildMembers() do
+        if key.playerName == GetGuildRosterInfo(i) then
+            return true
+        end
+    end
+end
+
+local function IsMyGuildKey(key)
+    if key.source ~= 'mine' then return false end
+    return IsGuildeKey(key)
 end
 
 -- Astral Key's idea of the week number
@@ -89,9 +103,13 @@ function LiteKeystone:SlashCommand(arg)
     if arg1 == ('report'):sub(1,n) then
         n = arg2 and arg2:len() or 0
         if not arg2 or arg2 == ('guild'):sub(1,n) then
-            self:ReportKeys(isMyKey, 'GUILD')
-        else
-            self:ReportKeys(isMyKey, 'PARTY')
+            self:ReportKeys(IsMyGuildKey, 'GUILD')
+        elseif arg2 == ('party'):sub(1,n) then
+            self:ReportKeys(IsMyFactionKey, 'PARTY')
+        elseif arg2 == ('raid'):sub(1,n) then
+            self:ReportKeys(IsMyFactionKey, 'RAID')
+        elseif arg2 == ('instance'):sub(1,n) then
+            self:ReportKeys(IsMyFactionKey, 'INSTANCE')
         end
         return true
     end
@@ -268,7 +286,6 @@ function LiteKeystone:GuildPush(recipient)
     local guildKeys = {}
 
     for i = 1, GetNumGuildMembers() do
-        -- XXX FIXME XXX realm?
         local name = GetGuildRosterInfo(i)
         if self.db.playerKeys[name] then
             local msg = GetKeySyncString(self.db.playerKeys[name])
@@ -353,9 +370,9 @@ function LiteKeystone:ShowKeys(what)
     local sortedKeys = {}
     local filter
     if what == 'guild' then
-        filter = isGuildKey
+        filter = function (k) return IsMyKey(k) or IsGuildKey(k) end
     elseif what == 'mine' then
-        filter = isMyKey
+        filter = IsMyKey
     end
 
     for _,key in pairs(self.db.playerKeys) do
