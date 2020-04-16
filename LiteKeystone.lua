@@ -49,6 +49,7 @@ local function IsMyFactionKey(key)
 end
 
 local function IsGuildKey(key)
+    if not IsInGuild() then return false end
     for i = 1, GetNumGuildMembers() do
         if key.playerName == GetGuildRosterInfo(i) then
             return true
@@ -58,7 +59,7 @@ end
 
 local function IsMyGuildKey(key)
     if key.source ~= 'mine' then return false end
-    return IsGuildeKey(key)
+    return IsGuildKey(key)
 end
 
 -- Astral Key's idea of the week number
@@ -283,6 +284,8 @@ function LiteKeystone:ReceiveAstralKey(content, source)
 end
 
 function LiteKeystone:GuildPush(recipient)
+    if not IsInGuild() then return end
+
     local guildKeys = {}
 
     for i = 1, GetNumGuildMembers() do
@@ -299,6 +302,8 @@ function LiteKeystone:GuildPush(recipient)
 end
 
 function LiteKeystone:RequestKeysFromGuild()
+    if not IsInGuild() then return end
+
     C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'GUILD')
 
     local numGuild, numGuildOnline = GetNumGuildMembers()
