@@ -39,12 +39,20 @@ local regionStartTimes = {
     [3] = 1500505200,   -- CN
 }
 
+local factionLookup = {
+    [0] = 'Alliance',
+    [1] = 'Horde',
+    ['Alliance'] = 0,
+    ['Horde'] = 1,
+}
+
 local function IsMyKey(key)
     return key.source == 'mine'
 end
 
-local function IsMyFactionKey(key)
-    if key.playerFaction ~= self.playerFaction then return false end
+function IsMyFactionKey(key)
+    local faction = UnitFactionGroup('player')
+    if factionLookup[key.playerFaction] ~= faction then return end
     return key.source == 'mine'
 end
 
