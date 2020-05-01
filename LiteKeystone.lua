@@ -70,6 +70,15 @@ local function IsMyGuildKey(key)
     return IsGuildKey(key)
 end
 
+function LiteKeystone:IsNewKeyInfo(mapID, keyLevel, weekBest)
+    local key = self:MyKey()
+    if not key then return true end
+    if key.mapID ~= mapID then return true end
+    if key.keyLevel ~= keyLevel then return true end
+    if key.weekBest ~= weekBest then return true end
+    return false
+end
+
 -- Astral Key's idea of the week number
 local function WeekNum()
     local r = GetCurrentRegion()
@@ -100,7 +109,8 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == ('push'):sub(1,n) then
-        self:SendAstralKey()
+        self:PushMyKey()
+        self:PushSyncKeys()
         return true
     end
 
@@ -174,6 +184,10 @@ function LiteKeystone:Initialize()
     printf('Initialized.')
 end
 
+function LiteKeystone:MyKey()
+    return self.db.playerKeys[self.playerName]
+end
+
 function LiteKeystone:Reset()
     table.wipe(self.db.playerKeys)
     self:ScanForKey()
@@ -192,17 +206,20 @@ function LiteKeystone:ScanForKey()
         weekBest = 0
     end
 
-    self.db.playerKeys[self.playerName] = {
-            playerName=self.playerName,
-            playerClass=self.playerClass,
-            playerFaction=self.playerFaction,
-            mapID=mapID,
-            keyLevel=keyLevel,
-            weekBest=weekBest,
-            weekNum=WeekNum(),
-            weekTime=WeekTime(),
-            source='mine'
-        }
+    if self:IsNewKeyInfo(mapID, keyLevel, weekBest) then
+        self.db.playerKeys[self.playerName] = {
+                playerName=self.playerName,
+                playerClass=self.playerClass,
+                playerFaction=self.playerFaction,
+                mapID=mapID,
+                keyLevel=keyLevel,
+                weekBest=weekBest,
+                weekNum=WeekNum(),
+                weekTime=WeekTime(),
+                source='mine'
+            }
+        return true
+    end
 end
 
 function LiteKeystone:GetKeyUpdateString(key)
@@ -238,21 +255,35 @@ function LiteKeystone:RemoveExpiredKeys()
     end
 end
 
-function LiteKeystone:SendAstralKey()
-    for _, key in pairs(self.db.playerKeys) do
-        if key.source == 'mine' then
-            local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
-            C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
-        end
+function LiteKeystone:PushMyKey()
+    if not IsInGuild() then return end
+
+    local key = self:MyKey()
+    if key then
+        local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
+        C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
     end
 end
 
-function LiteKeystone:ReceiveAstralKey(content, source)
-    local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, playerFaction = string.split(':', content)
+function LiteKeystone:UpdateWeekly(playerName, weekBest)
+    if self.db.playerKeys[playerName] then
+        self.db.playerKeys[playerName].weekBest = weekBest
+        self.db.playerKeys[playerName].weekTime = WeekTime()
+    end
+end
 
-    -- Sometimes we seem to get trunkated messages from AstralKeys so make
+function LiteKeystone:ReceiveSyncKey(content, source)
+    local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, weekTime = string.split(':', content)
+
+    mapID = tonumber(mapID)
+    keyLevel = tonumber(keyLevel)
+    weekNum = tonumber(weekNum)
+    weekBest = tonumber(weekBest)
+    weekTime = tonumber(weekTime)
+
+    -- Sometimes we seem to get truncated messages from AstralKeys so make
     -- sure we got all the fields.
-    if not playerFaction then return end
+    if not weekTime then return end
 
     -- Don't accept our own keys back from other people
     if self.db.playerKeys[playerName] and
@@ -260,28 +291,63 @@ function LiteKeystone:ReceiveAstralKey(content, source)
         return
     end
 
-    local weekTime = WeekTime()
+    -- Third party reports are unreliable, try to make sure we don't
+    -- overwrite better info.
 
-    playerFaction = tonumber(playerFaction)
+    local existingKey = self.db.playerKeys[playerName]
 
-    -- sync5 sends a weekTime in the last argument instead of faction
-    if playerFaction > 1 then
-        if self.db.playerKeys[playerName] and self.db.playerKeys[playerName].weekTime >= playerFaction then
+    if existingKey then
+        if existingKey.weekBest > weekBest then
+            weekBest = existingKey.weekBest
+        end
+        if existingKey.weekTime >= weekTime then
+            self.db.playerKeys[playerName].weekBest = weekBest
             return
         end
-        weekTime = playerFaction
-        playerFaction = self.playerFaction
+    end
+
+    self.db.playerKeys[playerName] = {
+            playerName=playerName,
+            playerClass=playerClass,
+            playerFaction=self.playerFaction,
+            mapID=mapID,
+            keyLevel=keyLevel,
+            weekBest=weekBest,
+            weekNum=weekNum,
+            weekTime=weekTime,
+            source=source
+        }
+
+    if playerName ~= self.playerName then
+        local mapName = C_ChallengeMode.GetMapUIInfo(mapID)
+        printf('Sync key: %s %s (%d)', playerName, mapName, keyLevel)
+    end
+end
+
+function LiteKeystone:ReceiveAstralKey(content, source)
+    local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, playerFaction = string.split(':', content)
+
+    mapID = tonumber(mapID)
+    keyLevel = tonumber(keyLevel)
+    weekNum = tonumber(weekNum)
+    weekBest = tonumber(weekBest)
+    playerFaction = tonumber(playerFaction)
+
+    -- Don't accept our own keys back from other people
+    if self.db.playerKeys[playerName] and
+       self.db.playerKeys[playerName].source == 'mine' then
+        return
     end
 
     self.db.playerKeys[playerName] = {
             playerName=playerName,
             playerClass=playerClass,
             playerFaction=playerFaction,
-            mapID=tonumber(mapID),
-            keyLevel=tonumber(keyLevel),
-            weekBest=tonumber(weekBest),
-            weekNum=tonumber(weekNum),
-            weekTime=weekTime,
+            mapID=mapID,
+            keyLevel=keyLevel,
+            weekBest=weekBest,
+            weekNum=weekNum,
+            weekTime=WeekTime(),
             source=source
         }
 
@@ -291,7 +357,27 @@ function LiteKeystone:ReceiveAstralKey(content, source)
     end
 end
 
-function LiteKeystone:GuildPush(recipient)
+local function batch(keyList, max)
+    local batches = { }
+    local msg
+
+    for _,k in ipairs(keyList) do
+       if not msg then
+            msg = k
+        elseif msg:len() + k:len() + 1 > max then
+            table.insert(batches, msg)
+            msg = k
+        else
+            msg = msg .. '_' .. k
+        end
+    end
+    if msg then
+        table.insert(batches, msg)
+    end
+    return batches
+end
+
+function LiteKeystone:PushSyncKeys(recipient)
     if not IsInGuild() then return end
 
     local guildKeys = {}
@@ -299,13 +385,15 @@ function LiteKeystone:GuildPush(recipient)
     for i = 1, GetNumGuildMembers() do
         local name = GetGuildRosterInfo(i)
         if self.db.playerKeys[name] then
-            local msg = GetKeySyncString(self.db.playerKeys[name])
-            guildKeys.append(msg)
+            local msg = self:GetKeySyncString(self.db.playerKeys[name])
+            table.insert(guildKeys, msg)
         end
     end
-    if #guildKeys > 0 then
-        local msg = 'sync5 ' .. string.join('_', guildKeys)
-        C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'WHISPER', nil, recipient)
+
+    if #guildKeys == 0 then return end
+
+    for _,msg in ipairs(batch(guildKeys, 240)) do
+        C_ChatInfo.SendAddonMessage('AstralKeys', 'sync5 ' .. msg, 'GUILD')
     end
 end
 
@@ -432,12 +520,16 @@ end
 function LiteKeystone:ProcessAddonMessage(text, source)
     local action, content = text:match('^(%S+)%s+(.-)$')
 
+    if source == self.playerName then return end
+
     if action == 'updateV8' or action == 'update4' then
         self:ReceiveAstralKey(content, source)
     elseif action == 'sync5' then
         for entry in content:gmatch('[^_]+') do
-            self:ReceiveAstralKey(entry, source)
+            self:ReceiveSyncKey(entry, source)
         end
+    elseif action == 'updateWeekly' then
+        self:UpdateWeekly(source, tonumber(content))
     end
 end
 
@@ -461,7 +553,8 @@ function LiteKeystone:GUILD_ROSTER_UPDATE()
     local elapsed = GetServerTime() - (self.lastKeyBroadcast or 0)
     if elapsed > 30 then
         self.lastKeyBroadcast = GetServerTime()
-        self:SendAstralKey()
+        self:PushMyKey()
+        self:PushSyncKeys()
     end
 end
 
@@ -470,8 +563,9 @@ end
 -- for like 50 other things, which is weird as hell.
 
 function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
-    self:ScanForKey()
-    self:SendAstralKey()
+    if self:ScanForKey() then
+        self:PushMyKey()
+    end
 end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
