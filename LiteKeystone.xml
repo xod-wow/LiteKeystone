@@ -4,7 +4,7 @@
 
   <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG">
 
-    <Size x="600" y="500" />
+    <Size x="700" y="500" />
 
     <Anchors>
       <Anchor point="CENTER" />
