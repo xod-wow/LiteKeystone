@@ -1,7 +1,5 @@
 --[[----------------------------------------------------------------------------
 
-  LiteKeystone/LiteKeystone.lua
-
   Copyright 2011-2020 Mike Battersby
 
   LiteKeystone is free software: you can redistribute it and/or modify it under
