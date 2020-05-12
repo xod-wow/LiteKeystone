@@ -1,8 +1,86 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
   <Script file="LiteKeystone.lua"/>
+  <Script file="Mixin.lua"/>
 
-  <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG">
+  <Frame name="LiteKeystoneInfoButtonTemplate" virtual="true">
+    <Size y="24" />
+
+    <Layers>
+      <Layer level="ARTWORK">
+        <Texture parentKey="Stripe" setAllPoints="true">
+          <Color r="1" g="1" b="1" a="0.05" />
+        </Texture>
+      </Layer>
+
+      <Layer level="OVERLAY">
+
+        <FontString parentKey="Mine" inherits="SystemFont_Med3">
+          <Size x="16" />
+          <Anchors>
+            <Anchor point="LEFT" x="8" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="WeekBest" inherits="SystemFont_Med3" justifyH="RIGHT">
+          <Size x="32" />
+          <Anchors>
+            <Anchor point="RIGHT" x="-24" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="PlayerName" inherits="SystemFont_Med3" justifyH="LEFT">
+          <Size x="200" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.Mine" />
+          </Anchors>
+        </FontString>
+
+      </Layer>
+    </Layers>
+
+    <Frames>
+      <Frame parentKey="Keystone">
+        <Size y="24" />
+
+        <Anchors>
+          <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.PlayerName" />
+          <Anchor point="RIGHT" relativePoint="LEFT" x="-8" relativeKey="$parent.WeekBest" />
+        </Anchors>
+
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString parentKey="Text" inherits="SystemFont_Med3" justifyH="LEFT" setAllPoints="true "/>
+          </Layer>
+        </Layers>
+
+        <Scripts>
+          <OnEnter>
+            local key = self:GetParent().key
+            if key then
+                GameTooltip:SetOwner(self, "ANCHOR_TOP")
+                GameTooltip:SetHyperlink(LiteKeystone:GetKeystoneLink(key))
+                GameTooltip:Show()
+            end
+          </OnEnter>
+          <OnLeave>
+            if GameTooltip:GetOwner() == self then
+                GameTooltip:Hide()
+            end
+          </OnLeave>
+          <OnMouseUp>
+            local key = self:GetParent().key
+            if key then
+                HandleModifiedItemClick(LiteKeystone:GetKeystoneLink(key))
+            end
+          </OnMouseUp>
+        </Scripts>
+      </Frame>
+    </Frames>
+
+  </Frame>
+
+  <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG" mixin="LiteKeystoneInfoMixin">
 
     <Size x="700" y="500" />
 
@@ -11,7 +89,7 @@
     </Anchors>
 
     <Backdrop
-      edgefile="Interface\DialogFrame\UI-DialogBox-Border"
+      edgefile="Interface\Tooltips\UI-Tooltip-Border"
       bgfile="Interface\Tooltips\UI-Tooltip-Background"
       tile="true">
       <EdgeSize val="16" />
@@ -22,38 +100,16 @@
     </Backdrop>
 
     <Scripts>
-      <OnLoad>
-        self:SetBackdropColor(0, 0, 0, 1)
-        tinsert(UISpecialFrames, self:GetName())
-      </OnLoad>
+      <OnLoad method="OnLoad" />
+      <OnShow method="OnShow" />
     </Scripts>
 
     <Frames>
-
-      <ScrollFrame parentKEy="Scroll" inherits="UIPanelScrollFrameTemplate">
+      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-16" />
           <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
         </Anchors>
-
-        <ScrollChild>
-          <EditBox
-                parentKey="Edit"
-                multiline="true"
-                maxletters="99999"
-                enablemouse="true"
-                autofocus="true">
-            <Size x="620" y="495" />
-            <Scripts>
-              <OnLoad>
-                self:SetSpacing(4)
-                self:SetEnabled(false)
-              </OnLoad>
-            </Scripts>
-
-            <FontString inherits="SystemFont_Med3" />
-          </EditBox>
-        </ScrollChild>
       </ScrollFrame>
 
       <Button parentKey="CloseButton" inherits="UIPanelCloseButton">
@@ -61,7 +117,6 @@
           <Anchor point="TOPRIGHT" x="0" y="25" />
         </Anchors>
       </Button>
-  
     </Frames>
   </Frame>
         

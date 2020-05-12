@@ -46,17 +46,16 @@ local factionLookup = {
     ['Horde'] = 1,
 }
 
-local function IsMyKey(key)
+function LiteKeystone:IsMyKey(key)
     return key.source == 'mine'
 end
 
-function IsMyFactionKey(key)
-    local faction = UnitFactionGroup('player')
-    if factionLookup[key.playerFaction] ~= faction then return end
+function LiteKeystone:IsMyFactionKey(key)
+    if factionLookup[key.playerFaction] ~= self.playerFaction then return end
     return key.source == 'mine'
 end
 
-local function IsGuildKey(key)
+function LiteKeystone:IsGuildKey(key)
     if not IsInGuild() then return false end
     for i = 1, GetNumGuildMembers() do
         if key.playerName == GetGuildRosterInfo(i) then
@@ -65,9 +64,8 @@ local function IsGuildKey(key)
     end
 end
 
-local function IsMyGuildKey(key)
-    if key.source ~= 'mine' then return false end
-    return IsGuildKey(key)
+function LiteKeystone:IsMyGuildKey(key)
+    return self:IsMyKey(key) or self:IsGuildKey(key)
 end
 
 function LiteKeystone:IsNewKeyInfo(mapID, keyLevel, weekBest)
@@ -96,15 +94,8 @@ function LiteKeystone:SlashCommand(arg)
     local arg1, arg2 = string.split(' ', arg)
     local n = arg1:len()
 
-    if  arg1 == '' or arg1 == ('list'):sub(1,n) then
-        n = arg2 and arg2:len() or 0
-        if not arg2 or arg2 == ('guild'):sub(1,n) then
-            self:ShowKeys('guild')
-        elseif arg2 == ('all'):sub(1,n) then
-            self:ShowKeys('all')
-        elseif arg2 == ('mine'):sub(1,n) then
-            self:ShowKeys('mine')
-        end
+    if  arg1 == '' or arg1 == ('show'):sub(1,n) then
+        LiteKeystoneInfo:Show()
         return true
     end
 
@@ -122,13 +113,13 @@ function LiteKeystone:SlashCommand(arg)
     if arg1 == ('report'):sub(1,n) then
         n = arg2 and arg2:len() or 0
         if not arg2 or arg2 == ('guild'):sub(1,n) then
-            self:ReportKeys(IsMyGuildKey, 'GUILD')
+            self:ReportKeys(self.IsMyGuildKey, 'GUILD')
         elseif arg2 == ('party'):sub(1,n) then
-            self:ReportKeys(IsMyFactionKey, 'PARTY')
+            self:ReportKeys(self.IsMyFactionKey, 'PARTY')
         elseif arg2 == ('raid'):sub(1,n) then
-            self:ReportKeys(IsMyFactionKey, 'RAID')
+            self:ReportKeys(self.IsMyFactionKey, 'RAID')
         elseif arg2 == ('instance'):sub(1,n) then
-            self:ReportKeys(IsMyFactionKey, 'INSTANCE')
+            self:ReportKeys(self.IsMyFactionKey, 'INSTANCE')
         end
         return true
     end
@@ -435,6 +426,44 @@ function LiteKeystone:GetAffixes()
     return self.keystoneAffixes
 end
 
+function LiteKeystone:GetPlayerName(key, useColor)
+    local p = key.playerName:gsub('-'..GetRealmName(), '')
+    if useColor then
+        local c = RAID_CLASS_COLORS[key.playerClass]
+        p = c:WrapTextInColorCode(p)
+    end
+    return p
+end
+
+function LiteKeystone:GetKeystone(key)
+    local mapName = C_ChallengeMode.GetMapUIInfo(key.mapID)
+    return string.format('|cffa335ee%s (%d)|r', mapName, key.keyLevel)
+end
+
+function LiteKeystone:GetKeystoneLink(key)
+    local mapName = C_ChallengeMode.GetMapUIInfo(key.mapID)
+
+    local affixFormat
+    if key.keyLevel > 9 then
+        affixFormat = '%d:%d:%d:%d'
+    elseif key.keyLevel > 6 then
+        affixFormat = '%d:%d:%d:0'
+    elseif key.keyLevel > 3 then
+        affixFormat = '%d:%d:0:0'
+    else
+        affixFormat = '%d:0:0:0'
+    end
+
+    local affixes = self:GetAffixes()
+
+    local affixString = string.format(affixFormat, unpack(affixes))
+
+    return string.format(
+            '|cffa335ee|Hkeystone:158923:%d:%d:%s|h[Keystone: %s (%d)]|h|r',
+            key.mapID, key.keyLevel, affixString, mapName, key.keyLevel
+        )
+end
+
 function LiteKeystone:GetPrintString(key, useColor)
     local mapName = C_ChallengeMode.GetMapUIInfo(key.mapID)
 
@@ -467,13 +496,14 @@ function LiteKeystone:GetPrintString(key, useColor)
     return string.format('%s : %s : best %d', p, link, key.weekBest)
 end
 
-function LiteKeystone:ShowKeys(what)
+function LiteKeystone:SortedKeys(what)
     local sortedKeys = {}
+
     local filter
     if what == 'guild' then
-        filter = function (k) return IsMyKey(k) or IsGuildKey(k) end
+        filter = function (k) return self:IsMyKey(k) or self:IsGuildKey(k) end
     elseif what == 'mine' then
-        filter = IsMyKey
+        filter = function (k) return self:IsMyKey(k) end
     end
 
     for _,key in pairs(self.db.playerKeys) do
@@ -484,28 +514,13 @@ function LiteKeystone:ShowKeys(what)
 
     table.sort(sortedKeys, function (a,b) return a.keyLevel < b.keyLevel end)
 
-    if #sortedKeys == 0 then return end
-
-    local text = format("Keystones (%s):\n\n", what)
-
-    for _,key in ipairs(sortedKeys) do
-        local msg = self:GetPrintString(key, true)
-        if key.source == 'mine' then
-            text = text .. '* ' .. msg .. "\n"
-        else
-            text = text .. msg .. "\n"
-        end
-    end
-
-    LiteKeystoneInfo.Scroll.Edit:SetText(text)
-    LiteKeystoneInfo:Show()
-    
+    return sortedKeys
 end
 
 function LiteKeystone:ReportKeys(filterFunc, chatType, chatArg)
     local sortedKeys = {}
     for _,key in pairs(self.db.playerKeys) do
-        if not filterFunc or filterFunc(key) then
+        if not filterFunc or filterFunc(self, key) then
             table.insert(sortedKeys, key)
         end
     end
