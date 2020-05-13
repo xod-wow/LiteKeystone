@@ -48,9 +48,8 @@ function LiteKeystone:IsMyKey(key)
     return key.source == 'mine'
 end
 
-function LiteKeystone:IsMyFactionKey(key)
-    if factionLookup[key.playerFaction] ~= self.playerFaction then return end
-    return key.source == 'mine'
+function LiteKeystone:IsFactionKey(key)
+    return factionLookup[key.playerFaction] == self.playerFaction
 end
 
 function LiteKeystone:IsGuildKey(key)
@@ -66,6 +65,10 @@ function LiteKeystone:IsMyGuildKey(key)
     return self:IsMyKey(key) or self:IsGuildKey(key)
 end
 
+function LiteKeystone:IsMyFactionKey(key)
+    return self:IsMyKey(key) and self:IsFactionKey(key)
+end
+
 function LiteKeystone:IsNewKeyInfo(mapID, keyLevel, weekBest)
     local key = self:MyKey()
     if not key then return true end
@@ -75,7 +78,7 @@ function LiteKeystone:IsNewKeyInfo(mapID, keyLevel, weekBest)
     return false
 end
 
--- Astral Key's idea of the week number
+-- Astral Keys' idea of the week number
 local function WeekNum()
     local r = GetCurrentRegion()
     return math.floor( (GetServerTime() - regionStartTimes[r]) / 604800 )
@@ -111,13 +114,13 @@ function LiteKeystone:SlashCommand(arg)
     if arg1 == ('report'):sub(1,n) then
         n = arg2 and arg2:len() or 0
         if not arg2 or arg2 == ('guild'):sub(1,n) then
-            self:ReportKeys(self.IsMyGuildKey, 'GUILD')
+            self:ReportKeys('IsMyGuildKey', 'GUILD')
         elseif arg2 == ('party'):sub(1,n) then
-            self:ReportKeys(self.IsMyFactionKey, 'PARTY')
+            self:ReportKeys('IsMyFactionKey', 'PARTY')
         elseif arg2 == ('raid'):sub(1,n) then
-            self:ReportKeys(self.IsMyFactionKey, 'RAID')
+            self:ReportKeys('IsMyFactionKey', 'RAID')
         elseif arg2 == ('instance'):sub(1,n) then
-            self:ReportKeys(self.IsMyFactionKey, 'INSTANCE')
+            self:ReportKeys('IsMyFactionKey', 'INSTANCE')
         end
         return true
     end
@@ -463,67 +466,46 @@ function LiteKeystone:GetKeystoneLink(key)
 end
 
 function LiteKeystone:GetPrintString(key, useColor)
-    local mapName = C_ChallengeMode.GetMapUIInfo(key.mapID)
-
-    local affixFormat
-    if key.keyLevel > 9 then
-        affixFormat = '%d:%d:%d:%d'
-    elseif key.keyLevel > 6 then
-        affixFormat = '%d:%d:%d:0'
-    elseif key.keyLevel > 3 then
-        affixFormat = '%d:%d:0:0'
-    else
-        affixFormat = '%d:0:0:0'
-    end
-
-    local affixes = self:GetAffixes()
-
-    local affixString = string.format(affixFormat, unpack(affixes))
-
-    local link = string.format(
-            '|cffa335ee|Hkeystone:158923:%d:%d:%s|h[Keystone: %s (%d)]|h|r',
-            key.mapID, key.keyLevel, affixString, mapName, key.keyLevel
-        )
-
-    local p = key.playerName:gsub('-'..GetRealmName(), '')
-    if useColor then
-        local c = RAID_CLASS_COLORS[key.playerClass]
-        p = c:WrapTextInColorCode(p)
-    end
-
-    return string.format('%s : %s : best %d', p, link, key.weekBest)
+    local link = self:GetKeystoneLink(key)
+    local player = self:GetPlayerName(key, useColor)
+    return string.format('%s : %s : best %d', player, link, key.weekBest)
 end
 
-function LiteKeystone:SortedKeys(what)
-    local sortedKeys = {}
+local function CompareKeys(a, b)
+    if a.keylevel < b.keyLevel then
+        return true
+    elseif a.keylevel > b.keyLevel then
+        return false
+    else
+        return a.playerName < a.playerName
+    end
+end
+
+function LiteKeystone:SortedKeys(filterMethod)
 
     local filter
-    if what == 'guild' then
-        filter = function (k) return self:IsMyKey(k) or self:IsGuildKey(k) end
-    elseif what == 'mine' then
-        filter = function (k) return self:IsMyKey(k) end
+    if filterMethod then
+        filter = self[filterMethod]
     end
 
+    local sortedKeys = {}
+
     for _,key in pairs(self.db.playerKeys) do
-        if not filter or filter(key) then
+        if not filter or filter(self, key) then
             table.insert(sortedKeys, key)
         end
     end
 
-    table.sort(sortedKeys, function (a,b) return a.keyLevel < b.keyLevel end)
+    table.sort(sortedKeys, CompareKeys)
 
     return sortedKeys
 end
 
-function LiteKeystone:ReportKeys(filterFunc, chatType, chatArg)
-    local sortedKeys = {}
-    for _,key in pairs(self.db.playerKeys) do
-        if not filterFunc or filterFunc(self, key) then
-            table.insert(sortedKeys, key)
-        end
-    end
-    table.sort(sortedKeys, function (a,b) return a.keyLevel < b.keyLevel end)
+-- Other than correctly formatted hyperlinks you can't sent colors in chat
+-- messages. It doesn't cause an error, the message is just silently discarded
 
+function LiteKeystone:ReportKeys(filterMethod, chatType, chatArg)
+    local sortedKeys = self:SortedKeys(filterMethod)
     for _,key in ipairs(sortedKeys) do
         local msg = self:GetPrintString(key)
         SendChatMessage(msg, chatType, nil, chatArg)

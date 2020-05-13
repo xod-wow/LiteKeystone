@@ -17,8 +17,6 @@
 
 ----------------------------------------------------------------------------]]--
 
-LiteKeystoneInfoMixin = {}
-
 local function UpdateButton(self, index)
     if not self.key then
         self:Hide()
@@ -35,7 +33,7 @@ end
 
 local function Update(self)
     local offset = HybridScrollFrame_GetOffset(self)
-    local keys = LiteKeystone:SortedKeys()
+    local keys = LiteKeystone:SortedKeys('IsMyGuildKey')
 
     for i, button in ipairs(self.buttons) do
         button.key = keys[offset + i]
@@ -47,8 +45,9 @@ local function Update(self)
     HybridScrollFrame_Update(self, totalHeight, shownHeight)
 end
 
+LiteKeystoneInfoMixin = {}
+
 function LiteKeystoneInfoMixin:OnLoad()
-    print('TESTING 1 2 3')
     self:SetBackdropColor(0, 0, 0, 1)
     tinsert(UISpecialFrames, self:GetName())
 
