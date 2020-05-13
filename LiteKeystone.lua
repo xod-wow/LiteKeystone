@@ -472,9 +472,9 @@ function LiteKeystone:GetPrintString(key, useColor)
 end
 
 local function CompareKeys(a, b)
-    if a.keylevel < b.keyLevel then
+    if a.keyLevel < b.keyLevel then
         return true
-    elseif a.keylevel > b.keyLevel then
+    elseif a.keyLevel > b.keyLevel then
         return false
     else
         return a.playerName < a.playerName
