@@ -49,7 +49,7 @@ function LiteKeystone:IsMyKey(key)
 end
 
 function LiteKeystone:IsFactionKey(key)
-    return factionLookup[key.playerFaction] == self.playerFaction
+    return key.playerFaction == self.playerFaction
 end
 
 function LiteKeystone:IsGuildKey(key)
@@ -114,7 +114,7 @@ function LiteKeystone:SlashCommand(arg)
     if arg1 == ('report'):sub(1,n) then
         n = arg2 and arg2:len() or 0
         if not arg2 or arg2 == ('guild'):sub(1,n) then
-            self:ReportKeys('IsMyGuildKey', 'GUILD')
+            self:ReportKeys('IsMyFactionKey', 'GUILD')
         elseif arg2 == ('party'):sub(1,n) then
             self:ReportKeys('IsMyFactionKey', 'PARTY')
         elseif arg2 == ('raid'):sub(1,n) then

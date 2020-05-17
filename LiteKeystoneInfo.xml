@@ -98,6 +98,33 @@
 
   </Frame>
 
+  <Button name="LiteKeystoneInfoTabTemplate" virtual="true">
+    <Size x="96" y="32" />
+    <NormalFont style="GameFontHighlight" />
+    <ButtonText parentKey="Text">
+      <Anchors><Anchor point="BOTTOM" y="3" /></Anchors>
+    </ButtonText>
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture parentKey="leftTexture" file="Interface\ChatFrame\ChatFrameTab-BGLeft">
+          <Size x="16" y="32" />
+          <Anchors><Anchor point="TOPLEFT" /></Anchors>
+        </Texture>
+        <Texture parentKey="rightTexture" file="Interface\ChatFrame\ChatFrameTab-BGRight">
+          <Size x="16" y="32" />
+          <Anchors><Anchor point="TOPRIGHT" /></Anchors>
+        </Texture>
+        <Texture parentKey="midTexture" file="Interface\ChatFrame\ChatFrameTab-BGMid">
+          <Size y="32" />
+          <Anchors>
+            <Anchor point="LEFT" relativeKey="$parent.leftTexture" relativePoint="RIGHT" />
+            <Anchor point="RIGHT" relativeKey="$parent.rightTexture" relativePoint="LEFT" />
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+  </Button>
+
   <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG" mixin="LiteKeystoneInfoMixin">
 
     <Size x="700" y="500" />
@@ -113,7 +140,7 @@
       <EdgeSize val="16" />
       <TileSize val="16" />
       <BackgroundInsets>
-        <AbsInset left="1" right="1" top="1" bottom="1" />
+        <AbsInset left="5" right="5" top="5" bottom="5" />
       </BackgroundInsets>
     </Backdrop>
 
@@ -135,6 +162,25 @@
           <Anchor point="TOPRIGHT" x="0" y="25" />
         </Anchors>
       </Button>
+
+      <Button parentKey="Tab1" inherits="LiteKeystoneInfoTabTemplate" text="ALL">
+        <Anchors>
+          <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="32" y="-2"/>
+        </Anchors>
+      </Button>
+
+      <Button parentKey="Tab2" inherits="LiteKeystoneInfoTabTemplate" text="GUILD">
+        <Anchors>
+          <Anchor point="LEFT" relativeKey="$parent.Tab1" relativePoint="RIGHT" />
+        </Anchors>
+      </Button>
+
+      <Button parentKey="Tab3" inherits="LiteKeystoneInfoTabTemplate" text="Mine">
+        <Anchors>
+          <Anchor point="LEFT" relativeKey="$parent.Tab2" relativePoint="RIGHT" />
+        </Anchors>
+      </Button>
+
     </Frames>
   </Frame>
         
