@@ -102,6 +102,7 @@ end
 LiteKeystoneTabButtonMixin = {}
 function LiteKeystoneTabButtonMixin:OnLoad()
     self:RegisterForClicks('AnyUp')
+    self:RegisterForDrag('LeftButton')
 end
 
 function LiteKeystoneTabButtonMixin:OnClick()
