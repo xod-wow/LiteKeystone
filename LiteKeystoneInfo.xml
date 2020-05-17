@@ -98,12 +98,18 @@
 
   </Frame>
 
-  <Button name="LiteKeystoneInfoTabTemplate" virtual="true">
+  <Button name="LiteKeystoneInfoTabTemplate" mixin="LiteKeystoneTabButtonMixin" virtual="true">
     <Size x="96" y="32" />
     <NormalFont style="GameFontHighlight" />
     <ButtonText parentKey="Text">
       <Anchors><Anchor point="BOTTOM" y="3" /></Anchors>
     </ButtonText>
+
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnClick method="OnClick" />
+    </Scripts>
+
     <Layers>
       <Layer level="BACKGROUND">
         <Texture parentKey="leftTexture" file="Interface\ChatFrame\ChatFrameTab-BGLeft">
@@ -114,12 +120,54 @@
           <Size x="16" y="32" />
           <Anchors><Anchor point="TOPRIGHT" /></Anchors>
         </Texture>
-        <Texture parentKey="midTexture" file="Interface\ChatFrame\ChatFrameTab-BGMid">
+        <Texture parentKey="midTexture" file="Interface\ChatFrame\ChatFrameTab-BGMid" horizTile="true">
           <Size y="32" />
           <Anchors>
             <Anchor point="LEFT" relativeKey="$parent.leftTexture" relativePoint="RIGHT" />
             <Anchor point="RIGHT" relativeKey="$parent.rightTexture" relativePoint="LEFT" />
           </Anchors>
+        </Texture>
+      </Layer>
+
+      <Layer level="BORDER">
+        <Texture parentKey="leftSelectedTexture" file="Interface\ChatFrame\ChatFrameTab-SelectedLeft" alphaMode="ADD">
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeKey="$parent.leftTexture" relativePoint="TOPLEFT" />
+            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.leftTexture" relativePoint="BOTTOMRIGHT" />
+          </Anchors>
+        </Texture>
+        <Texture parentKey="rightSelectedTexture" file="Interface\ChatFrame\ChatFrameTab-SelectedRight" alphaMode="ADD">
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeKey="$parent.rightTexture" relativePoint="TOPLEFT" />
+            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.rightTexture" relativePoint="BOTTOMRIGHT" />
+          </Anchors>
+        </Texture>
+        <Texture parentKey="midSelectedTexture" file="Interface\ChatFrame\ChatFrameTab-SelectedMid" horizTile="true" alphaMode="ADD">
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeKey="$parent.midTexture" relativePoint="TOPLEFT" />
+            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.midTexture" relativePoint="BOTTOMRIGHT" />
+          </Anchors>
+        </Texture>
+      </Layer>
+
+      <Layer level="HIGHLIGHT">
+        <Texture parentKey="leftHighlightTexture" file="Interface\ChatFrame\ChatFrameTab-HighlightLeft" alphaMode="ADD">
+            <Anchors>
+              <Anchor point="TOPLEFT" relativeKey="$parent.leftTexture" relativePoint="TOPLEFT" />
+              <Anchor point="BOTTOMRIGHT" relativeKey="$parent.leftTexture" relativePoint="BOTTOMRIGHT" />
+            </Anchors>
+        </Texture>
+        <Texture parentKey="rightHighlightTexture" file="Interface\ChatFrame\ChatFrameTab-HighlightRight" alphaMode="ADD">
+            <Anchors>
+              <Anchor point="TOPLEFT" relativeKey="$parent.rightTexture" relativePoint="TOPLEFT" />
+              <Anchor point="BOTTOMRIGHT" relativeKey="$parent.rightTexture" relativePoint="BOTTOMRIGHT" />
+            </Anchors>
+        </Texture>
+        <Texture parentKey="midHighlightTexture" file="Interface\ChatFrame\ChatFrameTab-HighlightMid" horizTile="true" alphaMode="ADD">
+            <Anchors>
+              <Anchor point="TOPLEFT" relativeKey="$parent.midTexture" relativePoint="TOPLEFT" />
+              <Anchor point="BOTTOMRIGHT" relativeKey="$parent.midTexture" relativePoint="BOTTOMRIGHT" />
+            </Anchors>
         </Texture>
       </Layer>
     </Layers>
@@ -163,19 +211,19 @@
         </Anchors>
       </Button>
 
-      <Button parentKey="Tab1" inherits="LiteKeystoneInfoTabTemplate" text="ALL">
+      <Button parentKey="Tab1" inherits="LiteKeystoneInfoTabTemplate" text="ALL" id="1">
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="32" y="-2"/>
         </Anchors>
       </Button>
 
-      <Button parentKey="Tab2" inherits="LiteKeystoneInfoTabTemplate" text="GUILD">
+      <Button parentKey="Tab2" inherits="LiteKeystoneInfoTabTemplate" text="GUILD" id="2">
         <Anchors>
           <Anchor point="LEFT" relativeKey="$parent.Tab1" relativePoint="RIGHT" />
         </Anchors>
       </Button>
 
-      <Button parentKey="Tab3" inherits="LiteKeystoneInfoTabTemplate" text="Mine">
+      <Button parentKey="Tab3" inherits="LiteKeystoneInfoTabTemplate" text="Mine" id="3">
         <Anchors>
           <Anchor point="LEFT" relativeKey="$parent.Tab2" relativePoint="RIGHT" />
         </Anchors>

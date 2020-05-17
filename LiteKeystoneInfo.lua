@@ -31,9 +31,36 @@ local function UpdateButton(self, index)
     end
 end
 
-local function Update(self)
+local function UpdateTabs(self)
+    local show = (self.selectedTab == 1)
+    self.Tab1.leftSelectedTexture:SetShown(show)
+    self.Tab1.midSelectedTexture:SetShown(show)
+    self.Tab1.rightSelectedTexture:SetShown(show)
+
+    show = (self.selectedTab == 2)
+    self.Tab2.leftSelectedTexture:SetShown(show)
+    self.Tab2.midSelectedTexture:SetShown(show)
+    self.Tab2.rightSelectedTexture:SetShown(show)
+
+    show = (self.selectedTab == 3)
+    self.Tab3.leftSelectedTexture:SetShown(show)
+    self.Tab3.midSelectedTexture:SetShown(show)
+    self.Tab3.rightSelectedTexture:SetShown(show)
+end
+
+local function UpdateScroll(self)
     local offset = HybridScrollFrame_GetOffset(self)
-    local keys = LiteKeystone:SortedKeys('IsMyGuildKey')
+
+    local filterMethod
+    if self:GetParent().selectedTab == 1 then
+        filterMethod = nil
+    elseif self:GetParent().selectedTab == 2 then
+        filterMethod = 'IsGuildKey'
+    elseif self:GetParent().selectedTab == 3 then
+        filterMethod = 'IsMyKey'
+    end
+
+    local keys = LiteKeystone:SortedKeys(filterMethod)
 
     for i, button in ipairs(self.buttons) do
         button.key = keys[offset + i]
@@ -61,9 +88,26 @@ function LiteKeystoneInfoMixin:OnLoad()
         b:SetWidth(w)
     end
 
-    self.Scroll.update = Update
+    self.Scroll.update = UpdateScroll
+
+    self.selectedTab = 1
+    UpdateTabs(self)
 end
 
 function LiteKeystoneInfoMixin:OnShow()
-    Update(self.Scroll)
+    UpdateScroll(self.Scroll)
+    UpdateTabs(self)
 end
+
+LiteKeystoneTabButtonMixin = {}
+function LiteKeystoneTabButtonMixin:OnLoad()
+    self:RegisterForClicks('AnyUp')
+end
+
+function LiteKeystoneTabButtonMixin:OnClick()
+    local parent = self:GetParent()
+    parent.selectedTab = self:GetID()
+    UpdateTabs(parent)
+    UpdateScroll(parent.Scroll)
+end
+
