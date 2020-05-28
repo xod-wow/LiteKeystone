@@ -501,7 +501,7 @@ function LiteKeystone:SortedKeys(filterMethod)
     return sortedKeys
 end
 
--- Other than correctly formatted hyperlinks you can't sent colors in chat
+-- Other than correctly formatted hyperlinks you can't send colors in chat
 -- messages. It doesn't cause an error, the message is just silently discarded
 
 function LiteKeystone:ReportKeys(filterMethod, chatType, chatArg)
