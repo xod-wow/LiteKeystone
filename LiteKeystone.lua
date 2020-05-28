@@ -477,7 +477,7 @@ local function CompareKeys(a, b)
     elseif a.keyLevel > b.keyLevel then
         return false
     else
-        return a.playerName < a.playerName
+        return a.playerName < b.playerName
     end
 end
 

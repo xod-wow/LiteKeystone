@@ -200,19 +200,6 @@
     </Scripts>
 
     <Frames>
-      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
-        <Anchors>
-          <Anchor point="TOPLEFT" x="16" y="-16" />
-          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
-        </Anchors>
-      </ScrollFrame>
-
-      <Button parentKey="CloseButton" inherits="UIPanelCloseButton">
-        <Anchors>
-          <Anchor point="TOPRIGHT" x="0" y="25" />
-        </Anchors>
-      </Button>
-
       <Button parentKey="Tab1" inherits="LiteKeystoneInfoTabTemplate" text="ALL" id="1">
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="32" y="-2"/>
@@ -228,6 +215,19 @@
       <Button parentKey="Tab3" inherits="LiteKeystoneInfoTabTemplate" text="Mine" id="3">
         <Anchors>
           <Anchor point="LEFT" relativeKey="$parent.Tab2" relativePoint="RIGHT" />
+        </Anchors>
+      </Button>
+
+      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-16" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
+        </Anchors>
+      </ScrollFrame>
+
+      <Button parentKey="CloseButton" inherits="UIPanelCloseButton">
+        <Anchors>
+          <Anchor point="TOPRIGHT" x="0" y="25" />
         </Anchors>
       </Button>
 
