@@ -175,7 +175,7 @@
     </Layers>
   </Button>
 
-  <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG" movable="true" mixin="LiteKeystoneInfoMixin">
+  <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG" movable="true" mixin="LiteKeystoneInfoMixin" inherits="TooltipBackdropTemplate">
 
     <Size x="700" y="500" />
 
@@ -183,20 +183,9 @@
       <Anchor point="CENTER" />
     </Anchors>
 
-    <Backdrop
-      edgefile="Interface\Tooltips\UI-Tooltip-Border"
-      bgfile="Interface\Tooltips\UI-Tooltip-Background"
-      tile="true">
-      <EdgeSize val="16" />
-      <TileSize val="16" />
-      <BackgroundInsets>
-        <AbsInset left="4" right="4" top="4" bottom="4" />
-      </BackgroundInsets>
-    </Backdrop>
-
     <Scripts>
-      <OnLoad method="OnLoad" />
-      <OnShow method="OnShow" />
+      <OnLoad inherit="append" method="OnLoad" />
+      <OnShow inherit="append" method="OnShow" />
     </Scripts>
 
     <Frames>
