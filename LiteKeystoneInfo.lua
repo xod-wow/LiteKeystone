@@ -75,7 +75,6 @@ end
 LiteKeystoneInfoMixin = {}
 
 function LiteKeystoneInfoMixin:OnLoad()
-    self:SetBackdropColor(0, 0, 0, 1)
     tinsert(UISpecialFrames, self:GetName())
 
     HybridScrollFrame_CreateButtons(self.Scroll,
