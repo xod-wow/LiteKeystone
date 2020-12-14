@@ -193,9 +193,9 @@ function LiteKeystone:ScanForKey()
     local keyLevel =  C_MythicPlus.GetOwnedKeystoneLevel()
     if not keyLevel then return end
 
-    local weekBest, weekItemLevel = C_MythicPlus.GetWeeklyChestRewardLevel()
-    if C_MythicPlus.IsWeeklyRewardAvailable() then
-        weekBest = 0
+    local weekBest = 0
+    for _, info in ipairs(C_MythicPlus.GetRunHistory(false, true)) do
+        weekBest = max(weekBest, info.level)
     end
 
     if self:IsNewKeyInfo(mapID, keyLevel, weekBest) then
