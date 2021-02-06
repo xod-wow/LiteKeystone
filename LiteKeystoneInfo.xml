@@ -94,6 +94,58 @@
 
   </Frame>
 
+  <Frame name="LiteKeystoneInfoHeaderTemplate" virtual="true">
+    <Size y="24" />
+    <Layers>
+      <Layer level="ARTWORK">
+        <Texture parentKey="Underline">
+          <Size y="2" />
+          <Color r="1" g="1" b="1" a="0.5" />
+          <Anchors>
+            <Anchor point="BOTTOMLEFT" />
+            <Anchor point="BOTTOMRIGHT" />
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+
+    <Frames>
+      <Button parentKey="WeekBest" text="Best">
+        <Size x="32" y="24" />
+        <NormalFont style="SystemFont_Med3" />
+        <ButtonText>
+          <Anchors><Anchor point="TOPRIGHT" y="-1" /></Anchors>
+        </ButtonText>
+        <Anchors>
+          <Anchor point="RIGHT" x="-24" />
+        </Anchors>
+      </Button>
+
+      <Button parentKey="PlayerName" text="Player">
+        <Size x="200" y="24" />
+        <NormalFont style="SystemFont_Med3" />
+        <ButtonText>
+          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
+        </ButtonText>
+        <Anchors>
+          <Anchor point="LEFT" x="32" />
+        </Anchors>
+      </Button>
+
+      <Button parentKEy="Keystone" text="Keystone">
+        <Size x="200" y="24" />
+        <NormalFont style="SystemFont_Med3" />
+        <ButtonText>
+          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
+        </ButtonText>
+        <Anchors>
+          <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.PlayerName" />
+          <Anchor point="RIGHT" relativePoint="LEFT" x="-8" relativeKey="$parent.WeekBest" />
+        </Anchors>
+      </Button>
+    </Frames>
+  </Frame>
+
   <Button name="LiteKeystoneInfoTabTemplate" mixin="LiteKeystoneTabButtonMixin" virtual="true">
     <Size x="96" y="32" />
     <NormalFont style="GameFontHighlight" />
@@ -207,9 +259,16 @@
         </Anchors>
       </Button>
 
-      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
+      <Frame parentKey="Header" inherits="LiteKeystoneInfoHeaderTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-16" />
+          <Anchor point="TOPRIGHT" x="-32" y="-16" />
+        </Anchors>
+      </Frame>
+
+      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-44" />
           <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
         </Anchors>
       </ScrollFrame>
@@ -222,5 +281,5 @@
 
     </Frames>
   </Frame>
-        
+
 </Ui>

@@ -69,8 +69,8 @@ function LiteKeystone:IsMyFactionKey(key)
     return self:IsMyKey(key) and self:IsFactionKey(key)
 end
 
-function LiteKeystone:IsNewKeyInfo(mapID, keyLevel, weekBest)
-    local key = self:MyKey()
+function LiteKeystone:IsNewKeyInfo(playerName, mapID, keyLevel, weekBest)
+    local key = self.db.playerKeys[playerName]
     if not key then return true end
     if key.mapID ~= mapID then return true end
     if key.keyLevel ~= keyLevel then return true end
@@ -198,7 +198,7 @@ function LiteKeystone:ScanForKey()
         weekBest = max(weekBest, info.level)
     end
 
-    if self:IsNewKeyInfo(mapID, keyLevel, weekBest) then
+    if self:IsNewKeyInfo(self.playerName, mapID, keyLevel, weekBest) then
         self.db.playerKeys[self.playerName] = {
                 playerName=self.playerName,
                 playerClass=self.playerClass,
@@ -283,6 +283,10 @@ function LiteKeystone:ReceiveSyncKey(content, source)
         return
     end
 
+    if not self:IsNewKeyInfo(playerName, mapID, keyLevel, weekBest) then
+        return
+    end
+
     -- Third party reports are unreliable, try to make sure we don't
     -- overwrite better info.
 
@@ -328,6 +332,10 @@ function LiteKeystone:ReceiveAstralKey(content, source)
     -- Don't accept our own keys back from other people
     if self.db.playerKeys[playerName] and
        self.db.playerKeys[playerName].source == 'mine' then
+        return
+    end
+
+    if not self:IsNewKeyInfo(playerName, mapID, keyLevel, weekBest) then
         return
     end
 
@@ -565,6 +573,22 @@ end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
     C_MythicPlus.RequestRewards()
+end
+
+-- Hoping that at least one of these is triggered when you get a new
+-- keystone from the great vault, to avoid having to watch BAG_UPDATE
+-- all the damn time.
+
+function LiteKeystone:WEEKLY_REWARDS_UPDATE()
+    if self:ScanForKey() then
+        self:PushMyKey()
+    end
+end
+
+function LiteKeystone:WEEKLY_REWARDS_HIDE()
+    if self:ScanForKey() then
+        self:PushMyKey()
+    end
 end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
