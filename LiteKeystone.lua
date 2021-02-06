@@ -479,17 +479,27 @@ function LiteKeystone:GetPrintString(key, useColor)
     return string.format('%s : %s : best %d', player, link, key.weekBest)
 end
 
-local function CompareKeys(a, b)
-    if a.keyLevel > b.keyLevel then
-        return true
-    elseif a.keyLevel < b.keyLevel then
-        return false
-    else
+local sorts = {
+    KEYLEVEL = function (a, b)
+        if a.keyLevel == b.keyLevel then
+            return a.playerName < b.playerName
+        else
+            return a.keyLevel > b.keyLevel
+        end
+    end,
+    PLAYERNAME = function (a, b)
         return a.playerName < b.playerName
-    end
-end
+    end,
+    WEEKBEST = function (a, b)
+        if a.weekBest == b.weekBest then
+            return a.playerName < b.playerName
+        else
+            return a.weekBest > b.weekBest
+        end
+    end,
+}
 
-function LiteKeystone:SortedKeys(filterMethod)
+function LiteKeystone:SortedKeys(filterMethod, sortType)
 
     local filter
     if filterMethod then
@@ -504,7 +514,7 @@ function LiteKeystone:SortedKeys(filterMethod)
         end
     end
 
-    table.sort(sortedKeys, CompareKeys)
+    table.sort(sortedKeys, sorts[sortType] or sorts.KEYLEVEL)
 
     return sortedKeys
 end

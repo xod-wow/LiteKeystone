@@ -17,6 +17,8 @@
 
 ----------------------------------------------------------------------------]]--
 
+local sortType = 'KEYLEVEL'
+
 local function UpdateButton(self, index)
     if not self.key then
         self:Hide()
@@ -60,7 +62,7 @@ local function UpdateScroll(self)
         filterMethod = 'IsMyKey'
     end
 
-    local keys = LiteKeystone:SortedKeys(filterMethod)
+    local keys = LiteKeystone:SortedKeys(filterMethod, sortType)
 
     for i, button in ipairs(self.buttons) do
         button.key = keys[offset + i]
@@ -109,5 +111,17 @@ function LiteKeystoneTabButtonMixin:OnClick()
     parent.selectedTab = self:GetID()
     UpdateTabs(parent)
     UpdateScroll(parent.Scroll)
+end
+
+LiteKeystoneHeaderButtonMixin = {}
+function LiteKeystoneHeaderButtonMixin:OnClick()
+    if self:GetText() == 'Keystone' then
+        sortType = 'KEYLEVEL'
+    elseif self:GetText() == 'Player' then
+        sortType = 'PLAYERNAME'
+    elseif self:GetText() == 'Best' then
+        sortType = 'WEEKBEST'
+    end
+    UpdateScroll(LiteKeystoneInfo.Scroll)
 end
 

@@ -110,7 +110,8 @@
     </Layers>
 
     <Frames>
-      <Button parentKey="WeekBest" text="Best">
+      <Button parentKey="WeekBest" mixin="LiteKeystoneHeaderButtonMixin" text="Best">
+        <Scripts><OnClick method="OnClick" /></Scripts>
         <Size x="32" y="24" />
         <NormalFont style="SystemFont_Med3" />
         <ButtonText>
@@ -121,7 +122,8 @@
         </Anchors>
       </Button>
 
-      <Button parentKey="PlayerName" text="Player">
+      <Button parentKey="PlayerName" mixin="LiteKeystoneHeaderButtonMixin" text="Player">
+        <Scripts><OnClick method="OnClick" /></Scripts>
         <Size x="200" y="24" />
         <NormalFont style="SystemFont_Med3" />
         <ButtonText>
@@ -132,7 +134,8 @@
         </Anchors>
       </Button>
 
-      <Button parentKEy="Keystone" text="Keystone">
+      <Button parentKEy="Keystone" mixin="LiteKeystoneHeaderButtonMixin" text="Keystone">
+        <Scripts><OnClick method="OnClick" /></Scripts>
         <Size x="200" y="24" />
         <NormalFont style="SystemFont_Med3" />
         <ButtonText>
