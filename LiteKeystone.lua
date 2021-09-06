@@ -37,13 +37,6 @@ local regionStartTimes = {
     [3] = 1500505200,   -- CN
 }
 
-local factionLookup = {
-    [0] = 'Alliance',
-    [1] = 'Horde',
-    ['Alliance'] = 0,
-    ['Horde'] = 1,
-}
-
 function LiteKeystone:IsMyKey(key)
     return key.source == 'mine'
 end
@@ -126,7 +119,7 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == ('scan'):sub(1,n) then
-        C_MythicPlus.RequestRewards()
+        C_MythicPlus.RequestMapInfo()
         return true
     end
 
@@ -168,10 +161,10 @@ function LiteKeystone:Initialize()
     self:RegisterEvent('CHALLENGE_MODE_COMPLETED')
     self:RegisterEvent('CHALLENGE_MODE_MAPS_UPDATE')
     self:RegisterEvent('ITEM_PUSH')
+    self:RegisterEvent('ITEM_CHANGED')
 
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
-    C_MythicPlus.RequestRewards()
 
     printf('Initialized.')
 end
@@ -185,7 +178,7 @@ function LiteKeystone:Reset()
     self:ScanForKey()
 end
 
--- Don't call C_MythicPlus.RequestRewards here or it'll infinite loop
+-- Don't call C_MythicPlus.RequestMapInfo here or it'll infinite loop
 function LiteKeystone:ScanForKey()
     local mapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
     if not mapID then return end
@@ -211,6 +204,12 @@ function LiteKeystone:ScanForKey()
                 source='mine'
             }
         return true
+    end
+end
+
+function LiteKeystone:ScanAndPushKey()
+    if self:ScanForKey() then
+        self:PushMyKey()
     end
 end
 
@@ -567,42 +566,33 @@ function LiteKeystone:GUILD_ROSTER_UPDATE()
     if elapsed > 30 then
         self.lastKeyBroadcast = GetServerTime()
         self:PushMyKey()
-        self:PushSyncKeys()
     end
 end
 
--- This is fired after C_MythicPlus.RequestRewards() is called, which
+-- This is fired after C_MythicPlus.RequestMapInfo() is called, which
 -- we will use as our primary way to force a keystone scan. It's also returned
 -- for like 50 other things, which is weird as hell.
 
 function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
-    if self:ScanForKey() then
-        self:PushMyKey()
-    end
+    self:ScanAndPushKey()
 end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
-    C_MythicPlus.RequestRewards()
-end
-
--- Hoping that at least one of these is triggered when you get a new
--- keystone from the great vault, to avoid having to watch BAG_UPDATE
--- all the damn time.
-
-function LiteKeystone:WEEKLY_REWARDS_UPDATE()
-    if self:ScanForKey() then
-        self:PushMyKey()
-    end
-end
-
-function LiteKeystone:WEEKLY_REWARDS_HIDE()
-    if self:ScanForKey() then
-        self:PushMyKey()
-    end
+    self:ScanAndPushKey()
 end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
     if iconID == 525134 then
-        C_MythicPlus.RequestRewards()
+        self:ScanAndPushKey()
+    end
+end
+
+-- Keystone trader at the end of finishing a M+
+function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
+    if C_ChallengeMode.IsChallengeModeActive() then
+        local fromID = GetItemInfoFromHyperlink(fromLink)
+        if fromID == 138019 then
+            self:ScanAndPushKey()
+        end
     end
 end
