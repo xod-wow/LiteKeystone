@@ -472,7 +472,7 @@ function LiteKeystone:GetKeystoneLink(key)
     local affixString = string.format(affixFormat, unpack(affixes))
 
     return string.format(
-            '|cffa335ee|Hkeystone:158923:%d:%d:%s|h[Keystone: %s (%d)]|h|r',
+            '|cffa335ee|Hkeystone:180653:%d:%d:%s|h[Keystone: %s (%d)]|h|r',
             key.mapID, key.keyLevel, affixString, mapName, key.keyLevel
         )
 end
