@@ -99,6 +99,11 @@ function LiteKeystone:SlashCommand(arg)
         return true
     end
 
+    if arg1 == 'scan' then
+        self:ScanAndPushKey()
+        return true
+    end
+
     if arg1 == ('request'):sub(1,n) then
         self:RequestKeysFromGuild()
         return true
