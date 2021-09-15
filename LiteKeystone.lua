@@ -185,6 +185,7 @@ end
 
 -- Don't call C_MythicPlus.RequestMapInfo here or it'll infinite loop
 function LiteKeystone:ScanForKey()
+    printf('Scanning my key')
     local mapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
     if not mapID then return end
 
@@ -196,7 +197,10 @@ function LiteKeystone:ScanForKey()
         weekBest = max(weekBest, info.level)
     end
 
+    printf('Found key: mapid %d, level %d, weekbest %d.', mapID, keyLevel, weekBest)
+
     if self:IsNewKeyInfo(self.playerName, mapID, keyLevel, weekBest) then
+        printf('New key, saving.')
         self.db.playerKeys[self.playerName] = {
                 playerName=self.playerName,
                 playerClass=self.playerClass,
@@ -209,6 +213,8 @@ function LiteKeystone:ScanForKey()
                 source='mine'
             }
         return true
+    else
+        printf('Same key, ignored.')
     end
 end
 
