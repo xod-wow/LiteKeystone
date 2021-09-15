@@ -595,14 +595,19 @@ end
 function LiteKeystone:ITEM_PUSH(bag, iconID)
     if iconID == 525134 then
         self:ScanAndPushKey()
+        self:RegisterEvent('BAG_UPDATE_DELAYED')
     end
+end
+
+function LiteKeystone:BAG_UPDATE_DELAYED()
+    self:UnregisterEvent('BAG_UPDATE_DELAYED')
+    self:ScanAndPushKey()
 end
 
 -- Keystone trader at the end of finishing a M+
 function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
     if C_ChallengeMode.IsChallengeModeActive() then
-        local fromID = GetItemInfoFromHyperlink(fromLink)
-        if fromID == 138019 then
+        if fromLink:find('keystone:')  then
             self:ScanAndPushKey()
         end
     end
