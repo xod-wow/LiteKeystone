@@ -324,6 +324,11 @@ function LiteKeystone:RemoveExpiredKeys()
             self.db.playerKeys[player] = nil
         end
     end
+    for player,key in pairs(self.db.playerTimewalkingKeys) do
+        if key.weekNum ~= thisWeek then
+            self.db.playerKeys[player] = nil
+        end
+    end
 end
 
 function LiteKeystone:PushMyKey()
