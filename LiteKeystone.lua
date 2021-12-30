@@ -231,18 +231,23 @@ function LiteKeystone:ScanForTimewalkingKey()
     printf('Found key: mapid %d (%s), level %d.', mapID, name, keyLevel)
     if self:IsNewTimewalkingKeyInfo(self.playerName, mapID, keyLevel) then
         printf('New timewalking key, saving.')
-        self.db.playerTimewalkingKeys[self.playerName] = {
-                playerName=self.playerName,
-                playerClass=self.playerClass,
-                playerFaction=self.playerFaction,
-                mapID=mapID,
-                weekBest=0,
-                keyLevel=keyLevel,
-                weekNum=WeekNum(),
-                weekTime=WeekTime(),
-                link=self:GetKeystoneLinkFromInventory(true),
-                source='mine'
-            }
+        local newKey = {
+            playerName=self.playerName,
+            playerClass=self.playerClass,
+            playerFaction=self.playerFaction,
+            mapID=mapID,
+            weekBest=0,
+            keyLevel=keyLevel,
+            weekNum=WeekNum(),
+            weekTime=WeekTime(),
+            link=self:GetKeystoneLinkFromInventory(true),
+            source='mine'
+        }
+        self.db.playerTimewalkingKeys[self.playerName] = newKey
+        if IsInGuild() then
+            local link = self:GetKeystoneLink(newKey)
+            SendChatMessage('New keystone: ' .. link, 'GUILD')
+        end
         return true
     else
         printf('Same timewalking key, ignored.')
@@ -268,18 +273,23 @@ function LiteKeystone:ScanForKey()
 
     if self:IsNewKeyInfo(self.playerName, mapID, keyLevel, weekBest) then
         printf('New key, saving.')
-        self.db.playerKeys[self.playerName] = {
-                playerName=self.playerName,
-                playerClass=self.playerClass,
-                playerFaction=self.playerFaction,
-                mapID=mapID,
-                keyLevel=keyLevel,
-                weekBest=weekBest,
-                weekNum=WeekNum(),
-                weekTime=WeekTime(),
-                link=self:GetKeystoneLinkFromInventory(),
-                source='mine'
-            }
+        local newKey = {
+            playerName=self.playerName,
+            playerClass=self.playerClass,
+            playerFaction=self.playerFaction,
+            mapID=mapID,
+            keyLevel=keyLevel,
+            weekBest=weekBest,
+            weekNum=WeekNum(),
+            weekTime=WeekTime(),
+            link=self:GetKeystoneLinkFromInventory(),
+            source='mine'
+        }
+        self.db.playerKeys[self.playerName] = newKey
+        if IsInGuild() then
+            local link = self:GetKeystoneLink(newKey)
+            SendChatMessage('New keystone: ' .. link, 'GUILD')
+        end
         return true
     else
         printf('Same key, ignored.')
@@ -675,8 +685,7 @@ function LiteKeystone:CHALLENGE_MODE_COMPLETED()
 end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
-    if iconID == 525134 then
-        self:ScanAndPushKey()
+    if iconID == 525134 or iconID == 531324 then
         self:RegisterEvent('BAG_UPDATE_DELAYED')
     end
 end
