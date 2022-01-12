@@ -336,7 +336,7 @@ function LiteKeystone:RemoveExpiredKeys()
     end
     for player,key in pairs(self.db.playerTimewalkingKeys) do
         if key.weekNum ~= thisWeek then
-            self.db.playerKeys[player] = nil
+            self.db.playerTimewalkingKeys[player] = nil
         end
     end
 end
