@@ -116,7 +116,11 @@ end
 LiteKeystoneHeaderButtonMixin = {}
 function LiteKeystoneHeaderButtonMixin:OnClick()
     if self:GetText() == 'Keystone' then
-        sortType = 'KEYLEVEL'
+        if sortType == 'KEYLEVEL' then
+            sortType = 'KEYNAME'
+        else
+            sortType = 'KEYLEVEL'
+        end
     elseif self:GetText() == 'Player' then
         sortType = 'PLAYERNAME'
     elseif self:GetText() == 'Best' then

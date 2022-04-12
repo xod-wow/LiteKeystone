@@ -62,21 +62,16 @@ function LiteKeystone:IsMyFactionKey(key)
     return self:IsMyKey(key) and self:IsFactionKey(key)
 end
 
-function LiteKeystone:IsNewKeyInfo(playerName, mapID, keyLevel, weekBest)
-    local key = self.db.playerKeys[playerName]
-    if not key then return true end
-    if key.mapID ~= mapID then return true end
-    if key.keyLevel ~= keyLevel then return true end
-    if key.weekBest ~= weekBest then return true end
-    return false
+function LiteKeystone:IsNewKey(key, mapID, keyLevel)
+    return ( not key or key.mapID ~= mapID or key.keyLevel ~= keyLevel )
 end
 
-function LiteKeystone:IsNewTimewalkingKeyInfo(playerName, mapID, keyLevel)
-    local key = self.db.playerTimewalkingKeys[playerName]
-    if not key then return true end
-    if key.mapID ~= mapID then return true end
-    if key.keyLevel ~= keyLevel then return true end
-    return false
+function LiteKeystone:IsNewBest(key, weekBest)
+    return ( key and key.weekBest ~= weekBest )
+end
+
+function LiteKeystone:IsNewTimewalkingKey(key, mapID, keyLevel)
+    return ( not key or key.mapID ~= mapID or key.keyLevel ~= keyLevel )
 end
 
 -- Astral Keys' idea of the week number
@@ -108,7 +103,7 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == 'scan' then
-        self:ScanAndPushKey()
+        self:ScanAndPushKey('commandline')
         return true
     end
 
@@ -189,7 +184,7 @@ end
 
 function LiteKeystone:Reset()
     table.wipe(self.db.playerKeys)
-    self:ScanForKey()
+    self:ScanForKey('Reset')
     table.wipe(self.db.playerTimewalkingKeys)
     self:ScanForTimewalkingKey()
 end
@@ -229,7 +224,10 @@ function LiteKeystone:ScanForTimewalkingKey()
     local mapID = self:GetUIMapIDByName(name)
 
     printf('Found key: mapid %d (%s), level %d.', mapID, name, keyLevel)
-    if self:IsNewTimewalkingKeyInfo(self.playerName, mapID, keyLevel) then
+
+    local existingKey = self.db.playerTimewalkingKeys[self.playerName]
+
+    if self:IsNewTimewalkingKey(existingKey, mapID, keyLevel) then
         printf('New timewalking key, saving.')
         local newKey = {
             playerName=self.playerName,
@@ -255,8 +253,8 @@ function LiteKeystone:ScanForTimewalkingKey()
 end
 
 -- Don't call C_MythicPlus.RequestMapInfo here or it'll infinite loop
-function LiteKeystone:ScanForKey()
-    printf('Scanning my key.')
+function LiteKeystone:ScanForKey(reason)
+    printf('Scanning my key: %s.', tostring(reason))
     local mapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
     if not mapID then return end
 
@@ -271,7 +269,9 @@ function LiteKeystone:ScanForKey()
     local name = C_ChallengeMode.GetMapUIInfo(mapID)
     printf('Found key: mapid %d (%s), level %d, weekbest %d.', mapID, name, keyLevel, weekBest)
 
-    if self:IsNewKeyInfo(self.playerName, mapID, keyLevel, weekBest) then
+    local existingKey = self.db.playerKeys[self.playerName]
+
+    if self:IsNewKey(existingKey, mapID, keyLevel) then
         printf('New key, saving.')
         local newKey = {
             playerName=self.playerName,
@@ -291,16 +291,18 @@ function LiteKeystone:ScanForKey()
             SendChatMessage('New keystone: ' .. link, 'GUILD')
         end
         return true
+    elseif self:IsNewBest(self.playerName, weekBest) then
+        self.db.playerKeys[self.playerName].weekBest = weekBest
     else
         printf('Same key, ignored.')
     end
 end
 
-function LiteKeystone:ScanAndPushKey()
-    if self:ScanForKey() then
+function LiteKeystone:ScanAndPushKey(reason)
+    if self:ScanForKey(reason) then
         self:PushMyKey()
     end
-    self:ScanForTimewalkingKey()
+    self:ScanForTimewalkingKey(reason)
 end
 
 function LiteKeystone:GetKeyUpdateString(key)
@@ -371,20 +373,20 @@ function LiteKeystone:ReceiveSyncKey(content, source)
     -- sure we got all the fields.
     if not weekTime then return end
 
-    -- Don't accept our own keys back from other people
-    if self.db.playerKeys[playerName] and
-       self.db.playerKeys[playerName].source == 'mine' then
-        return
-    end
+    local existingKey = self.db.playerKeys[playerName]
 
-    if not self:IsNewKeyInfo(playerName, mapID, keyLevel, weekBest) then
+    -- Don't accept our own keys back from other people
+    if existingKey and existingKey.source == 'mine' then
         return
     end
 
     -- Third party reports are unreliable, try to make sure we don't
     -- overwrite better info.
 
-    local existingKey = self.db.playerKeys[playerName]
+    if not self:IsNewKey(existingKey, mapID, keyLevel) and
+       not self:IsNewBest(existingKey, weekBest) then
+        return
+    end
 
     if existingKey then
         if existingKey.weekBest > weekBest then
@@ -408,10 +410,8 @@ function LiteKeystone:ReceiveSyncKey(content, source)
             source=source
         }
 
-    if playerName ~= self.playerName then
-        local mapName = C_ChallengeMode.GetMapUIInfo(mapID)
-        printf('Sync key: %s %s (%d)', playerName, mapName, keyLevel)
-    end
+    local mapName = C_ChallengeMode.GetMapUIInfo(mapID)
+    printf('Sync key: %s %s (%d)', playerName, mapName, keyLevel)
 end
 
 function LiteKeystone:ReceiveAstralKey(content, source)
@@ -423,13 +423,15 @@ function LiteKeystone:ReceiveAstralKey(content, source)
     weekBest = tonumber(weekBest)
     playerFaction = tonumber(playerFaction)
 
+    local existingKey = self.db.playerKeys[playerName]
+
     -- Don't accept our own keys back from other people
-    if self.db.playerKeys[playerName] and
-       self.db.playerKeys[playerName].source == 'mine' then
+    if existingKey and existingKey.source == 'mine' then
         return
     end
 
-    if not self:IsNewKeyInfo(playerName, mapID, keyLevel, weekBest) then
+    if not self:IsNewKey(existingKey, mapID, keyLevel) and
+       not self:IsNewBest(existingKey, weekBest) then
         return
     end
 
@@ -445,10 +447,8 @@ function LiteKeystone:ReceiveAstralKey(content, source)
             source=source
         }
 
-    if playerName ~= self.playerName then
-        local mapName = C_ChallengeMode.GetMapUIInfo(mapID)
-        printf('Got key: %s %s (%d)', playerName, mapName, keyLevel)
-    end
+    local mapName = C_ChallengeMode.GetMapUIInfo(mapID)
+    printf('Got key: %s %s (%d)', playerName, mapName, keyLevel)
 end
 
 local function batch(keyList, max)
@@ -471,7 +471,7 @@ local function batch(keyList, max)
     return batches
 end
 
-function LiteKeystone:PushSyncKeys(recipient)
+function LiteKeystone:PushSyncKeys()
     if not IsInGuild() then return end
 
     local guildKeys = {}
@@ -575,25 +575,33 @@ function LiteKeystone:GetPrintString(key, useColor)
     return string.format('%s : %s : best %d', player, link, key.weekBest)
 end
 
-local sorts = {
-    KEYLEVEL = function (a, b)
+local sorts = {}
+do
+    sorts.KEYLEVEL = function (a, b)
         if a.keyLevel == b.keyLevel then
             return a.playerName < b.playerName
         else
             return a.keyLevel > b.keyLevel
         end
-    end,
-    PLAYERNAME = function (a, b)
+    end
+    sorts.KEYNAME = function (a, b)
+        if a.mapID == b.mapID then
+            return sorts.KEYLEVEL(a, b)
+        else
+            return C_ChallengeMode.GetMapUIInfo(a.mapID) < C_ChallengeMode.GetMapUIInfo(b.mapID)
+        end
+    end
+    sorts.PLAYERNAME = function (a, b)
         return a.playerName < b.playerName
-    end,
-    WEEKBEST = function (a, b)
+    end
+    sorts.WEEKBEST = function (a, b)
         if a.weekBest == b.weekBest then
             return a.playerName < b.playerName
         else
             return a.weekBest > b.weekBest
         end
-    end,
-}
+    end
+end
 
 function LiteKeystone:SortedKeys(filterMethod, sortType)
 
@@ -677,28 +685,28 @@ end
 -- for like 50 other things, which is weird as hell.
 
 function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
-    self:ScanAndPushKey()
+    self:ScanAndPushKey('CHALLENGE_MODE_MAPS_UPDATE')
 end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
-    self:ScanAndPushKey()
+    self:ScanAndPushKey('CHALLENGE_MODE_COMPLETED')
 end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
-    if iconID == 525134 or iconID == 531324 then
+    if iconID == 525134 or iconID == 531324 or iconID == 4352494 then
         self:RegisterEvent('BAG_UPDATE_DELAYED')
     end
 end
 
 function LiteKeystone:BAG_UPDATE_DELAYED()
     self:UnregisterEvent('BAG_UPDATE_DELAYED')
-    self:ScanAndPushKey()
+    self:ScanAndPushKey('BAG_UPDATE_DELAYED')
 end
 
 -- Keystone trader at the end of finishing a M+
 function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
     if toLink:find('keystone:')  then
-        self:ScanAndPushKey()
+        self:ScanAndPushKey('ITEM_CHANGED')
         self:RegisterEvent('BAG_UPDATE_DELAYED')
     end
 end
