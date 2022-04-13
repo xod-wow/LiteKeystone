@@ -578,28 +578,49 @@ end
 local sorts = {}
 do
     sorts.KEYLEVEL = function (a, b)
-        if a.keyLevel == b.keyLevel then
-            return a.playerName < b.playerName
-        else
+        if a.keyLevel ~= b.keyLevel then
             return a.keyLevel > b.keyLevel
+        end
+        if a.mapID ~= b.mapID then
+            local aName = C_ChallengeMode.GetMapUIInfo(a.mapID)
+            local bName = C_ChallengeMode.GetMapUIInfo(b.mapID)
+            return aName < bName
+        end
+        if a.playerName ~= b.playerName then
+            return a.playerName < b.playerName
         end
     end
     sorts.KEYNAME = function (a, b)
-        if a.mapID == b.mapID then
-            return sorts.KEYLEVEL(a, b)
-        else
-            return C_ChallengeMode.GetMapUIInfo(a.mapID) < C_ChallengeMode.GetMapUIInfo(b.mapID)
+        if a.mapID ~= b.mapID then
+            local aName = C_ChallengeMode.GetMapUIInfo(a.mapID)
+            local bName = C_ChallengeMode.GetMapUIInfo(b.mapID)
+            return aName < bName
+        end
+        if a.keyLevel ~= b.keyLevel then
+            return a.keyLevel > b.keyLevel
+        end
+        if a.playerName ~= b.playerName then
+            return a.playerName < b.playerName
         end
     end
     sorts.PLAYERNAME = function (a, b)
-        return a.playerName < b.playerName
+        if a.playerName ~= b.playerName then
+            return a.playerName < b.playerName
+        end
+        if a.mapID ~= b.mapID then
+            local aName = C_ChallengeMode.GetMapUIInfo(a.mapID)
+            local bName = C_ChallengeMode.GetMapUIInfo(b.mapID)
+            return aName < bName
+        end
+        if a.keyLevel ~= b.keyLevel then
+            return a.keyLevel > b.keyLevel
+        end
     end
     sorts.WEEKBEST = function (a, b)
-        if a.weekBest == b.weekBest then
+        if a.weekBest ~= b.weekBest then
             return a.playerName < b.playerName
-        else
-            return a.weekBest > b.weekBest
         end
+        return sorts.KEYLEVEL(a, b)
     end
 end
 
