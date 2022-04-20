@@ -644,8 +644,10 @@ function LiteKeystone:ProcessAddonMessage(text, source)
         local newKey = self:GetKeyFromUpdate(content, source)
         self:ReceiveKey(newKey, action)
     elseif action == 'sync5' then
-        local newKey = self:GetKeyFromSync(content, source)
-        self:ReceiveKey(newKey, action)
+        for entry in content:gmatch('[^_]+') do
+            local newKey = self:GetKeyFromSync(entry, source)
+            self:ReceiveKey(newKey, action)
+        end
     elseif action == 'updateWeekly' then
         self:UpdateWeekly(source, tonumber(content))
     end
