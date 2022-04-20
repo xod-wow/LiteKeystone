@@ -25,7 +25,7 @@ local function UpdateButton(self, index)
     else
         self.Mine:SetText(self.key.source == 'mine' and '*' or '')
         self.PlayerName:SetText(LiteKeystone:GetPlayerName(self.key, true))
-        self.Keystone.Text:SetText(LiteKeystone:GetKeystone(self.key))
+        self.Keystone.Text:SetText(LiteKeystone:GetKeyText(self.key))
         self.WeekBest:SetText(self.key.weekBest)
 
         self.Stripe:SetShown(index % 2 == 1)
