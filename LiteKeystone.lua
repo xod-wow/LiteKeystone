@@ -422,7 +422,7 @@ function LiteKeystone:GetKeyFromUpdate(content, source)
         keyLevel=tonumber(keyLevel),
         weekBest=tonumber(weekBest),
         weekNum=tonumber(weekNum),
-        weekTime=tonumber(weekTime),
+        weekTime=WeekTime(),
         source=source
     }
 
