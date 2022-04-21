@@ -659,15 +659,17 @@ end
 
 function LiteKeystone:CHAT_MSG_ADDON(prefix, text, chatType, sender)
     if prefix ~= 'AstralKeys' then return end
-    -- print(format("%s - %s - %s - %s", prefix, text, chatType, sender))
-    if chatType == 'WHISPER' or chatType == 'BN_WHISPER' then
-        self:ProcessAddonMessage(text, sender)
-    else
-        self:ProcessAddonMessage(text, sender)
-    end
+    self:ProcessAddonMessage(text, sender)
 end
 
-LiteKeystone.BN_CHAT_MSG_ADDON = LiteKeystone.CHAT_MSG_ADDON
+function LiteKeystone:BN_CHAT_MSG_ADDON(prefix, text, chatType, senderID)
+    if prefix ~= 'AstralKeys' then return end
+    local info = C_BattleNet.GetGameAccountInfoByID(senderID)
+    if info.clientProgram ~= 'WoW' then return end
+    local sender = string.format('%s-%s', info.characterName, info.realmName)
+    self:ProcessAddonMessage(text, sender)
+end
+
 
 function LiteKeystone:GUILD_ROSTER_UPDATE()
     local elapsed = GetServerTime() - (self.lastKeyBroadcast or 0)
