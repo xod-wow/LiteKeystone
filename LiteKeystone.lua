@@ -590,7 +590,7 @@ do
     end
     sorts.WEEKBEST = function (a, b)
         if a.weekBest ~= b.weekBest then
-            return a.playerName < b.playerName
+            return a.weekBest > b.weekBest
         end
         return sorts.KEYLEVEL(a, b)
     end
