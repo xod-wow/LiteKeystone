@@ -384,8 +384,8 @@ end
 function LiteKeystone:GetKeyFromSync(content, source)
     local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, weekTime = string.split(':', content)
 
-    -- Sometimes we seem to get truncated messages from AstralKeys so make
-    -- sure we got all the fields.
+    -- AstralKeys splitting is garbage and the last entry is often truncated,
+    -- so make sure we got all the fields.
     if not weekTime then return end
 
     local newKey = {
@@ -644,7 +644,9 @@ function LiteKeystone:ProcessAddonMessage(text, source)
     elseif action == 'sync5' then
         for entry in content:gmatch('[^_]+') do
             local newKey = self:GetKeyFromSync(entry, source)
-            self:ReceiveKey(newKey, action)
+            if newKey then
+                self:ReceiveKey(newKey, action)
+            end
         end
     elseif action == 'updateWeekly' then
         self:UpdateWeekly(source, tonumber(content))
