@@ -663,7 +663,7 @@ function LiteKeystone:CHAT_MSG_ADDON(prefix, text, chatType, sender)
     if chatType == 'WHISPER' or chatType == 'BN_WHISPER' then
         self:ProcessAddonMessage(text, sender)
     else
-        self:ProcessAddonMessage(text, chatType)
+        self:ProcessAddonMessage(text, sender)
     end
 end
 
