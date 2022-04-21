@@ -369,11 +369,9 @@ function LiteKeystone:ReceiveKey(newKey, action)
         return
     end
 
-    if existingKey then
-        existingKey.weekBest = math.max(existingKey.weekBest, weekBest)
-        if existingKey.weekTime >= weekTime then
-            return
-        end
+    if existingKey and newKey.weekTime <= existingKey.weekTime then
+        existingKey.weekBest = math.max(existingKey.weekBest, newKey.weekBest)
+        return
     end
 
     self.db.playerKeys[newKey.playerName] = newKey
