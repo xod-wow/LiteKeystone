@@ -111,6 +111,7 @@ function LiteKeystone:SlashCommand(arg)
 
     if arg1 == ('request'):sub(1,n) then
         self:RequestKeysFromGuild()
+        self:RequestKeysFromFriends()
         return true
     end
 
@@ -470,28 +471,26 @@ function LiteKeystone:PushSyncKeys()
 end
 
 function LiteKeystone:RequestKeysFromGuild()
-    if not IsInGuild() then return end
-
-    C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'GUILD')
-
-    local numGuild, numGuildOnline = GetNumGuildMembers()
-    for i = 1, numGuildOnline do
-        local n = GetGuildRosterInfo(i)
-        C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'WHISPER', nil, n)
+    if IsInGuild() then
+        C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'GUILD')
     end
 end
+
+-- this is a dumb protocol, why not just use 'request'
 
 function LiteKeystone:RequestKeysFromFriends()
     local numFriends, numFriendsOnline = BNGetNumFriends()
     for i = 1, numFriendsOnline do
         local info = C_BattleNet.GetFriendAccountInfo(i)
-        C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'BN_WHISPER', nil, info.accountName)
+        if info and info.gameAcccountInfo and info.gameAccountInfo.clientProgram == 'WoW' then
+            BNSendGameData(info.gameAccountInfo.gameAccountID, 'AstralKeys', 'BNet_query ping')
+        end
     end
 
     for i = 1, C_FriendList.GetNumFriends() do
         local info = C_FriendList.GetFriendInfoByIndex(i)
         if info.connected and not info.mobile then
-            C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'WHISPER', nil, info.name)
+            C_ChatInfo.SendAddonMessage('AstralKeys', 'BNet_query ping', 'WHISPER', nil, info.name)
         end
     end
 end
@@ -650,6 +649,8 @@ function LiteKeystone:ProcessAddonMessage(text, source)
         end
     elseif action == 'updateWeekly' then
         self:UpdateWeekly(source, tonumber(content))
+    elseif event == 'BNet_query_ping' then
+        -- ignore
     end
 end
 
@@ -662,12 +663,15 @@ function LiteKeystone:CHAT_MSG_ADDON(prefix, text, chatType, sender)
     self:ProcessAddonMessage(text, sender)
 end
 
-function LiteKeystone:BN_CHAT_MSG_ADDON(prefix, text, chatType, senderID)
+function LiteKeystone:BN_CHAT_MSG_ADDON(prefix, text, chatType, gameAccountID)
     if prefix ~= 'AstralKeys' then return end
-    local info = C_BattleNet.GetGameAccountInfoByID(senderID)
-    if info.clientProgram ~= 'WoW' then return end
-    local sender = string.format('%s-%s', info.characterName, info.realmName)
-    self:ProcessAddonMessage(text, sender)
+    local gameInfo = C_BattleNet.GetGameAccountInfoByID(gameAccountID)
+    if gameInfo and gameInfo.clientProgram == 'WoW' and gameInfo.playerGuid then
+        -- local sender = string.format('%s-%s', info.characterName, info.realmName)
+        -- self:ProcessAddonMessage(text, sender)
+        local playerInfo = C_BattleNet.GetAccountInfoByGUID(gameInfo.playerGuid)
+        self:ProcessAddonMessage(text, playerInfo.battleTag)
+    end
 end
 
 
