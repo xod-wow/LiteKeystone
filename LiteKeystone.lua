@@ -80,7 +80,6 @@ end
 local function WeekNum()
     local r = GetCurrentRegion()
     return math.floor( (GetServerTime() - regionStartTimes[r]) / 604800 )
-
 end
 
 -- How many seconds we are into the current keystone week
@@ -105,7 +104,7 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == 'scan' then
-        self:ScanAndPushKey('commandline')
+        self:ScanAndPushKeys('commandline')
         return true
     end
 
@@ -188,7 +187,7 @@ end
 function LiteKeystone:Reset()
     table.wipe(self.db.playerKeys)
     table.wipe(self.db.playerTimewalkingKeys)
-    self:ScanForKeys('Reset')
+    self:ScanAndPushKeys('Reset')
 end
 
 local mapTable
@@ -225,21 +224,42 @@ function LiteKeystone:GetMyKeyFromLink(link, weekBest)
     return newKey
 end
 
-function LiteKeystone:GetKeyFromInventory(weekBest, isTimewalking)
-    for bag = 0, 4 do
-        for slot = 1, GetContainerNumSlots(bag) do
-            local link, _, _, itemID = select(7, GetContainerItemInfo(bag, slot))
-            if isTimewalking then
-                if itemID == 187786 then return self:GetMyKeyFromLink(link, weekBest) end
-            else
-                if itemID == 180653 then return self:GetMyKeyFromLink(link, weekBest) end
-            end
+function LiteKeystone:ProcessContainerItem(item, weekBest)
+    local db, changed
+
+    if item:GetItemID() == 187786 then
+        db = self.db.playerTimewalkingKeys
+    elseif item:GetItemID() == 180653 then
+        db = self.db.playerKeys
+    else
+        return
+    end
+
+    local newKey = self:GetMyKeyFromLink(item:GetItemLink())
+
+    printf('Found key: mapid %d (%s), level %d, weekbest %d.', newKey.mapID, newKey.mapName, newKey.keyLevel, weekBest)
+
+    local existingKey = db[self.playerName]
+
+    if self:IsNewKey(existingKey, newKey) then
+        printf('New key, saving.')
+        newKey.weekBest = weekBest
+        db[self.playerName] = newKey
+        if IsInGroup(LE_PARTY_CATEGORY_HOME) then
+            SendChatMessage('New keystone: ' .. newKey.link, 'PARTY')
         end
+        self:PushMyKeys(newKey)
+    elseif self:IsNewBest(existingKey, weekBest) then
+        printf('New best, updating.')
+        existingKey.weekBest = weekBest
+        self:PushMyKeys(existingKey)
+    else
+        printf('Same key, ignored.')
     end
 end
 
 -- Don't call C_MythicPlus.RequestMapInfo here or it'll infinite loop
-function LiteKeystone:ScanForKeys(reason)
+function LiteKeystone:ScanAndPushKeys(reason)
     printf('Scanning my keys: %s.', tostring(reason))
 
     local weekBest = 0
@@ -247,53 +267,16 @@ function LiteKeystone:ScanForKeys(reason)
         weekBest = max(weekBest, info.level)
     end
 
-    local newKey, changed
-
-    newKey = self:GetKeyFromInventory(weekBest)
-    if newKey then
-        printf('Found key: mapid %d (%s), level %d, weekbest %d.', newKey.mapID, newKey.mapName, newKey.keyLevel, weekBest)
-
-        local existingKey = self.db.playerKeys[self.playerName]
-
-        if self:IsNewKey(existingKey, newKey) then
-            printf('New key, saving.')
-            self.db.playerKeys[self.playerName] = newKey
-            newKey.weekBest = weekBest
-            if IsInGuild() then
-                SendChatMessage('New keystone: ' .. newKey.link, 'GUILD')
+    for bag = 0, 4 do
+        for slot = 1, GetContainerNumSlots(bag) do
+            local item = Item:CreateFromBagAndSlot(bag, slot)
+            if not item:IsItemEmpty() then
+                item:ContinueOnItemLoad(
+                    function ()
+                        self:ProcessContainerItem(item, weekBest)
+                    end)
             end
-            changed = true
-        elseif self:IsNewBest(existingKey, weekBest) then
-            existingKey.weekBest = weekBest
-        else
-            printf('Same key, ignored.')
         end
-    end
-
-    newKey = self:GetKeyFromInventory(weekBest, true)
-    if newKey then
-        printf('Found key: mapid %d (%s), level %d.', newKey.mapID, newKey.mapName, newKey.keyLevel)
-
-        local existingKey = self.db.playerTimewalkingKeys[self.playerName]
-
-        if self:IsNewKey(existingKey, newKey) then
-            printf('New timewalking key, saving.')
-            self.db.playerTimewalkingKeys[self.playerName] = newKey
-            if IsInGuild() then
-                SendChatMessage('New keystone: ' .. newKey.link, 'GUILD')
-            end
-            changed = true
-        else
-            printf('Same timewalking key, ignored.')
-        end
-    end
-
-    return changed
-end
-
-function LiteKeystone:ScanAndPushKey(reason)
-    if self:ScanForKeys(reason) then
-        self:PushMyKeys()
     end
 end
 
@@ -335,11 +318,13 @@ function LiteKeystone:RemoveExpiredKeys()
     end
 end
 
-function LiteKeystone:PushMyKeys()
+function LiteKeystone:PushMyKeys(key)
     if not IsInGuild() or true then return end
 
-    local key = self:MyKey()
-    if key then
+    local key = key or self:MyKey()
+
+    -- AstralKeys only supports non-timewalking keystones
+    if key and key.itemID == 180653 then
         local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
         C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
     end
@@ -387,7 +372,7 @@ function LiteKeystone:GetKeyFromSync(content, source)
 
     -- AstralKeys splitting is garbage and the last entry is often truncated,
     -- so make sure we got all the fields.
-    if not weekTime then return end
+    if not weekTime or not tonumber(weekTime) then return end
 
     local newKey = {
         itemID=180653,
@@ -457,7 +442,7 @@ function LiteKeystone:PushSyncKeys()
 
     for i = 1, GetNumGuildMembers() do
         local name = GetGuildRosterInfo(i)
-        if self.db.playerKeys[name] then
+        if name ~= self.playerName and self.db.playerKeys[name] then
             local msg = self:GetKeySyncString(self.db.playerKeys[name])
             table.insert(guildKeys, msg)
         end
@@ -651,6 +636,9 @@ function LiteKeystone:ProcessAddonMessage(text, source)
         self:UpdateWeekly(source, tonumber(content))
     elseif event == 'BNet_query_ping' then
         -- ignore
+    elseif event == 'request' then
+        self:PushMyKeys()
+        self:PushSyncKeys()
     end
 end
 
@@ -688,11 +676,11 @@ end
 -- for like 50 other things, which is weird as hell.
 
 function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
-    self:ScanAndPushKey('CHALLENGE_MODE_MAPS_UPDATE')
+    self:ScanAndPushKeys('CHALLENGE_MODE_MAPS_UPDATE')
 end
 
 -- function LiteKeystone:CHALLENGE_MODE_COMPLETED()
---     self:ScanAndPushKey('CHALLENGE_MODE_COMPLETED')
+--     self:ScanAndPushKeys('CHALLENGE_MODE_COMPLETED')
 -- end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
@@ -703,15 +691,20 @@ end
 
 function LiteKeystone:BAG_UPDATE_DELAYED()
     self:UnregisterEvent('BAG_UPDATE_DELAYED')
-    self:ScanAndPushKey('BAG_UPDATE_DELAYED')
+    self:ScanAndPushKeys('BAG_UPDATE_DELAYED')
 end
 
 -- Keystone trader at the end of finishing a M+ or the keystone downgrader.
--- These are the itemIDs, because the link could be keystone:itemid:...
--- or item:itemid:...
--- Also this doesn't work and I don't know why.
+-- These are the itemIDs, because the link could be keystone:itemid or
+-- item:itemid. There is a delay between ITEM_CHANGED firing and
+-- GetContainerItemInfo returning the new keystone, and I'm not sure if there's
+-- another event that triggers at the right time but I know it's not
+-- BAG_UPDATE_DELAYED.
+-- Everything could be refactored so ScanAndPushKey or some subset takes a
+-- link but at the moment I am lazy and/or uncertain.
+
 function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
     if toLink:find(':180653:') or toLink:find(':187786:') then
-        self:ScanAndPushKey('ITEM_CHANGED')
+        C_Timer.After(3, function () self:ScanAndPushKeys('ITEM_CHANGED') end)
     end
 end
