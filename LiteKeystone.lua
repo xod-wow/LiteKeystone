@@ -204,17 +204,37 @@ function LiteKeystone:GetUIMapIDByName(name)
 end
 
 function LiteKeystone:GetMyKeyFromLink(link, weekBest)
-    local _, itemID, mapID, keyLevel, _ = string.split(':', link, 5)
+    local fields = { string.split(':', link) }
+    local itemID, mapID, keyLevel
+
+    if fields[1]:find('keystone') then
+        itemID = tonumber(fields[2])
+        mapID = tonumber(fields[3])
+        keyLevel = tonumber(fields[4])
+    elseif fields[1]:find('item') then
+        itemID = fields[2]
+        local numBonus = tonumber(fields[14]) or 0
+        local numModifiers = tonumber(fields[15+numBonus]) or 0
+        for i = 0, numModifiers-1 do
+            local k = tonumber(fields[16+numBonus+2*i])
+            local v = tonumber(fields[16+numBonus+2*i+1])
+            if k == 17 then
+                mapID = v
+            elseif k == 18 then
+                keyLevel = v
+            end
+        end
+    end
 
     local newKey = {
         itemID=itemID,
         playerName=self.playerName,
         playerClass=self.playerClass,
         playerFaction=self.playerFaction,
-        mapID=tonumber(mapID),
-        mapName=C_ChallengeMode.GetMapUIInfo(tonumber(mapID)),
-        weekBest=tonumber(weekBest),
-        keyLevel=tonumber(keyLevel),
+        mapID=mapID,
+        mapName=C_ChallengeMode.GetMapUIInfo(mapID),
+        weekBest=weekBest,
+        keyLevel=keyLevel,
         weekNum=WeekNum(),
         weekTime=WeekTime(),
         link=link,
@@ -224,7 +244,7 @@ function LiteKeystone:GetMyKeyFromLink(link, weekBest)
     return newKey
 end
 
-function LiteKeystone:ProcessContainerItem(item, weekBest)
+function LiteKeystone:ProcessItem(item)
     local db, changed
 
     if item:GetItemID() == 187786 then
@@ -235,7 +255,12 @@ function LiteKeystone:ProcessContainerItem(item, weekBest)
         return
     end
 
-    local newKey = self:GetMyKeyFromLink(item:GetItemLink())
+    local weekBest = 0
+    for _, info in ipairs(C_MythicPlus.GetRunHistory(false, true)) do
+        weekBest = max(weekBest, info.level)
+    end
+
+    local newKey = self:GetMyKeyFromLink(item:GetItemLink(), weekBest)
 
     printf('Found key: mapid %d (%s), level %d, weekbest %d.', newKey.mapID, newKey.mapName, newKey.keyLevel, weekBest)
 
@@ -262,19 +287,12 @@ end
 function LiteKeystone:ScanAndPushKeys(reason)
     printf('Scanning my keys: %s.', tostring(reason))
 
-    local weekBest = 0
-    for _, info in ipairs(C_MythicPlus.GetRunHistory(false, true)) do
-        weekBest = max(weekBest, info.level)
-    end
-
     for bag = 0, 4 do
         for slot = 1, GetContainerNumSlots(bag) do
             local item = Item:CreateFromBagAndSlot(bag, slot)
             if not item:IsItemEmpty() then
                 item:ContinueOnItemLoad(
-                    function ()
-                        self:ProcessContainerItem(item, weekBest)
-                    end)
+                    function () self:ProcessItem(item) end)
             end
         end
     end
@@ -695,16 +713,13 @@ function LiteKeystone:BAG_UPDATE_DELAYED()
 end
 
 -- Keystone trader at the end of finishing a M+ or the keystone downgrader.
--- These are the itemIDs, because the link could be keystone:itemid or
--- item:itemid. There is a delay between ITEM_CHANGED firing and
--- GetContainerItemInfo returning the new keystone, and I'm not sure if there's
--- another event that triggers at the right time but I know it's not
--- BAG_UPDATE_DELAYED.
--- Everything could be refactored so ScanAndPushKey or some subset takes a
--- link but at the moment I am lazy and/or uncertain.
+-- The link could be keystone:itemid or item:itemid. There is a delay between
+-- ITEM_CHANGED firing and GetContainerItemInfo returning the new keystone,
+-- which is why this doesn't just call ScanAndPushKeys.
 
 function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
-    if toLink:find(':180653:') or toLink:find(':187786:') then
-        C_Timer.After(3, function () self:ScanAndPushKeys('ITEM_CHANGED') end)
+    local item = Item:CreateFromItemLink(toLink)
+    if not item:IsItemEmpty() then
+        item:ContinueOnItemLoad(function () self:ProcessItem(item) end)
     end
 end
