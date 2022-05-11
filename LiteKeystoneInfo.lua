@@ -96,8 +96,13 @@ function LiteKeystoneInfoMixin:OnLoad()
 end
 
 function LiteKeystoneInfoMixin:OnShow()
+    LiteKeystone:RegisterCallback(self, function () UpdateScroll(self.Scroll) end)
     UpdateScroll(self.Scroll)
     UpdateTabs(self)
+end
+
+function LiteKeystoneInfoMixin:OnHide()
+    LiteKeystone:UnregisterCallback(self)
 end
 
 LiteKeystoneTabButtonMixin = {}

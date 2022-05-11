@@ -37,6 +37,23 @@ local regionStartTimes = {
     [3] = 1500505200,   -- CN
 }
 
+-- Trivial callback system, it's terrible but good enough for just
+-- updating the UI when new keys info is available.
+
+function LiteKeystone:RegisterCallback(owner, func)
+    self.callbacks[owner] = func
+end
+
+function LiteKeystone:UnregisterCallback(owner)
+    self.callbacks[owner] = nil
+end
+
+function LiteKeystone:Fire()
+    for owner, func in pairs(self.callbacks) do
+        func(owner)
+    end
+end
+
 function LiteKeystone:IsMyKey(key)
     return key.source == 'mine'
 end
@@ -143,6 +160,8 @@ function LiteKeystone:SlashCommand(arg)
 end
 
 function LiteKeystone:Initialize()
+
+    self.callbacks = {}
 
     LiteKeystoneDB = LiteKeystoneDB or {}
     self.db = LiteKeystoneDB
@@ -334,6 +353,7 @@ function LiteKeystone:RemoveExpiredKeys()
             self.db.playerTimewalkingKeys[player] = nil
         end
     end
+    self:Fire()
 end
 
 function LiteKeystone:PushMyKeys(key)
@@ -352,6 +372,7 @@ function LiteKeystone:UpdateWeekly(playerName, weekBest)
     if self.db.playerKeys[playerName] then
         self.db.playerKeys[playerName].weekBest = weekBest
         self.db.playerKeys[playerName].weekTime = WeekTime()
+        self:Fire()
     end
 end
 
@@ -375,12 +396,15 @@ function LiteKeystone:ReceiveKey(newKey, action)
 
     if existingKey and newKey.weekTime <= existingKey.weekTime then
         existingKey.weekBest = math.max(existingKey.weekBest, newKey.weekBest)
+        self:Fire()
         return
     end
 
     self.db.playerKeys[newKey.playerName] = newKey
 
     printf('Got key from %s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link)
+
+    self:Fire()
 
     return true
 end
