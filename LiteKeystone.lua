@@ -293,10 +293,12 @@ function LiteKeystone:ProcessItem(item)
             SendChatMessage('New keystone: ' .. newKey.link, 'PARTY')
         end
         self:PushMyKeys(newKey)
+        self:Fire()
     elseif self:IsNewBest(existingKey, weekBest) then
         printf('New best, updating.')
         existingKey.weekBest = weekBest
         self:PushMyKeys(existingKey)
+        self:Fire()
     else
         printf('Same key, ignored.')
     end
