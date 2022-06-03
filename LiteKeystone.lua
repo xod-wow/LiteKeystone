@@ -723,9 +723,9 @@ function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
     self:ScanAndPushKeys('CHALLENGE_MODE_MAPS_UPDATE')
 end
 
--- function LiteKeystone:CHALLENGE_MODE_COMPLETED()
---     self:ScanAndPushKeys('CHALLENGE_MODE_COMPLETED')
--- end
+function LiteKeystone:CHALLENGE_MODE_COMPLETED()
+    self:ScanAndPushKeys('CHALLENGE_MODE_COMPLETED')
+end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
     if iconID == 525134 or iconID == 531324 or iconID == 4352494 then
