@@ -309,7 +309,7 @@ function LiteKeystone:ScanAndPushKeys(reason)
     printf('Scanning my keys: %s.', tostring(reason))
 
     for bag = 0, 4 do
-        for slot = 1, GetContainerNumSlots(bag) do
+        for slot = 1, C_Container.GetContainerNumSlots(bag) do
             local item = Item:CreateFromBagAndSlot(bag, slot)
             if not item:IsItemEmpty() then
                 item:ContinueOnItemLoad(
