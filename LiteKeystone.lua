@@ -223,6 +223,8 @@ function LiteKeystone:Initialize()
     self:RegisterEvent('CHALLENGE_MODE_MAPS_UPDATE')
     self:RegisterEvent('ITEM_PUSH')
     self:RegisterEvent('ITEM_CHANGED')
+    self:RegisterEvent('CHAT_MSG_PARTY')
+    self:RegisterEvent('CHAT_MSG_PARTY_LEADER')
 
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
@@ -747,6 +749,16 @@ function LiteKeystone:BN_CHAT_MSG_ADDON(prefix, text, chatType, gameAccountID)
     end
 end
 
+function LiteKeystone:CHAT_MSG_PARTY(text)
+    if text == '!keys' then
+        local key = self:MyKey()
+        if key then
+            SendChatMessage(key.link, 'PARTY', nil)
+        end
+    end
+end
+
+LiteKeystone.CHAT_MSG_PARTY_LEADER = LiteKeystone.CHAT_MSG_PARTY
 
 function LiteKeystone:GUILD_ROSTER_UPDATE()
     local elapsed = GetServerTime() - (self.lastKeyBroadcast or 0)
