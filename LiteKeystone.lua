@@ -390,14 +390,24 @@ function LiteKeystone:RemoveExpiredKeys()
 end
 
 function LiteKeystone:PushMyKeys(key)
-    if not IsInGuild() or true then return end
 
     local key = key or self:MyKey()
 
     -- AstralKeys only supports non-timewalking keystones
-    if key and key.itemID == 180653 then
-        local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
+    if not key or key.itemID ~= 180653 then return end
+
+    local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
+
+    if IsInGuild() then
         C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
+    end
+
+    local _, numFriendsOnline = BNGetNumFriends()
+    for i = 1, numFriendsOnline do
+        local info = C_BattleNet.GetFriendAccountInfo(i)
+        if info and info.gameAcccountInfo and info.gameAccountInfo.clientProgram == 'WoW' then
+            BNSendGameData(info.gameAccountInfo.gameAccountID, 'AstralKeys', msg)
+        end
     end
 end
 
