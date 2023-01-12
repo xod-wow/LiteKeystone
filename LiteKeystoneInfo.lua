@@ -48,6 +48,11 @@ local function UpdateTabs(self)
     self.Tab3.leftSelectedTexture:SetShown(show)
     self.Tab3.midSelectedTexture:SetShown(show)
     self.Tab3.rightSelectedTexture:SetShown(show)
+
+    show = (self.selectedTab == 4)
+    self.Tab4.leftSelectedTexture:SetShown(show)
+    self.Tab4.midSelectedTexture:SetShown(show)
+    self.Tab4.rightSelectedTexture:SetShown(show)
 end
 
 local function UpdateScroll(self)
@@ -59,6 +64,8 @@ local function UpdateScroll(self)
     elseif self:GetParent().selectedTab == 2 then
         filterMethod = 'IsGuildKey'
     elseif self:GetParent().selectedTab == 3 then
+        filterMethod = 'IsGroupKey'
+    elseif self:GetParent().selectedTab == 4 then
         filterMethod = 'IsMyKey'
     end
 
@@ -96,13 +103,21 @@ function LiteKeystoneInfoMixin:OnLoad()
 end
 
 function LiteKeystoneInfoMixin:OnShow()
+    self:RegisterEvent('GROUP_ROSTER_UPDATE')
+    self:RegisterEvent('RAID_ROSTER_UPDATE')
     LiteKeystone:RegisterCallback(self, function () UpdateScroll(self.Scroll) end)
     UpdateScroll(self.Scroll)
     UpdateTabs(self)
 end
 
 function LiteKeystoneInfoMixin:OnHide()
+    self:UnregisterAllEvents()
     LiteKeystone:UnregisterCallback(self)
+end
+
+function LiteKeystoneInfoMixin:OnEvent(event, ...)
+    UpdateScroll(self.Scroll)
+    UpdateTabs(self)
 end
 
 LiteKeystoneTabButtonMixin = {}

@@ -242,6 +242,7 @@
       <OnLoad inherit="append" method="OnLoad" />
       <OnShow inherit="append" method="OnShow" />
       <OnHide inherit="append" method="OnHide" />
+      <OnEvent inherit="append" method="OnEvent" />
     </Scripts>
 
     <Frames>
@@ -257,9 +258,15 @@
         </Anchors>
       </Button>
 
-      <Button parentKey="Tab3" inherits="LiteKeystoneInfoTabTemplate" text="Mine" id="3">
+      <Button parentKey="Tab3" inherits="LiteKeystoneInfoTabTemplate" text="Group" id="3">
         <Anchors>
           <Anchor point="LEFT" relativeKey="$parent.Tab2" relativePoint="RIGHT" />
+        </Anchors>
+      </Button>
+
+      <Button parentKey="Tab4" inherits="LiteKeystoneInfoTabTemplate" text="Mine" id="4">
+        <Anchors>
+          <Anchor point="LEFT" relativeKey="$parent.Tab3" relativePoint="RIGHT" />
         </Anchors>
       </Button>
 

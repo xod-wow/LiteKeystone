@@ -62,6 +62,150 @@ function LiteKeystone:IsFactionKey(key)
     return key.playerFaction == self.playerFaction
 end
 
+function LiteKeystone:IsGroupKey(key)
+    local playerRealm = GetRealmName()
+    if key.playerName == self.playerName then
+        return true
+    elseif IsInRaid(LE_PARTY_CATEGORY_HOME) then
+        for i = 1, GetNumGroupMembers(LE_PARTY_CATEGORY_HOME) do
+            local name, realm = UnitName("raid"..i)
+            local fullName = string.join('-', name, realm or playerRealm)
+            if key.playerName == fullName then
+                return true
+            end
+        end
+    elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then
+        for i = 1, GetNumGroupMembers(LE_PARTY_CATEGORY_HOME) - 1 do
+            local name, realm = UnitName("party"..i)
+            local fullName = string.join('-', name, realm or playerRealm)
+            if key.playerName == fullName then
+                return true
+            end
+        end
+    else
+        return false
+    end
+end
+
+function LiteKeystone:IsGuildKey(key)
+    if not IsInGuild() then return false end
+    for i = 1, GetNumGuildMembers() do
+        if key.playerName == GetGuildRosterInfo(i) then
+            return true
+        end
+    end
+end
+
+function LiteKeystone:IsMyGuildKey(key)
+    return self:IsMyKey(key) or self:IsGuildKey(key)
+end
+
+function LiteKeystone:IsMyFactionKey(key)
+    return self:IsMyKey(key) and self:IsFactionKey(key)
+end
+
+function LiteKeystone:IsNewKey(existingKey, newKey)
+    if not existingKey then
+        return true
+    elseif not newKey then
+        return false
+    else
+        return ( existingKey.mapID ~= newKey.mapID or existingKey.keyLevel ~= newKey.keyLevel )
+    end
+end
+
+function LiteKeystone:IsNewBest(key, weekBest)
+    return ( key and key.weekBest ~= weekBest )
+end
+
+-- Astral Keys' idea of the week number
+local function WeekNum()
+    local r = GetCurrentRegion()
+    return math.floor( (GetServerTime() - regionStartTimes[r]) / 604800 )
+end
+
+-- How many seconds we are into the current keystone week
+local function WeekTime()
+    local r = GetCurrentRegion()
+    return math.floor( (GetServerTime() - regionStartTimes[r] ) % 604800 )
+end
+
+function LiteKeystone:SlashCommand(arg)
+    local arg1, arg2 = string.split(' ', arg)
+    local n = arg1:len()
+
+    if  arg1 == '' or arg1 == ('show'):sub(1,n) then
+        LiteKeystoneInfo:Show()
+        return true
+    end
+
+    if arg1 == ('push'):sub(1,n) then
+        self:PushMyKeys()
+        self:PushSyncKeys()
+        return true
+    end
+
+    if arg1 == 'scan' then
+        self:ScanAndPushKeys('commandline')
+        return true
+    end
+
+    if arg1 == ('request'):sub(1,n) then
+        self:RequestKeysFromGuild()
+        self:RequestKeysFromFriends()
+        return true
+    end
+
+    if arg1 == ('report'):sub(1,n) then
+        n = arg2 and arg2:len() or 0
+        if not arg2 or arg2 == ('guild'):sub(1,n) then
+            self:ReportKeys('IsMyFactionKey', 'GUILD')
+        elseif arg2 == ('party'):sub(1,n) then
+            self:ReportKeys('IsMyFactionKey', 'PARTY')
+        elseif arg2 == ('raid'):sub(1,n) then
+            self:ReportKeys('IsMyFactionKey', 'RAID')
+        elseif arg2 == ('instance'):sub(1,n) then
+            self:ReportKeys('IsMyFactionKey', 'INSTANCE')
+        end
+        return true
+    end
+
+    if arg1 == ('scan'):sub(1,n) then
+        C_MythicPlus.RequestMapInfo()
+        return true
+    end
+
+    printf('Usage:')
+    printf(' /lk list')
+    printf(' /lk push')
+    printf(' /lk report [party]')
+    printf(' /lk request')
+    printf(' /lk scan')
+    return true
+end
+
+function LiteKeystone:Initialize()
+
+    self.callbacks = {}
+
+    LiteKeystoneDB = LiteKeystoneDB or {}
+    self.db = LiteKeystoneDB
+    self.db.playerKeys = self.db.playerKeys or {}
+    self.db.playerTimewalkingKeys = self.db.playerTimewalkingKeys or {}
+
+    SlashCmdList.LiteKeystone = function (...) self:SlashCommand(...) end
+    _G.SLASH_LiteKeystone1 = "/litekeystone"
+    _G.SLASH_LiteKeystone2 = "/lk"
+
+    self.playerName = string.join('-', UnitFullName('player'))
+    if not IsInGroup(LE_PARTY_CATEGORY_HOME) then return false end
+    for i = 1, GetNumGuildMembers() do
+        if key.playerName == GetGuildRosterInfo(i) then
+            return true
+        end
+    end
+end
+
 function LiteKeystone:IsGuildKey(key)
     if not IsInGuild() then return false end
     for i = 1, GetNumGuildMembers() do
