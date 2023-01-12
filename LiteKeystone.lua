@@ -31,6 +31,12 @@ local function printf(fmt, ...)
     SELECTED_CHAT_FRAME:AddMessage(printTag .. msg)
 end
 
+local function debug(...)
+    --@debug@
+    printf(...)
+    --@end-debug@
+end
+
 local regionStartTimes = {
     [1] = 1500390000,   -- US
     [2] = 1500390000,   -- EU (says 1500447600 but doesn't use it)
@@ -84,125 +90,6 @@ function LiteKeystone:IsGroupKey(key)
         end
     else
         return false
-    end
-end
-
-function LiteKeystone:IsGuildKey(key)
-    if not IsInGuild() then return false end
-    for i = 1, GetNumGuildMembers() do
-        if key.playerName == GetGuildRosterInfo(i) then
-            return true
-        end
-    end
-end
-
-function LiteKeystone:IsMyGuildKey(key)
-    return self:IsMyKey(key) or self:IsGuildKey(key)
-end
-
-function LiteKeystone:IsMyFactionKey(key)
-    return self:IsMyKey(key) and self:IsFactionKey(key)
-end
-
-function LiteKeystone:IsNewKey(existingKey, newKey)
-    if not existingKey then
-        return true
-    elseif not newKey then
-        return false
-    else
-        return ( existingKey.mapID ~= newKey.mapID or existingKey.keyLevel ~= newKey.keyLevel )
-    end
-end
-
-function LiteKeystone:IsNewBest(key, weekBest)
-    return ( key and key.weekBest ~= weekBest )
-end
-
--- Astral Keys' idea of the week number
-local function WeekNum()
-    local r = GetCurrentRegion()
-    return math.floor( (GetServerTime() - regionStartTimes[r]) / 604800 )
-end
-
--- How many seconds we are into the current keystone week
-local function WeekTime()
-    local r = GetCurrentRegion()
-    return math.floor( (GetServerTime() - regionStartTimes[r] ) % 604800 )
-end
-
-function LiteKeystone:SlashCommand(arg)
-    local arg1, arg2 = string.split(' ', arg)
-    local n = arg1:len()
-
-    if  arg1 == '' or arg1 == ('show'):sub(1,n) then
-        LiteKeystoneInfo:Show()
-        return true
-    end
-
-    if arg1 == ('push'):sub(1,n) then
-        self:PushMyKeys()
-        self:PushSyncKeys()
-        return true
-    end
-
-    if arg1 == 'scan' then
-        self:ScanAndPushKeys('commandline')
-        return true
-    end
-
-    if arg1 == ('request'):sub(1,n) then
-        self:RequestKeysFromGuild()
-        self:RequestKeysFromFriends()
-        return true
-    end
-
-    if arg1 == ('report'):sub(1,n) then
-        n = arg2 and arg2:len() or 0
-        if not arg2 or arg2 == ('guild'):sub(1,n) then
-            self:ReportKeys('IsMyFactionKey', 'GUILD')
-        elseif arg2 == ('party'):sub(1,n) then
-            self:ReportKeys('IsMyFactionKey', 'PARTY')
-        elseif arg2 == ('raid'):sub(1,n) then
-            self:ReportKeys('IsMyFactionKey', 'RAID')
-        elseif arg2 == ('instance'):sub(1,n) then
-            self:ReportKeys('IsMyFactionKey', 'INSTANCE')
-        end
-        return true
-    end
-
-    if arg1 == ('scan'):sub(1,n) then
-        C_MythicPlus.RequestMapInfo()
-        return true
-    end
-
-    printf('Usage:')
-    printf(' /lk list')
-    printf(' /lk push')
-    printf(' /lk report [party]')
-    printf(' /lk request')
-    printf(' /lk scan')
-    return true
-end
-
-function LiteKeystone:Initialize()
-
-    self.callbacks = {}
-
-    LiteKeystoneDB = LiteKeystoneDB or {}
-    self.db = LiteKeystoneDB
-    self.db.playerKeys = self.db.playerKeys or {}
-    self.db.playerTimewalkingKeys = self.db.playerTimewalkingKeys or {}
-
-    SlashCmdList.LiteKeystone = function (...) self:SlashCommand(...) end
-    _G.SLASH_LiteKeystone1 = "/litekeystone"
-    _G.SLASH_LiteKeystone2 = "/lk"
-
-    self.playerName = string.join('-', UnitFullName('player'))
-    if not IsInGroup(LE_PARTY_CATEGORY_HOME) then return false end
-    for i = 1, GetNumGuildMembers() do
-        if key.playerName == GetGuildRosterInfo(i) then
-            return true
-        end
     end
 end
 
@@ -425,12 +312,12 @@ function LiteKeystone:ProcessItem(item)
 
     local newKey = self:GetMyKeyFromLink(item:GetItemLink(), weekBest)
 
-    printf('Found key: mapid %d (%s), level %d, weekbest %d.', newKey.mapID, newKey.mapName, newKey.keyLevel, weekBest)
+    debug('Found key: mapid %d (%s), level %d, weekbest %d.', newKey.mapID, newKey.mapName, newKey.keyLevel, weekBest)
 
     local existingKey = db[self.playerName]
 
     if self:IsNewKey(existingKey, newKey) then
-        printf('New key, saving.')
+        debug('New key, saving.')
         newKey.weekBest = weekBest
         db[self.playerName] = newKey
         if IsInGroup(LE_PARTY_CATEGORY_HOME) then
@@ -439,18 +326,18 @@ function LiteKeystone:ProcessItem(item)
         self:PushMyKeys(newKey)
         self:Fire()
     elseif self:IsNewBest(existingKey, weekBest) then
-        printf('New best, updating.')
+        debug('New best, updating.')
         existingKey.weekBest = weekBest
         self:PushMyKeys(existingKey)
         self:Fire()
     else
-        printf('Same key, ignored.')
+        debug('Same key, ignored.')
     end
 end
 
 -- Don't call C_MythicPlus.RequestMapInfo here or it'll infinite loop
 function LiteKeystone:ScanAndPushKeys(reason)
-    printf('Scanning my keys: %s.', tostring(reason))
+    debug('Scanning my keys: %s.', tostring(reason))
 
     for bag = 0, 4 do
         for slot = 1, C_Container.GetContainerNumSlots(bag) do
@@ -548,7 +435,7 @@ function LiteKeystone:ReceiveKey(newKey, action)
 
     self.db.playerKeys[newKey.playerName] = newKey
 
-    printf('Got key from %s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link)
+    debug('Got key from %s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link)
 
     self:Fire()
 
