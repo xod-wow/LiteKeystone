@@ -225,6 +225,7 @@ function LiteKeystone:Initialize()
     self:RegisterEvent('ITEM_CHANGED')
     self:RegisterEvent('CHAT_MSG_PARTY')
     self:RegisterEvent('CHAT_MSG_PARTY_LEADER')
+    self:RegisterEvent('CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN')
 
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
@@ -800,5 +801,25 @@ function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
     local item = Item:CreateFromItemLink(toLink)
     if not item:IsItemEmpty() then
         item:ContinueOnItemLoad(function () self:ProcessItem(item) end)
+    end
+end
+
+-- For putting the keystone in the hole. Seems to be a legit typo from
+-- Blizzard that it says receptable instead of receptacle.
+
+function LiteKeystone:CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN()
+    for bag = 0, 4 do
+        for slot = 1, C_Container.GetContainerNumSlots(bag) do
+            local item = Item:CreateFromBagAndSlot(bag, slot)
+            if not item:IsItemEmpty() then
+                item:ContinueOnItemLoad(
+                    function ()
+                        local itemID = item:GetItemID()
+                        if itemID == 187786 or itemID == 180653 then
+                            C_Container.UseContainerItem(bag, slot)
+                        end
+                    end)
+            end
+        end
     end
 end
