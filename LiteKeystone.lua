@@ -230,6 +230,13 @@ function LiteKeystone:Initialize()
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
 
+    if LibStub then
+        local lor = LibStub('LibOpenRaid-1.0', true)
+        if lor then
+            lor.RegisterCallback(self, 'KeystoneUpdate', 'UpdateOpenRaidKeys')
+        end
+    end
+
     printf('Initialized.')
 end
 
@@ -540,6 +547,32 @@ function LiteKeystone:PushSyncKeys()
 
     for _,msg in ipairs(batch(guildKeys, 240)) do
         C_ChatInfo.SendAddonMessage('AstralKeys', 'sync5 ' .. msg, 'GUILD')
+    end
+end
+
+-- Assumes LibOpenraid-1.0 and LibStub exist, don't call unless true
+
+function LiteKeystone:UpdateOpenRaidKeys()
+    local lor = LibStub('LibOpenRaid-1.0', true)
+
+    for unitName, info in pairs(lor.GetAllKeystonesInfo()) do
+        if info.mythicPlusMapID ~= 0 then
+            local newKey = {
+                itemID=180653,
+                playerName=unitName,
+                playerClass=select(2, GetClassInfo(info.classID)),
+                playerFaction=self.playerFaction,
+                mapID=info.mythicPlusMapID,
+                mapName=C_ChallengeMode.GetMapUIInfo(info.mythicPlusMapID),
+                keyLevel=info.level,
+                weekBest=0,
+                weekNum=WeekNum(),
+                weekTime=WeekTime(),
+                source=info.playerName,
+            }
+            newKey.link = self:GetKeystoneLink(newKey)
+            self:ReceiveKey(newKey, 'LibOpenRaid')
+        end
     end
 end
 
