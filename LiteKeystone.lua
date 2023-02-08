@@ -69,13 +69,12 @@ function LiteKeystone:IsFactionKey(key)
 end
 
 function LiteKeystone:IsGroupKey(key)
-    local playerRealm = GetRealmName()
     if key.playerName == self.playerName then
         return true
     elseif IsInRaid(LE_PARTY_CATEGORY_HOME) then
         for i = 1, GetNumGroupMembers(LE_PARTY_CATEGORY_HOME) do
             local name, realm = UnitName("raid"..i)
-            local fullName = string.join('-', name, realm or playerRealm)
+            local fullName = string.join('-', name, realm or self.playerRealm)
             if key.playerName == fullName then
                 return true
             end
@@ -83,7 +82,7 @@ function LiteKeystone:IsGroupKey(key)
     elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then
         for i = 1, GetNumGroupMembers(LE_PARTY_CATEGORY_HOME) - 1 do
             local name, realm = UnitName("party"..i)
-            local fullName = string.join('-', name, realm or playerRealm)
+            local fullName = string.join('-', name, realm or self.playerRealm)
             if key.playerName == fullName then
                 return true
             end
@@ -204,6 +203,7 @@ function LiteKeystone:Initialize()
     _G.SLASH_LiteKeystone2 = "/lk"
 
     self.playerName = string.join('-', UnitFullName('player'))
+    self.playerRealm = GetRealmName()
     self.playerClass = select(2, UnitClass('player'))
 
     if UnitFactionGroup('player') == 'Alliance' then
@@ -211,7 +211,6 @@ function LiteKeystone:Initialize()
     else
         self.playerFaction = 1
     end
-
     self:RemoveExpiredKeys()
 
     C_ChatInfo.RegisterAddonMessagePrefix('AstralKeys')
@@ -556,6 +555,9 @@ function LiteKeystone:UpdateOpenRaidKeys()
     local lor = LibStub('LibOpenRaid-1.0', true)
 
     for unitName, info in pairs(lor.GetAllKeystonesInfo()) do
+        if not unitName:find('-') then
+            unitName = unitName .. '-' .. self.playerRealm
+        end
         if info.mythicPlusMapID ~= 0 then
             local newKey = {
                 itemID=180653,
@@ -568,7 +570,7 @@ function LiteKeystone:UpdateOpenRaidKeys()
                 weekBest=0,
                 weekNum=WeekNum(),
                 weekTime=WeekTime(),
-                source=info.playerName,
+                source=unitName,
             }
             newKey.link = self:GetKeystoneLink(newKey)
             self:ReceiveKey(newKey, 'LibOpenRaid')
@@ -613,7 +615,7 @@ function LiteKeystone:GetAffixes()
 end
 
 function LiteKeystone:GetPlayerName(key, useColor)
-    local p = key.playerName:gsub('-'..GetRealmName(), '')
+    local p = key.playerName:gsub('-'..self.playerRealm, '')
     if useColor then
         return RAID_CLASS_COLORS[key.playerClass]:WrapTextInColorCode(p)
     else
