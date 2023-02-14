@@ -120,7 +120,7 @@ function LiteKeystone:IsNewKey(existingKey, newKey)
 end
 
 function LiteKeystone:IsNewBest(key, weekBest)
-    return ( key and key.weekBest ~= weekBest )
+    return ( key and ( weekBest or 0 ) > ( key.weekBest or 0  ) )
 end
 
 -- Astral Keys' idea of the week number
@@ -176,7 +176,7 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == ('scan'):sub(1,n) then
-        C_MythicPlus.RequestMapInfo()
+        self.RequestScan()
         return true
     end
 
@@ -218,9 +218,10 @@ function LiteKeystone:Initialize()
     self:RegisterEvent('CHAT_MSG_ADDON')
     self:RegisterEvent('BN_CHAT_MSG_ADDON')
     self:RegisterEvent('GUILD_ROSTER_UPDATE')
-    -- self:RegisterEvent('CHALLENGE_MODE_COMPLETED')
+    self:RegisterEvent('CHALLENGE_MODE_COMPLETED')
     self:RegisterEvent('CHALLENGE_MODE_MAPS_UPDATE')
     self:RegisterEvent('ITEM_PUSH')
+    self:RegisterEvent('ITEM_COUNT_CHANGED')
     self:RegisterEvent('ITEM_CHANGED')
     self:RegisterEvent('CHAT_MSG_PARTY')
     self:RegisterEvent('CHAT_MSG_PARTY_LEADER')
@@ -233,6 +234,7 @@ function LiteKeystone:Initialize()
         local lor = LibStub('LibOpenRaid-1.0', true)
         if lor then
             lor.RegisterCallback(self, 'KeystoneUpdate', 'UpdateOpenRaidKeys')
+            lor.RequestKeystoneDataFromGuild()
         end
     end
 
@@ -464,8 +466,7 @@ end
 function LiteKeystone:GetKeyFromSync(content, source)
     local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, weekTime = string.split(':', content)
 
-    -- AstralKeys splitting is garbage and the last entry is often truncated,
-    -- so make sure we got all the fields.
+    -- Make sure we got all the fields.
     if not weekTime or not tonumber(weekTime) then return end
 
     local newKey = {
@@ -551,7 +552,9 @@ end
 
 -- Assumes LibOpenraid-1.0 and LibStub exist, don't call unless true
 
-function LiteKeystone:UpdateOpenRaidKeys()
+-- LibOpenRaid doesn't pass self even though it insists on a method
+function LiteKeystone.UpdateOpenRaidKeys()
+    local self = LiteKeystone
     local lor = LibStub('LibOpenRaid-1.0', true)
 
     for unitName, info in pairs(lor.GetAllKeystonesInfo()) do
@@ -573,7 +576,9 @@ function LiteKeystone:UpdateOpenRaidKeys()
                 source=unitName,
             }
             newKey.link = self:GetKeystoneLink(newKey)
-            self:ReceiveKey(newKey, 'LibOpenRaid')
+            if self:IsGuildKey(newKey) then
+                self:ReceiveKey(newKey, 'LibOpenRaid')
+            end
         end
     end
 end
@@ -607,6 +612,7 @@ function LiteKeystone:GetAffixes()
     if not self.keystoneAffixes then
         self.keystoneAffixes = {}
         local affixInfo = C_MythicPlus.GetCurrentAffixes()
+        if not affixInfo then return end
         for _, info in ipairs(affixInfo) do
             table.insert(self.keystoneAffixes, info.id)
         end
@@ -628,6 +634,11 @@ function LiteKeystone:GetKeyText(key)
 end
 
 function LiteKeystone:GetKeystoneLink(key)
+    local affixes = self:GetAffixes()
+
+    -- Sometimes this is called at long before the affix info is available.
+    if not affixes then return end
+
     local affixFormat
     if key.keyLevel > 9 then
         affixFormat = '%d:%d:%d:%d'
@@ -639,14 +650,11 @@ function LiteKeystone:GetKeystoneLink(key)
         affixFormat = '%d:0:0:0'
     end
 
-    local affixes = self:GetAffixes()
-
     local affixString = string.format(affixFormat, unpack(affixes))
-
     return string.format(
             '|cffa335ee|Hkeystone:180653:%d:%d:%s|h[Keystone: %s (%d)]|h|r',
             key.mapID, key.keyLevel, affixString, key.mapName, key.keyLevel
-        )
+    )
 end
 
 function LiteKeystone:GetPrintString(key, useColor)
@@ -804,27 +812,35 @@ function LiteKeystone:GUILD_ROSTER_UPDATE()
     end
 end
 
+-- Note class method so it can be used directly in event handlers.
+function LiteKeystone.RequestScan()
+    C_MythicPlus.RequestMapInfo()
+end
+
 -- This is fired after C_MythicPlus.RequestMapInfo() is called, which
 -- we will use as our primary way to force a keystone scan. It's also returned
--- for like 50 other things, which is weird as hell.
+-- for like 50 other things, which is weird as hell. Would be equally valid to
+-- use C_MythicPlus.RequestRewards() which also triggers this.
 
 function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
     self:ScanAndPushKeys('CHALLENGE_MODE_MAPS_UPDATE')
 end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
-    self:ScanAndPushKeys('CHALLENGE_MODE_COMPLETED')
+    C_Timer.After(1, self.RequestScan)
 end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
     if iconID == 525134 or iconID == 531324 or iconID == 4352494 then
-        self:RegisterEvent('BAG_UPDATE_DELAYED')
+        C_Timer.After(1, self.RequestScan)
     end
 end
 
-function LiteKeystone:BAG_UPDATE_DELAYED()
-    self:UnregisterEvent('BAG_UPDATE_DELAYED')
-    self:ScanAndPushKeys('BAG_UPDATE_DELAYED')
+-- Not getting ITEM_PUSH for opening the Great Vault since DF.
+function LiteKeystone:ITEM_COUNT_CHANGED(itemID)
+    if itemID == 180653 then
+        C_Timer.After(1, self.RequestScan)
+    end
 end
 
 -- Keystone trader at the end of finishing a M+ or the keystone downgrader.
@@ -833,10 +849,15 @@ end
 -- which is why this doesn't just call ScanAndPushKeys.
 
 function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
+    -- This used to work but now doesn't.
+    --[[
     local item = Item:CreateFromItemLink(toLink)
     if not item:IsItemEmpty() then
         item:ContinueOnItemLoad(function () self:ProcessItem(item) end)
     end
+    ]]
+    -- Arbitrarily wait? How awful.
+    C_Timer.After(1, self.RequestScan)
 end
 
 -- For putting the keystone in the hole. Seems to be a legit typo from
