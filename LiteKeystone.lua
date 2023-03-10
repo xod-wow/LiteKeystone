@@ -17,13 +17,6 @@
 
 ----------------------------------------------------------------------------]]--
 
-LiteKeystone = CreateFrame('Frame')
-LiteKeystone:SetScript('OnEvent',
-        function (self, e, ...)
-            if self[e] then self[e](self, ...) end
-        end)
-LiteKeystone:RegisterEvent('PLAYER_LOGIN')
-
 local printTag = ORANGE_FONT_COLOR_CODE.."LiteKeystone: "..FONT_COLOR_CODE_CLOSE
 
 local function printf(fmt, ...)
@@ -37,6 +30,14 @@ local function debug(...)
     --@end-debug@
 end
 
+--[[------------------------------------------------------------------------]]--
+
+LiteKeystone = CreateFrame('Frame')
+LiteKeystone:SetScript('OnEvent',
+        function (self, e, ...)
+            if self[e] then self[e](self, ...) end
+        end)
+LiteKeystone:RegisterEvent('PLAYER_LOGIN')
 local regionStartTimes = {
     [1] = 1500390000,   -- US
     [2] = 1500390000,   -- EU (says 1500447600 but doesn't use it)
@@ -88,14 +89,15 @@ function LiteKeystone:IsGroupKey(key)
             end
         end
     else
-        return false
+        return self:IsGuildKey(key, true)
     end
 end
 
-function LiteKeystone:IsGuildKey(key)
+function LiteKeystone:IsGuildKey(key, requireOnline)
     if not IsInGuild() then return false end
     for i = 1, GetNumGuildMembers() do
-        if key.playerName == GetGuildRosterInfo(i) then
+        local name, _, _, _, _, _, _, _, isOnline = GetGuildRosterInfo(i)
+        if key.playerName == name and ( isOnline or not requireOnline ) then
             return true
         end
     end

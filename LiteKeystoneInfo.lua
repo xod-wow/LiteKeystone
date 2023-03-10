@@ -103,6 +103,7 @@ function LiteKeystoneInfoMixin:OnLoad()
 end
 
 function LiteKeystoneInfoMixin:OnShow()
+    self:RegisterEvent('GUILD_ROSTER_UPDATE')
     self:RegisterEvent('GROUP_ROSTER_UPDATE')
     self:RegisterEvent('RAID_ROSTER_UPDATE')
     LiteKeystone:RegisterCallback(self, function () UpdateScroll(self.Scroll) end)
