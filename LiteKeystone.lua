@@ -153,7 +153,7 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == 'scan' then
-        self:ScanAndPushKeys('commandline')
+        self:ScanAndPushKeys('COMMANDLINE')
         return true
     end
 
@@ -174,11 +174,6 @@ function LiteKeystone:SlashCommand(arg)
         elseif arg2 == ('instance'):sub(1,n) then
             self:ReportKeys('IsMyFactionKey', 'INSTANCE')
         end
-        return true
-    end
-
-    if arg1 == ('scan'):sub(1,n) then
-        self.RequestScan()
         return true
     end
 
@@ -814,34 +809,34 @@ function LiteKeystone:GUILD_ROSTER_UPDATE()
     end
 end
 
--- Note class method so it can be used directly in event handlers.
-function LiteKeystone.RequestScan()
-    C_MythicPlus.RequestMapInfo()
+function LiteKeystone:DelayScan(trigger, delay)
+    if trigger then debug('DelayScan ' .. trigger) end
+    C_Timer.After(delay or 1, function () self:ScanAndPushKeys(trigger) end)
 end
 
--- This is fired after C_MythicPlus.RequestMapInfo() is called, which
--- we will use as our primary way to force a keystone scan. It's also returned
--- for like 50 other things, which is weird as hell. Would be equally valid to
--- use C_MythicPlus.RequestRewards() which also triggers this.
+-- This used to be reliably fired every time C_MythicPlus.RequestMapInfo() was
+-- called and used to be the primary scan trigger. At some point Blizzard
+-- started caching the data locally and not re-triggering unless something
+-- changed so that doesn't work any more.
 
 function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
-    self:ScanAndPushKeys('CHALLENGE_MODE_MAPS_UPDATE')
+    self:DelayScan('CHALLENGE_MODE_MAPS_UPDATE')
 end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
-    C_Timer.After(1, self.RequestScan)
+    self:DelayScan('CHALLENGE_MODE_COMPLETED')
 end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
     if iconID == 525134 or iconID == 531324 or iconID == 4352494 then
-        C_Timer.After(1, self.RequestScan)
+        self:DelayScan('CHALLENGE_MODE_COMPLETED')
     end
 end
 
 -- Not getting ITEM_PUSH for opening the Great Vault since DF.
 function LiteKeystone:ITEM_COUNT_CHANGED(itemID)
     if itemID == 180653 then
-        C_Timer.After(1, self.RequestScan)
+        self:DelayScan('ITEM_COUNT_CHANGED')
     end
 end
 
@@ -859,7 +854,7 @@ function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
     end
     ]]
     -- Arbitrarily wait? How awful.
-    C_Timer.After(1, self.RequestScan)
+    self:DelayScan('ITEM_CHANGED')
 end
 
 -- For putting the keystone in the hole. Seems to be a legit typo from
