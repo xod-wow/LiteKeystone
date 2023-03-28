@@ -829,7 +829,7 @@ end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
     if iconID == 525134 or iconID == 531324 or iconID == 4352494 then
-        self:DelayScan('CHALLENGE_MODE_COMPLETED')
+        self:DelayScan('ITEM_PUSH')
     end
 end
 
