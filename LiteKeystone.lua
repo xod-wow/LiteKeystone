@@ -846,15 +846,15 @@ end
 -- which is why this doesn't just call ScanAndPushKeys.
 
 function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
-    -- This used to work but now doesn't.
-    --[[
     local item = Item:CreateFromItemLink(toLink)
     if not item:IsItemEmpty() then
-        item:ContinueOnItemLoad(function () self:ProcessItem(item) end)
+        item:ContinueOnItemLoad(
+            function ()
+                debug('Processing changed item: ' .. item:GetItemLink())
+                self:ProcessItem(item)
+            end)
     end
-    ]]
-    -- Arbitrarily wait? How awful.
-    self:DelayScan('ITEM_CHANGED')
+    -- self:DelayScan('ITEM_CHANGED')
 end
 
 -- For putting the keystone in the hole. Seems to be a legit typo from
