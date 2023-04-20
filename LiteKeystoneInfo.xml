@@ -40,8 +40,8 @@
           </Anchors>
         </FontString>
 
-        <FontString parentKey="WeekBest" inherits="SystemFont_Med3" justifyH="RIGHT">
-          <Size x="32" />
+        <FontString parentKey="Rating" inherits="SystemFont_Med3" justifyH="LEFT">
+          <Size x="48" />
           <Anchors>
             <Anchor point="RIGHT" x="-24" />
           </Anchors>
@@ -63,7 +63,7 @@
 
         <Anchors>
           <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.PlayerName" />
-          <Anchor point="RIGHT" relativePoint="LEFT" x="-8" relativeKey="$parent.WeekBest" />
+          <Anchor point="RIGHT" relativePoint="LEFT" x="-8" relativeKey="$parent.Rating" />
         </Anchors>
 
         <Layers>
@@ -110,12 +110,12 @@
     </Layers>
 
     <Frames>
-      <Button parentKey="WeekBest" mixin="LiteKeystoneHeaderButtonMixin" text="Best">
+      <Button parentKey="Rating" mixin="LiteKeystoneHeaderButtonMixin" text="RATING">
         <Scripts><OnClick method="OnClick" /></Scripts>
-        <Size x="32" y="24" />
+        <Size x="48" y="24" />
         <NormalFont style="SystemFont_Med3" />
         <ButtonText>
-          <Anchors><Anchor point="TOPRIGHT" y="-1" /></Anchors>
+          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
         </ButtonText>
         <Anchors>
           <Anchor point="RIGHT" x="-24" />
@@ -143,7 +143,7 @@
         </ButtonText>
         <Anchors>
           <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.PlayerName" />
-          <Anchor point="RIGHT" relativePoint="LEFT" x="-8" relativeKey="$parent.WeekBest" />
+          <Anchor point="RIGHT" relativePoint="LEFT" x="-8" relativeKey="$parent.Rating" />
         </Anchors>
       </Button>
     </Frames>

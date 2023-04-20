@@ -26,8 +26,7 @@ local function UpdateButton(self, index)
         self.Mine:SetText(self.key.source == 'mine' and '*' or '')
         self.PlayerName:SetText(LiteKeystone:GetPlayerName(self.key, true))
         self.Keystone.Text:SetText(LiteKeystone:GetKeyText(self.key))
-        self.WeekBest:SetText(self.key.weekBest)
-
+        self.Rating:SetText(self.key.rating or '?')
         self.Stripe:SetShown(index % 2 == 1)
         self:Show()
     end
@@ -144,8 +143,8 @@ function LiteKeystoneHeaderButtonMixin:OnClick()
         end
     elseif self:GetText() == 'Player' then
         sortType = 'PLAYERNAME'
-    elseif self:GetText() == 'Best' then
-        sortType = 'WEEKBEST'
+    elseif self:GetText() == RATING then
+        sortType = 'RATING'
     end
     UpdateScroll(LiteKeystoneInfo.Scroll)
 end

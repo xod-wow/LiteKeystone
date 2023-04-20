@@ -30,6 +30,18 @@ local function debug(...)
     --@end-debug@
 end
 
+local function IsKeystoneItem(item)
+    if type(item) == 'string' then
+        if LinkUtil.IsLinkType(item, "keystone") then
+            return true
+        end
+        item = GetItemInfoFromHyperlink(item)
+    elseif type(item) == 'table' then
+        item = item:GetItemID()
+    end
+    return item == 187786 or item == 180653
+end
+
 --[[------------------------------------------------------------------------]]--
 
 LiteKeystone = CreateFrame('Frame')
@@ -209,6 +221,7 @@ function LiteKeystone:Initialize()
         self.playerFaction = 1
     end
     self:RemoveExpiredKeys()
+    EventUtil.ContinueOnAddOnLoaded('RaiderIO', function () self:UpdateKeyRatings() end)
 
     C_ChatInfo.RegisterAddonMessagePrefix('AstralKeys')
 
@@ -299,6 +312,8 @@ function LiteKeystone:GetMyKeyFromLink(link, weekBest)
         source='mine',
     }
 
+    self:UpdateKeyRating(newKey)
+
     return newKey
 end
 
@@ -380,6 +395,24 @@ function LiteKeystone:GetKeySyncString(key)
                    key.weekNum,
                    key.weekTime
                 )
+end
+
+function LiteKeystone:UpdateKeyRating(key)
+    if key.playerName == self.playerName then
+        key.rating = C_ChallengeMode.GetOverallDungeonScore()
+    elseif RaiderIO and RaiderIO.GetProfile then
+        local n, r = string.split('-', key.playerName)
+        local p = RaiderIO.GetProfile(n, r)
+        if p and p.mythicKeystoneProfile.mplusCurrent then
+            key.rating = max(key.rating or 0, p.mythicKeystoneProfile.mplusCurrent.score)
+        end
+    end
+end
+
+function LiteKeystone:UpdateKeyRatings()
+    for player,key in pairs(self.db.playerKeys) do
+        self:UpdateKeyRating(key)
+    end
 end
 
 function LiteKeystone:RemoveExpiredKeys()
@@ -482,6 +515,8 @@ function LiteKeystone:GetKeyFromSync(content, source)
 
     newKey.link = self:GetKeystoneLink(newKey)
 
+    self:UpdateKeyRating(newKey)
+
     return newKey
 end
 
@@ -503,6 +538,8 @@ function LiteKeystone:GetKeyFromUpdate(content, source)
     }
 
     newKey.link = self:GetKeystoneLink(newKey)
+
+    self:UpdateKeyRating(newKey)
 
     return newKey
 end
@@ -568,6 +605,7 @@ function LiteKeystone.UpdateOpenRaidKeys()
                 mapName=C_ChallengeMode.GetMapUIInfo(info.mythicPlusMapID),
                 keyLevel=info.level,
                 weekBest=0,
+                rating=info.rating,
                 weekNum=WeekNum(),
                 weekTime=WeekTime(),
                 source=unitName,
@@ -706,6 +744,17 @@ do
         end
         return sorts.KEYLEVEL(a, b)
     end
+    sorts.RATING = function (a, b)
+        if a.rating == b.rating then
+            return sorts.KEYLEVEL(a, b)
+        elseif not a.rating then
+            return false
+        elseif not b.rating then
+            return true
+        else
+            return a.rating > b.rating
+        end
+    end
 end
 
 function LiteKeystone:SortedKeys(filterMethod, sortType)
@@ -835,26 +884,21 @@ end
 
 -- Not getting ITEM_PUSH for opening the Great Vault since DF.
 function LiteKeystone:ITEM_COUNT_CHANGED(itemID)
-    if itemID == 180653 then
+    if IsKeystoneItem(itemID) then
         self:DelayScan('ITEM_COUNT_CHANGED')
     end
 end
 
 -- Keystone trader at the end of finishing a M+ or the keystone downgrader.
--- The link could be keystone:itemid or item:itemid. There is a delay between
--- ITEM_CHANGED firing and GetContainerItemInfo returning the new keystone,
--- which is why this doesn't just call ScanAndPushKeys.
+-- The link could be keystone:itemid or item:itemid. This used to use
+-- ProcessItem on an item created from toLink but item: style keystone
+-- links don't have any details in them.
 
 function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
-    local item = Item:CreateFromItemLink(toLink)
-    if not item:IsItemEmpty() then
-        item:ContinueOnItemLoad(
-            function ()
-                debug('Processing changed item: ' .. item:GetItemLink())
-                self:ProcessItem(item)
-            end)
+    local itemID = GetItemInfoFromHyperlink(toLink)
+    if IsKeystoneItem(itemID) then
+        self:DelayScan('ITEM_CHANGED')
     end
-    -- self:DelayScan('ITEM_CHANGED')
 end
 
 -- For putting the keystone in the hole. Seems to be a legit typo from
@@ -867,8 +911,7 @@ function LiteKeystone:CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN()
             if not item:IsItemEmpty() then
                 item:ContinueOnItemLoad(
                     function ()
-                        local itemID = item:GetItemID()
-                        if itemID == 187786 or itemID == 180653 then
+                        if IsKeystoneItem(item) then
                             C_Container.UseContainerItem(bag, slot)
                         end
                     end)
