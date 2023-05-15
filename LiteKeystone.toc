@@ -4,6 +4,7 @@
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## IconTexture: 4352494
+## AddonCompartmentFunc: LiteKeystone_AddonCompartmentFunc
 ## SavedVariables: LiteKeystoneDB
 
 LiteKeystone.xml

@@ -924,3 +924,5 @@ function LiteKeystone:CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN()
         end
     end
 end
+
+LiteKeystone_AddonCompartmentFunc = function () LiteKeystoneInfo:Show() end
