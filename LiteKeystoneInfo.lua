@@ -102,6 +102,7 @@ function LiteKeystoneInfoMixin:OnLoad()
 end
 
 function LiteKeystoneInfoMixin:OnShow()
+    LiteKeystone:UpdateKeyRatings()
     self:RegisterEvent('GUILD_ROSTER_UPDATE')
     self:RegisterEvent('GROUP_ROSTER_UPDATE')
     self:RegisterEvent('RAID_ROSTER_UPDATE')

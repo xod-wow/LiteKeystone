@@ -129,12 +129,13 @@ function LiteKeystone:IsNewKey(existingKey, newKey)
     elseif not newKey then
         return false
     else
-        return ( existingKey.mapID ~= newKey.mapID or existingKey.keyLevel ~= newKey.keyLevel )
+        return (
+            existingKey.mapID ~= newKey.mapID or
+            existingKey.keyLevel ~= newKey.keyLevel or
+            existingKey.weekBest ~= newKey.weekBest or
+            existingKey.rating ~= newKey.rating
+        )
     end
-end
-
-function LiteKeystone:IsNewBest(key, weekBest)
-    return ( key and ( weekBest or 0 ) > ( key.weekBest or 0  ) )
 end
 
 -- Astral Keys' idea of the week number
@@ -170,6 +171,7 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == ('request'):sub(1,n) then
+        self.UpdateOpenRaidKeys()
         self:RequestKeysFromGuild()
         self:RequestKeysFromFriends()
         return true
@@ -348,12 +350,6 @@ function LiteKeystone:ProcessItem(item)
         end
         self:PushMyKeys(newKey)
         self:Fire()
-    elseif self:IsNewBest(existingKey, weekBest) then
-        debug('New best, updating.')
-        existingKey.weekBest = weekBest
-        self:PushMyKeys(existingKey)
-        self:Fire()
-    else
         debug('Same key, ignored.')
     end
 end
@@ -460,7 +456,7 @@ function LiteKeystone:UpdateWeekly(playerName, weekBest)
     end
 end
 
-function LiteKeystone:ReceiveKey(newKey, action)
+function LiteKeystone:ReceiveKey(newKey, action, isUnreliable)
     local existingKey = self.db.playerKeys[newKey.playerName]
 
     -- Don't accept our own keys back from other people
@@ -473,13 +469,22 @@ function LiteKeystone:ReceiveKey(newKey, action)
     -- Third party reports are unreliable, try to make sure we don't
     -- overwrite better info.
 
-    if not self:IsNewKey(existingKey, newKey) and
-       not self:IsNewBest(existingKey, newKey.weekBest) then
+    if isUnreliable then
+        newKey.weekBest = math.max(existingKey.weekBest or 0, newKey.weekBest or 0)
+        if newKey.rating then
+            newKey.rating = math.max(existingKey.rating or 0, newKey.rating or 0)
+        end
+    end
+
+    if not self:IsNewKey(existingKey, newKey) then
         return
     end
 
     if existingKey and newKey.weekTime <= existingKey.weekTime then
         existingKey.weekBest = math.max(existingKey.weekBest, newKey.weekBest)
+        if newKey.rating then
+            existingKey.rating = math.max(existingKey.rating or 0, newKey.rating)
+        end
         self:Fire()
         return
     end
