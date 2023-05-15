@@ -3,6 +3,7 @@
 ## Version: @project-version@
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
+## IconTexture: 4352494
 ## SavedVariables: LiteKeystoneDB
 
 LiteKeystone.xml
