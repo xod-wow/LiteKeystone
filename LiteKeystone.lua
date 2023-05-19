@@ -124,14 +124,25 @@ function LiteKeystone:IsMyFactionKey(key)
 end
 
 function LiteKeystone:IsNewKey(existingKey, newKey)
-    if not existingKey then
-        return true
-    elseif not newKey then
+    if not newKey then
         return false
+    elseif not existingKey then
+        return true
     else
         return (
             existingKey.mapID ~= newKey.mapID or
-            existingKey.keyLevel ~= newKey.keyLevel or
+            existingKey.keyLevel ~= newKey.keyLevel
+        )
+    end
+end
+
+function LiteKeystone:IsNewPlayerData(existingKey, newKey)
+    if not newKey then
+        return false
+    elseif not existingKey then
+        return true
+    else
+        return (
             existingKey.weekBest ~= newKey.weekBest or
             existingKey.rating ~= newKey.rating
         )
@@ -276,7 +287,7 @@ function LiteKeystone:GetUIMapIDByName(name)
     return mapTable[name]
 end
 
-function LiteKeystone:GetMyKeyFromLink(link, weekBest)
+function LiteKeystone:GetMyKeyFromLink(link)
     local fields = { string.split(':', link) }
     local itemID, mapID, keyLevel
 
@@ -314,6 +325,10 @@ function LiteKeystone:GetMyKeyFromLink(link, weekBest)
         source='mine',
     }
 
+    for _, info in ipairs(C_MythicPlus.GetRunHistory(false, true)) do
+        newKey.weekBest = max(newKey.weekBest or 0, info.level)
+    end
+
     self:UpdateKeyRating(newKey)
 
     return newKey
@@ -330,26 +345,27 @@ function LiteKeystone:ProcessItem(item)
         return
     end
 
-    local weekBest = 0
-    for _, info in ipairs(C_MythicPlus.GetRunHistory(false, true)) do
-        weekBest = max(weekBest, info.level)
-    end
+    local newKey = self:GetMyKeyFromLink(item:GetItemLink())
 
-    local newKey = self:GetMyKeyFromLink(item:GetItemLink(), weekBest)
-
-    debug('Found key: mapid %d (%s), level %d, weekbest %d.', newKey.mapID, newKey.mapName, newKey.keyLevel, weekBest)
+    debug('Found key: mapid %d (%s), level %d, weekbest %d, rating %d.',
+            newKey.mapID, newKey.mapName, newKey.keyLevel, newKey.weekBest, newKey.rating)
 
     local existingKey = db[self.playerName]
 
     if self:IsNewKey(existingKey, newKey) then
         debug('New key, saving.')
-        newKey.weekBest = weekBest
         db[self.playerName] = newKey
         if IsInGroup(LE_PARTY_CATEGORY_HOME) then
             SendChatMessage('New keystone: ' .. newKey.link, 'PARTY')
         end
         self:PushMyKeys(newKey)
         self:Fire()
+    elseif self:IsNewPlayerData(existingKey, newKey) then
+        debug('New player data, saving.')
+        db[self.playerName] = newKey
+        self:PushMyKeys(newKey)
+        self:Fire()
+    else
         debug('Same key, ignored.')
     end
 end
@@ -399,7 +415,7 @@ function LiteKeystone:UpdateKeyRating(key)
     elseif RaiderIO and RaiderIO.GetProfile then
         local n, r = string.split('-', key.playerName)
         local p = RaiderIO.GetProfile(n, r)
-        if p and p.mythicKeystoneProfile.mplusCurrent then
+        if p and p.mythicKeystoneProfile and p.mythicKeystoneProfile.mplusCurrent then
             key.rating = max(key.rating or 0, p.mythicKeystoneProfile.mplusCurrent.score)
         end
     end
