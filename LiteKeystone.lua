@@ -188,24 +188,26 @@ function LiteKeystone:SlashCommand(arg)
         return true
     end
 
+    if arg1 == ('keys'):sub(1,n) then
+        if IsInGroup(LE_PARTY_CATEGORY_HOME) then
+            self:ReportKeys('IsGroupKey', 'PARTY')
+        end
+        return true
+    end
+
     if arg1 == ('report'):sub(1,n) then
-        n = arg2 and arg2:len() or 0
-        if not arg2 or arg2 == ('guild'):sub(1,n) then
-            self:ReportKeys('IsMyFactionKey', 'GUILD')
-        elseif arg2 == ('party'):sub(1,n) then
+        if IsInGroup(LE_PARTY_CATEGORY_HOME) then
             self:ReportKeys('IsMyFactionKey', 'PARTY')
-        elseif arg2 == ('raid'):sub(1,n) then
-            self:ReportKeys('IsMyFactionKey', 'RAID')
-        elseif arg2 == ('instance'):sub(1,n) then
-            self:ReportKeys('IsMyFactionKey', 'INSTANCE')
+        elseif IsInGuild() then
+            self:ReportKeys('IsMyFactionKey', 'GUILD')
         end
         return true
     end
 
     printf('Usage:')
-    printf(' /lk list')
+    printf(' /lk keys')
+    printf(' /lk mykeys')
     printf(' /lk push')
-    printf(' /lk report [party]')
     printf(' /lk request')
     printf(' /lk scan')
     return true
@@ -715,7 +717,7 @@ end
 
 function LiteKeystone:GetPrintString(key, useColor)
     local player = self:GetPlayerName(key, useColor)
-    return string.format('%s : %s : best %d', player, key.link, key.weekBest)
+    return string.format('%s : %s', player, key.link)
 end
 
 local sorts = {}
