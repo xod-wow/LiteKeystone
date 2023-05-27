@@ -220,7 +220,6 @@ function LiteKeystone:Initialize()
     LiteKeystoneDB = LiteKeystoneDB or {}
     self.db = LiteKeystoneDB
     self.db.playerKeys = self.db.playerKeys or {}
-    self.db.playerTimewalkingKeys = self.db.playerTimewalkingKeys or {}
 
     SlashCmdList.LiteKeystone = function (...) self:SlashCommand(...) end
     _G.SLASH_LiteKeystone1 = "/litekeystone"
@@ -272,7 +271,6 @@ end
 
 function LiteKeystone:Reset()
     table.wipe(self.db.playerKeys)
-    table.wipe(self.db.playerTimewalkingKeys)
     self:ScanAndPushKeys('Reset')
 end
 
@@ -339,9 +337,7 @@ end
 function LiteKeystone:ProcessItem(item)
     local db, changed
 
-    if item:GetItemID() == 187786 then
-        db = self.db.playerTimewalkingKeys
-    elseif item:GetItemID() == 180653 then
+    if item:GetItemID() == 180653 then
         db = self.db.playerKeys
     else
         return
@@ -436,11 +432,6 @@ function LiteKeystone:RemoveExpiredKeys()
             self.db.playerKeys[player] = nil
         end
     end
-    for player,key in pairs(self.db.playerTimewalkingKeys) do
-        if key.weekNum ~= thisWeek then
-            self.db.playerTimewalkingKeys[player] = nil
-        end
-    end
     self:Fire()
 end
 
@@ -448,8 +439,7 @@ function LiteKeystone:PushMyKeys(key)
 
     local key = key or self:MyKey()
 
-    -- AstralKeys only supports non-timewalking keystones
-    if not key or key.itemID ~= 180653 then return end
+    if not key then return end
 
     local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
 
@@ -790,12 +780,6 @@ function LiteKeystone:SortedKeys(filterMethod, sortType)
     local sortedKeys = {}
 
     for _,key in pairs(self.db.playerKeys) do
-        if not filter or filter(self, key) then
-            table.insert(sortedKeys, key)
-        end
-    end
-
-    for _,key in pairs(self.db.playerTimewalkingKeys) do
         if not filter or filter(self, key) then
             table.insert(sortedKeys, key)
         end
