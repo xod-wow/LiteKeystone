@@ -927,4 +927,38 @@ function LiteKeystone:CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN()
     end
 end
 
+function LiteKeystone:SortedDungeons()
+    local output = { }
+
+    for _, mapID in pairs(C_ChallengeMode.GetMapTable()) do
+        local mapName, _, mapTimer = C_ChallengeMode.GetMapUIInfo(mapID)
+        local scores, overallScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(mapID)
+        local outputRow = {
+            mapID = mapID,
+            mapName = mapName,
+            mapTimer = mapTimer,
+            overallScore = overallScore,
+            scores = {}
+        }
+
+        for _, info in ipairs(scores) do
+            local stars
+            if info.durationSec < mapTimer * 0.6 then
+                stars = '+++'
+            elseif info.durationSec < mapTimer * 0.8 then
+                stars = '++'
+            elseif info.durationSec < mapTimer then
+                stars = '+'
+            else
+                stars= ''
+            end
+            outputRow.scores[info.name] = { score=info.score, level=format('%s%d', stars, info.level) }
+        end
+        table.insert(output, outputRow)
+    end
+
+    table.sort(output, function (a, b) return a.overallScore > b.overallScore end)
+    return output
+end
+
 LiteKeystone_AddonCompartmentFunc = function () LiteKeystoneInfo:Show() end

@@ -19,18 +19,22 @@
 
 -->
 
-  <Script file="LiteKeystoneInfo.lua"/>
+  <Script file="LiteKeystoneUI.lua"/>
 
-  <Frame name="LiteKeystoneInfoButtonTemplate" virtual="true">
-    <Size y="24" />
-
+  <Frame name="LiteKeystoneStripeButtonTemplate" virtual="true">
     <Layers>
       <Layer level="ARTWORK">
         <Texture parentKey="Stripe" setAllPoints="true">
           <Color r="1" g="1" b="1" a="0.05" />
         </Texture>
       </Layer>
+    </Layers>
+  </Frame>
 
+  <Frame name="LiteKeystoneKeyButtonTemplate" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
+    <Size y="24" />
+
+    <Layers>
       <Layer level="OVERLAY">
 
         <FontString parentKey="Mine" inherits="SystemFont_Med3">
@@ -94,7 +98,65 @@
 
   </Frame>
 
-  <Frame name="LiteKeystoneInfoHeaderTemplate" virtual="true">
+  <Frame name="LiteKeystoneDungeonButtonTemplate" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
+    <Size y="36" />
+
+    <Layers>
+      <Layer level="OVERLAY">
+
+        <FontString parentKey="Map" inherits="SystemFont_Med3" justifyH="LEFT">
+          <Color r="1" g="1" b="0" />
+          <Size x="200" />
+          <Anchors>
+            <Anchor point="LEFT" x="8" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="OverallScore" inherits="SystemFont_Med3">
+          <Color r="1" g="1" b="0" />
+          <Size x="48" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.Map" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="FortifiedLevel" inherits="SystemFont_Med3" justifyH="RIGHT">
+          <Color r="1" g="1" b="0" />
+          <Size x="48" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="48" relativeKey="$parent.OverallScore" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="FortifiedScore" inherits="SystemFont_Med3" justifyH="RIGHT">
+          <Color r="1" g="1" b="0" />
+          <Size x="48" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="4" relativeKey="$parent.FortifiedLevel" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="TyrannicalLevel" inherits="SystemFont_Med3" justifyH="RIGHT">
+          <Color r="1" g="1" b="0" />
+          <Size x="48" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="48" relativeKey="$parent.FortifiedScore" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="TyrannicalScore" inherits="SystemFont_Med3" justifyH="RIGHT">
+          <Color r="1" g="1" b="0" />
+          <Size x="48" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="4" relativeKey="$parent.TyrannicalLevel" />
+          </Anchors>
+        </FontString>
+
+      </Layer>
+    </Layers>
+  </Frame>
+
+  <Frame name="LiteKeystoneKeyHeaderTemplate" virtual="true">
     <Size y="24" />
     <Layers>
       <Layer level="ARTWORK">
@@ -110,7 +172,7 @@
     </Layers>
 
     <Frames>
-      <Button parentKey="Rating" mixin="LiteKeystoneHeaderButtonMixin" text="RATING">
+      <Button parentKey="Rating" mixin="LiteKeystoneKeyHeaderButtonMixin" text="RATING">
         <Scripts><OnClick method="OnClick" /></Scripts>
         <Size x="48" y="24" />
         <NormalFont style="SystemFont_Med3" />
@@ -122,7 +184,7 @@
         </Anchors>
       </Button>
 
-      <Button parentKey="PlayerName" mixin="LiteKeystoneHeaderButtonMixin" text="Player">
+      <Button parentKey="PlayerName" mixin="LiteKeystoneKeyHeaderButtonMixin" text="Player">
         <Scripts><OnClick method="OnClick" /></Scripts>
         <Size x="200" y="24" />
         <NormalFont style="SystemFont_Med3" />
@@ -134,7 +196,7 @@
         </Anchors>
       </Button>
 
-      <Button parentKEy="Keystone" mixin="LiteKeystoneHeaderButtonMixin" text="Keystone">
+      <Button parentKEy="Keystone" mixin="LiteKeystoneKeyHeaderButtonMixin" text="Keystone">
         <Scripts><OnClick method="OnClick" /></Scripts>
         <Size x="200" y="24" />
         <NormalFont style="SystemFont_Med3" />
@@ -147,6 +209,52 @@
         </Anchors>
       </Button>
     </Frames>
+  </Frame>
+
+  <Frame name="LiteKeystoneDungeonHeaderTemplate" virtual="true">
+    <Size y="24" />
+    <Layers>
+      <Layer level="ARTWORK">
+        <Texture parentKey="Underline">
+          <Size y="2" />
+          <Color r="1" g="1" b="1" a="0.5" />
+          <Anchors>
+            <Anchor point="BOTTOMLEFT" />
+            <Anchor point="BOTTOMRIGHT" />
+          </Anchors>
+        </Texture>
+      </Layer>
+
+      <Layer level="OVERLAY">
+
+        <FontString parentKey="Map" inherits="SystemFont_Med3" text="Dungeon" justifyH="LEFT">
+          <Size x="200" />
+          <Anchors>
+            <Anchor point="LEFT" x="8" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="OverallScore" inherits="SystemFont_Med3" text="Score">
+          <Size x="48" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.Map" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="Fortified" inherits="SystemFont_Med3" text="Fortified">
+          <Anchors>
+            <Anchor point="CENTER" x="132" relativeKey="$parent.OverallScore" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="Tyrannical" inherits="SystemFont_Med3" text="Tyrannical">
+          <Anchors>
+            <Anchor point="CENTER" x="148" relativeKey="$parent.Fortified" />
+          </Anchors>
+        </FontString>
+
+      </Layer>
+    </Layers>
   </Frame>
 
   <Button name="LiteKeystoneInfoTabTemplate" mixin="LiteKeystoneTabButtonMixin" virtual="true">
@@ -270,7 +378,16 @@
         </Anchors>
       </Button>
 
-      <Frame parentKey="Header" inherits="LiteKeystoneInfoHeaderTemplate">
+      <Button parentKey="TabRight" inherits="LiteKeystoneInfoTabTemplate" text="DUNGEONS" id="9">
+        <Anchors>
+          <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-32" y="-2" />
+        </Anchors>
+        <Scripts>
+            <OnLoad inherit="append"> self.Text:SetTextColor(1, 1, 0) </OnLoad>
+        </Scripts>
+      </Button>
+
+      <Frame parentKey="KeyHeader" inherits="LiteKeystoneKeyHeaderTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-16" />
           <Anchor point="TOPRIGHT" x="-32" y="-16" />
@@ -278,6 +395,20 @@
       </Frame>
 
       <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-44" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
+        </Anchors>
+      </ScrollFrame>
+
+      <Frame parentKey="DungeonHeader" inherits="LiteKeystoneDungeonHeaderTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-16" />
+          <Anchor point="TOPRIGHT" x="-32" y="-16" />
+        </Anchors>
+      </Frame>
+
+      <ScrollFrame parentKey="DungeonScroll" inherits="MinimalHybridScrollFrameTemplate" hidden="true">
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-44" />
           <Anchor point="BOTTOMRIGHT" x="-32" y="16" />

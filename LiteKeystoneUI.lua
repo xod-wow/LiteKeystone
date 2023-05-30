@@ -19,7 +19,7 @@
 
 local sortType = 'KEYLEVEL'
 
-local function UpdateButton(self, index)
+local function UpdateKeyButton(self, index)
     if not self.key then
         self:Hide()
     else
@@ -32,7 +32,66 @@ local function UpdateButton(self, index)
     end
 end
 
-local function UpdateTabs(self)
+local function UpdateKeyScroll(self)
+    local offset = HybridScrollFrame_GetOffset(self)
+
+    local filterMethod
+    if self:GetParent().selectedTab == 1 then
+        filterMethod = nil
+    elseif self:GetParent().selectedTab == 2 then
+        filterMethod = 'IsGuildKey'
+    elseif self:GetParent().selectedTab == 3 then
+        filterMethod = 'IsGroupKey'
+    elseif self:GetParent().selectedTab == 4 then
+        filterMethod = 'IsMyKey'
+    end
+
+    local keys = LiteKeystone:SortedKeys(filterMethod, sortType)
+
+    for i, button in ipairs(self.buttons) do
+        button.key = keys[offset + i]
+        UpdateKeyButton(button, offset + i)
+    end
+
+    local totalHeight = self.buttonHeight * #keys
+    local shownHeight = self.buttonHeight * #self.buttons
+    HybridScrollFrame_Update(self, totalHeight, shownHeight)
+end
+
+local function UpdateDungeonButton(self, index)
+    if not self.dungeon then
+        self:Hide()
+    else
+        self.Map:SetText(self.dungeon.mapName)
+        self.OverallScore:SetText(self.dungeon.overallScore)
+        local fort, tyr = self.dungeon.scores.Fortified, self.dungeon.scores.Tyrannical
+        self.FortifiedLevel:SetText(fort and fort.level or "")
+        self.FortifiedScore:SetText(fort and fort.score or "")
+        self.TyrannicalLevel:SetText(tyr and tyr.level or "")
+        self.TyrannicalScore:SetText(tyr and tyr.score or "")
+        self.Stripe:SetShown(index % 2 == 1)
+        self:Show()
+    end
+end
+
+local function UpdateDungeonScroll(self)
+    local offset = HybridScrollFrame_GetOffset(self)
+
+    local dungeons = LiteKeystone:SortedDungeons()
+
+    for i, button in ipairs(self.buttons) do
+        button.dungeon = dungeons[offset + i]
+        UpdateDungeonButton(button, offset + i)
+    end
+
+    local totalHeight = self.buttonHeight * #dungeons
+    local shownHeight = self.buttonHeight * #self.buttons
+    HybridScrollFrame_Update(self, totalHeight, shownHeight)
+end
+
+LiteKeystoneInfoMixin = {}
+
+function LiteKeystoneInfoMixin:UpdateTabs()
     local show = (self.selectedTab == 1)
     self.Tab1.leftSelectedTexture:SetShown(show)
     self.Tab1.midSelectedTexture:SetShown(show)
@@ -52,41 +111,35 @@ local function UpdateTabs(self)
     self.Tab4.leftSelectedTexture:SetShown(show)
     self.Tab4.midSelectedTexture:SetShown(show)
     self.Tab4.rightSelectedTexture:SetShown(show)
+
+    show = (self.selectedTab == 9)
+    self.TabRight.leftSelectedTexture:SetShown(show)
+    self.TabRight.midSelectedTexture:SetShown(show)
+    self.TabRight.rightSelectedTexture:SetShown(show)
 end
 
-local function UpdateScroll(self)
-    local offset = HybridScrollFrame_GetOffset(self)
-
-    local filterMethod
-    if self:GetParent().selectedTab == 1 then
-        filterMethod = nil
-    elseif self:GetParent().selectedTab == 2 then
-        filterMethod = 'IsGuildKey'
-    elseif self:GetParent().selectedTab == 3 then
-        filterMethod = 'IsGroupKey'
-    elseif self:GetParent().selectedTab == 4 then
-        filterMethod = 'IsMyKey'
+function LiteKeystoneInfoMixin:Update()
+    if self.selectedTab == 9 then
+        self.Scroll:Hide()
+        self.KeyHeader:Hide()
+        self.DungeonScroll:Show()
+        self.DungeonHeader:Show()
+        UpdateDungeonScroll(self.DungeonScroll)
+    else
+        self.Scroll:Show()
+        self.KeyHeader:Show()
+        self.DungeonScroll:Hide()
+        self.DungeonHeader:Hide()
+        UpdateKeyScroll(self.Scroll)
     end
-
-    local keys = LiteKeystone:SortedKeys(filterMethod, sortType)
-
-    for i, button in ipairs(self.buttons) do
-        button.key = keys[offset + i]
-        UpdateButton(button, offset + i)
-    end
-
-    local totalHeight = self.buttonHeight * #keys
-    local shownHeight = self.buttonHeight * #self.buttons
-    HybridScrollFrame_Update(self, totalHeight, shownHeight)
+    self:UpdateTabs()
 end
-
-LiteKeystoneInfoMixin = {}
 
 function LiteKeystoneInfoMixin:OnLoad()
     tinsert(UISpecialFrames, self:GetName())
 
     HybridScrollFrame_CreateButtons(self.Scroll,
-                                    "LiteKeystoneInfoButtonTemplate",
+                                    "LiteKeystoneKeyButtonTemplate",
                                     0, -1, "TOPLEFT", "TOPLEFT",
                                     0, -1, "TOP", "BOTTOM")
 
@@ -95,10 +148,20 @@ function LiteKeystoneInfoMixin:OnLoad()
         b:SetWidth(w)
     end
 
-    self.Scroll.update = UpdateScroll
+    HybridScrollFrame_CreateButtons(self.DungeonScroll,
+                                    "LiteKeystoneDungeonButtonTemplate",
+                                    0, -1, "TOPLEFT", "TOPLEFT",
+                                    0, -1, "TOP", "BOTTOM")
+
+    local w = self.DungeonScroll:GetWidth()
+    for _,b in ipairs(self.DungeonScroll.buttons) do
+        b:SetWidth(w)
+    end
+
+    self.DungeonScroll.update = UpdateDungeonScroll
 
     self.selectedTab = 1
-    UpdateTabs(self)
+    self:UpdateTabs()
 end
 
 function LiteKeystoneInfoMixin:OnShow()
@@ -106,9 +169,8 @@ function LiteKeystoneInfoMixin:OnShow()
     self:RegisterEvent('GUILD_ROSTER_UPDATE')
     self:RegisterEvent('GROUP_ROSTER_UPDATE')
     self:RegisterEvent('RAID_ROSTER_UPDATE')
-    LiteKeystone:RegisterCallback(self, function () UpdateScroll(self.Scroll) end)
-    UpdateScroll(self.Scroll)
-    UpdateTabs(self)
+    LiteKeystone:RegisterCallback(self, function () self:Update() end)
+    self:Update()
 end
 
 function LiteKeystoneInfoMixin:OnHide()
@@ -117,8 +179,7 @@ function LiteKeystoneInfoMixin:OnHide()
 end
 
 function LiteKeystoneInfoMixin:OnEvent(event, ...)
-    UpdateScroll(self.Scroll)
-    UpdateTabs(self)
+    self:Update()
 end
 
 LiteKeystoneTabButtonMixin = {}
@@ -130,12 +191,12 @@ end
 function LiteKeystoneTabButtonMixin:OnClick()
     local parent = self:GetParent()
     parent.selectedTab = self:GetID()
-    UpdateTabs(parent)
-    UpdateScroll(parent.Scroll)
+    parent:Update()
 end
 
-LiteKeystoneHeaderButtonMixin = {}
-function LiteKeystoneHeaderButtonMixin:OnClick()
+LiteKeystoneKeyHeaderButtonMixin = {}
+
+function LiteKeystoneKeyHeaderButtonMixin:OnClick()
     if self:GetText() == 'Keystone' then
         if sortType == 'KEYLEVEL' then
             sortType = 'KEYNAME'
@@ -147,6 +208,5 @@ function LiteKeystoneHeaderButtonMixin:OnClick()
     elseif self:GetText() == RATING then
         sortType = 'RATING'
     end
-    UpdateScroll(LiteKeystoneInfo.Scroll)
+    LiteKeystoneInfo:Update()
 end
-

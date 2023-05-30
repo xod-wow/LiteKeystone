@@ -8,4 +8,4 @@
 ## SavedVariables: LiteKeystoneDB
 
 LiteKeystone.xml
-LiteKeystoneInfo.xml
+LiteKeystoneUI.xml
