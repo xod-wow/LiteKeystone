@@ -929,6 +929,8 @@ end
 
 function LiteKeystone:GetKeyScores(key)
     local scores, overallScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(key.mapID)
+    if not scores then return 0, 0, 0 end
+
     local fortScore, tyrScore = 0, 0
     for _,info in ipairs(scores) do
         if info.name == "Tyrannical" then
@@ -965,11 +967,11 @@ function LiteKeystone:SortedDungeons()
             mapID = mapID,
             mapName = mapName,
             mapTimer = mapTimer,
-            overallScore = overallScore,
+            overallScore = overallScore or 0,
             scores = {}
         }
 
-        for _, info in ipairs(scores) do
+        for _, info in ipairs(scores or {}) do
             local stars
             if info.durationSec < mapTimer * 0.6 then
                 stars = '+++'
@@ -985,7 +987,14 @@ function LiteKeystone:SortedDungeons()
         table.insert(output, outputRow)
     end
 
-    table.sort(output, function (a, b) return a.overallScore > b.overallScore end)
+    table.sort(output,
+        function (a, b)
+            if a.overallScore ~= b.overallScore then
+                return a.overallScore > b.overallScore
+            else
+                return a.mapName < b.mapName
+            end
+        end)
     return output
 end
 
