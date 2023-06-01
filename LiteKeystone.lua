@@ -927,6 +927,34 @@ function LiteKeystone:CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN()
     end
 end
 
+function LiteKeystone:GetKeyScores(key)
+    local scores, overallScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(key.mapID)
+    local fortScore, tyrScore = 0, 0
+    for _,info in ipairs(scores) do
+        if info.name == "Tyrannical" then
+            tyrScore = info.score
+        else
+            fortScore = info.score
+        end
+    end
+    return overallScore, fortScore, tyrScore
+end
+
+function LiteKeystone:GetRatingIncreaseForTimingKey(key)
+    local curTotal, fort, tyr = self:GetKeyScores(key)
+    local nAffix = key.keyLevel >= 14 and 3 or key.keyLevel >= 7 and 2 or 1
+
+    local newScore = 20 + key.keyLevel*5 + max(key.keyLevel-10,0)*2 + nAffix*10
+
+    if C_MythicPlus.GetCurrentAffixes()[1].id == 10 then
+        fort = newScore
+    else
+        tyr = newScore
+    end
+    local newTotal = max(fort, tyr)*1.5 + min(fort,tyr)*0.5
+    return max(newTotal-curTotal, 0)
+end
+
 function LiteKeystone:SortedDungeons()
     local output = { }
 

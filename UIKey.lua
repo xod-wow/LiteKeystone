@@ -25,7 +25,12 @@ local function UpdateKeyButton(self, index)
     else
         self.Mine:SetText(self.key.source == 'mine' and '*' or '')
         self.PlayerName:SetText(LiteKeystone:GetPlayerName(self.key, true))
-        self.Keystone.Text:SetText(LiteKeystone:GetKeyText(self.key))
+        local plus = LiteKeystone:GetRatingIncreaseForTimingKey(self.key)
+        if plus > 0 then
+            self.Keystone.Text:SetText(LiteKeystone:GetKeyText(self.key) .. ' + ' .. tostring(plus))
+        else
+            self.Keystone.Text:SetText(LiteKeystone:GetKeyText(self.key))
+        end
         self.Rating:SetText(self.key.rating or '?')
         self.Stripe:SetShown(index % 2 == 1)
         self:Show()
