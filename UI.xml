@@ -19,7 +19,9 @@
 
 -->
 
-  <Script file="LiteKeystoneUI.lua"/>
+  <Script file="UIDungeon.lua"/>
+  <Script file="UIKey.lua"/>
+  <Script file="UI.lua"/>
 
   <Frame name="LiteKeystoneStripeButtonTemplate" virtual="true">
     <Layers>
@@ -98,6 +100,61 @@
 
   </Frame>
 
+  <Frame name="LiteKeystoneKeyHeaderTemplate" virtual="true">
+    <Size y="24" />
+    <Layers>
+      <Layer level="ARTWORK">
+        <Texture parentKey="Underline">
+          <Size y="2" />
+          <Color r="1" g="1" b="1" a="0.5" />
+          <Anchors>
+            <Anchor point="BOTTOMLEFT" />
+            <Anchor point="BOTTOMRIGHT" />
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+
+    <Frames>
+      <Button parentKey="Rating" mixin="LiteKeystoneKeyHeaderButtonMixin" text="RATING">
+        <Scripts><OnClick method="OnClick" /></Scripts>
+        <Size x="48" y="24" />
+        <NormalFont style="SystemFont_Med3" />
+        <ButtonText>
+          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
+        </ButtonText>
+        <Anchors>
+          <Anchor point="RIGHT" x="-24" />
+        </Anchors>
+      </Button>
+
+      <Button parentKey="PlayerName" mixin="LiteKeystoneKeyHeaderButtonMixin" text="Player">
+        <Scripts><OnClick method="OnClick" /></Scripts>
+        <Size x="200" y="24" />
+        <NormalFont style="SystemFont_Med3" />
+        <ButtonText>
+          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
+        </ButtonText>
+        <Anchors>
+          <Anchor point="LEFT" x="32" />
+        </Anchors>
+      </Button>
+
+      <Button parentKEy="Keystone" mixin="LiteKeystoneKeyHeaderButtonMixin" text="Keystone">
+        <Scripts><OnClick method="OnClick" /></Scripts>
+        <Size x="200" y="24" />
+        <NormalFont style="SystemFont_Med3" />
+        <ButtonText>
+          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
+        </ButtonText>
+        <Anchors>
+          <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.PlayerName" />
+          <Anchor point="RIGHT" relativePoint="LEFT" x="-8" relativeKey="$parent.Rating" />
+        </Anchors>
+      </Button>
+    </Frames>
+  </Frame>
+
   <Frame name="LiteKeystoneDungeonButtonTemplate" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
     <Size y="36" />
 
@@ -154,61 +211,6 @@
 
       </Layer>
     </Layers>
-  </Frame>
-
-  <Frame name="LiteKeystoneKeyHeaderTemplate" virtual="true">
-    <Size y="24" />
-    <Layers>
-      <Layer level="ARTWORK">
-        <Texture parentKey="Underline">
-          <Size y="2" />
-          <Color r="1" g="1" b="1" a="0.5" />
-          <Anchors>
-            <Anchor point="BOTTOMLEFT" />
-            <Anchor point="BOTTOMRIGHT" />
-          </Anchors>
-        </Texture>
-      </Layer>
-    </Layers>
-
-    <Frames>
-      <Button parentKey="Rating" mixin="LiteKeystoneKeyHeaderButtonMixin" text="RATING">
-        <Scripts><OnClick method="OnClick" /></Scripts>
-        <Size x="48" y="24" />
-        <NormalFont style="SystemFont_Med3" />
-        <ButtonText>
-          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
-        </ButtonText>
-        <Anchors>
-          <Anchor point="RIGHT" x="-24" />
-        </Anchors>
-      </Button>
-
-      <Button parentKey="PlayerName" mixin="LiteKeystoneKeyHeaderButtonMixin" text="Player">
-        <Scripts><OnClick method="OnClick" /></Scripts>
-        <Size x="200" y="24" />
-        <NormalFont style="SystemFont_Med3" />
-        <ButtonText>
-          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
-        </ButtonText>
-        <Anchors>
-          <Anchor point="LEFT" x="32" />
-        </Anchors>
-      </Button>
-
-      <Button parentKEy="Keystone" mixin="LiteKeystoneKeyHeaderButtonMixin" text="Keystone">
-        <Scripts><OnClick method="OnClick" /></Scripts>
-        <Size x="200" y="24" />
-        <NormalFont style="SystemFont_Med3" />
-        <ButtonText>
-          <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
-        </ButtonText>
-        <Anchors>
-          <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.PlayerName" />
-          <Anchor point="RIGHT" relativePoint="LEFT" x="-8" relativeKey="$parent.Rating" />
-        </Anchors>
-      </Button>
-    </Frames>
   </Frame>
 
   <Frame name="LiteKeystoneDungeonHeaderTemplate" virtual="true">
@@ -338,6 +340,67 @@
     </Layers>
   </Button>
 
+  <Frame name="LiteKeystoneDungeonInfoTemplate" virtual="true" mixin="LiteKeystoneDungeonInfoMixin" hidden="true">
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnShow method="OnShow" />
+      <OnHide method="OnHide" />
+      <OnEvent method="OnEvent" />
+    </Scripts>
+    <Frames>
+      <Frame parentKey="Header" inherits="LiteKeystoneDungeonHeaderTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-16" />
+          <Anchor point="TOPRIGHT" x="-32" y="-16" />
+        </Anchors>
+      </Frame>
+      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-44" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
+        </Anchors>
+      </ScrollFrame>
+    </Frames>
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString justifyV="TOP" inherits="GameFontHighlightMedium" text="DUNGEON_SCORE">
+          <Size x="200" y="0"/>
+          <Anchors>
+            <Anchor point="BOTTOM" y="50" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="OverallScore" inherits="GameFontNormalHuge">
+          <Anchors>
+            <Anchor point="BOTTOM" y="20" />
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+  </Frame>
+
+  <Frame name="LiteKeystoneKeyInfoTemplate" virtual="true" mixin="LiteKeystoneKeyInfoMixin" hidden="true">
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnShow method="OnShow" />
+      <OnHide method="OnHide" />
+      <OnEvent method="OnEvent" />
+    </Scripts>
+    <Frames>
+      <Frame parentKey="Header" inherits="LiteKeystoneKeyHeaderTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-16" />
+          <Anchor point="TOPRIGHT" x="-32" y="-16" />
+        </Anchors>
+      </Frame>
+      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-44" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
+        </Anchors>
+      </ScrollFrame>
+    </Frames>
+  </Frame>
+
   <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG" movable="true" mixin="LiteKeystoneInfoMixin" inherits="TooltipBackdropTemplate">
 
     <Size x="700" y="500" />
@@ -349,8 +412,6 @@
     <Scripts>
       <OnLoad inherit="append" method="OnLoad" />
       <OnShow inherit="append" method="OnShow" />
-      <OnHide inherit="append" method="OnHide" />
-      <OnEvent inherit="append" method="OnEvent" />
     </Scripts>
 
     <Frames>
@@ -387,40 +448,14 @@
         </Scripts>
       </Button>
 
-      <Frame parentKey="KeyHeader" inherits="LiteKeystoneKeyHeaderTemplate">
-        <Anchors>
-          <Anchor point="TOPLEFT" x="16" y="-16" />
-          <Anchor point="TOPRIGHT" x="-32" y="-16" />
-        </Anchors>
-      </Frame>
-
-      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
-        <Anchors>
-          <Anchor point="TOPLEFT" x="16" y="-44" />
-          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
-        </Anchors>
-      </ScrollFrame>
-
-      <Frame parentKey="DungeonHeader" inherits="LiteKeystoneDungeonHeaderTemplate" hidden="true">
-        <Anchors>
-          <Anchor point="TOPLEFT" x="16" y="-16" />
-          <Anchor point="TOPRIGHT" x="-32" y="-16" />
-        </Anchors>
-      </Frame>
-
-      <ScrollFrame parentKey="DungeonScroll" inherits="MinimalHybridScrollFrameTemplate" hidden="true">
-        <Anchors>
-          <Anchor point="TOPLEFT" x="16" y="-44" />
-          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
-        </Anchors>
-      </ScrollFrame>
+      <Frame parentKey="Key" inherits="LiteKeystoneKeyInfoTemplate" setAllPoints="true" />
+      <Frame parentKey="Dungeon" inherits="LiteKeystoneDungeonInfoTemplate" setAllPoints="true" />
 
       <Button parentKey="CloseButton" inherits="UIPanelCloseButton">
         <Anchors>
           <Anchor point="TOPRIGHT" x="0" y="25" />
         </Anchors>
       </Button>
-
     </Frames>
   </Frame>
 
