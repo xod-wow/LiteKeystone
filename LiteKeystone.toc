@@ -6,6 +6,7 @@
 ## IconTexture: 4352494
 ## AddonCompartmentFunc: LiteKeystone_AddonCompartmentFunc
 ## SavedVariables: LiteKeystoneDB
+## X-Curse-Project-ID: 868592
 
 LiteKeystone.xml
 UI.xml
