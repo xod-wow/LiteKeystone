@@ -33,7 +33,7 @@
     </Layers>
   </Frame>
 
-  <Frame name="LiteKeystoneKeyButtonTemplate" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
+  <Frame name="LiteKeystoneKeyButtonTemplate" mixin="LiteKeystoneKeyButtonMixin" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
     <Size y="24" />
 
     <Layers>
@@ -155,14 +155,19 @@
     </Frames>
   </Frame>
 
-  <Frame name="LiteKeystoneDungeonButtonTemplate" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
+  <Frame name="LiteKeystoneDungeonButtonTemplate" mixin="LiteKeystoneDungeonButtonMixin" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
     <Size y="36" />
+
+    <Scripts>
+      <OnEnter method="OnEnter" />
+      <OnLeave method="OnLeave" />
+    </Scripts>
 
     <Layers>
       <Layer level="OVERLAY">
 
         <FontString parentKey="Map" inherits="SystemFont_Med3" justifyH="LEFT">
-          <Color r="1" g="1" b="0" />
+          <Color r="0.784" g="0.270" b="0.980" />
           <Size x="200" />
           <Anchors>
             <Anchor point="LEFT" x="8" />
@@ -170,7 +175,6 @@
         </FontString>
 
         <FontString parentKey="OverallScore" inherits="SystemFont_Med3">
-          <Color r="1" g="1" b="0" />
           <Size x="48" />
           <Anchors>
             <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.Map" />

@@ -17,7 +17,39 @@
 
 ----------------------------------------------------------------------------]]--
 
-local function UpdateDungeonButton(self, index)
+LiteKeystoneDungeonButtonMixin = {}
+
+function LiteKeystoneDungeonButtonMixin:OnEnter()
+    local gains = {}
+    for i = 2, 27 do
+        if #gains > 5 then break end
+        local fakeKey = { mapID = self.dungeon.mapID, keyLevel = i }
+        local gain = LiteKeystone:GetRatingIncreaseForTimingKey(fakeKey)
+        if gain > 0 then
+            table.insert(gains, { i, format('+%d', math.floor(gain+0.5)) })
+        end
+    end
+
+    if next(gains) == nil then return end
+
+    local baseAffixID = C_MythicPlus.GetCurrentAffixes()[1].id
+    local baseAffixName = C_ChallengeMode.GetAffixInfo(baseAffixID)
+
+    GameTooltip:SetOwner(self, "ANCHOR_NONE")
+    GameTooltip:SetPoint("BOTTOMLEFT", self, "RIGHT", -30, 0)
+    GameTooltip:AddLine(self.dungeon.mapName)
+    GameTooltip:AddLine(" ")
+    for i, info in ipairs(gains) do
+        GameTooltip:AddDoubleLine(baseAffixName .. ' +' .. info[1], format(PVP_RATING_CHANGE, info[2]), 1, 1, 1, 1, 1, 1)
+    end
+    GameTooltip:Show()
+end
+
+function LiteKeystoneDungeonButtonMixin:OnLeave()
+    GameTooltip:Hide()
+end
+
+function LiteKeystoneDungeonButtonMixin:Update(index)
     if not self.dungeon then
         self:Hide()
     else
@@ -40,7 +72,7 @@ local function UpdateDungeonScroll(self)
 
     for i, button in ipairs(self.buttons) do
         button.dungeon = dungeons[offset + i]
-        UpdateDungeonButton(button, offset + i)
+        button:Update(offset+i)
     end
 
     local totalHeight = self.buttonHeight * #dungeons

@@ -17,9 +17,9 @@
 
 ----------------------------------------------------------------------------]]--
 
-local sortType = 'KEYLEVEL'
+LiteKeystoneKeyButtonMixin = {}
 
-local function UpdateKeyButton(self, index)
+function LiteKeystoneKeyButtonMixin:Update(index)
     if not self.key then
         self:Hide()
     else
@@ -36,6 +36,8 @@ local function UpdateKeyButton(self, index)
         self:Show()
     end
 end
+
+LiteKeystoneKeyInfoMixin = {}
 
 local function UpdateKeyScroll(self)
     local offset = HybridScrollFrame_GetOffset(self)
@@ -55,7 +57,7 @@ local function UpdateKeyScroll(self)
 
     for i, button in ipairs(self.buttons) do
         button.key = keys[offset + i]
-        UpdateKeyButton(button, offset + i)
+        button:Update(offset + i)
     end
 
     local totalHeight = self.buttonHeight * #keys
@@ -63,8 +65,7 @@ local function UpdateKeyScroll(self)
     HybridScrollFrame_Update(self, totalHeight, shownHeight)
 end
 
-LiteKeystoneKeyInfoMixin = {}
-
+local sortType = 'KEYLEVEL'
 function LiteKeystoneKeyInfoMixin:Update()
     UpdateKeyScroll(self.Scroll)
 end
