@@ -39,6 +39,8 @@ end
 
 LiteKeystoneKeyInfoMixin = {}
 
+local sortType = 'KEYLEVEL'
+
 local function UpdateKeyScroll(self)
     local offset = HybridScrollFrame_GetOffset(self)
 
@@ -65,7 +67,6 @@ local function UpdateKeyScroll(self)
     HybridScrollFrame_Update(self, totalHeight, shownHeight)
 end
 
-local sortType = 'KEYLEVEL'
 function LiteKeystoneKeyInfoMixin:Update()
     UpdateKeyScroll(self.Scroll)
 end
