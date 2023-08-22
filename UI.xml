@@ -378,6 +378,17 @@
             <Anchor point="BOTTOM" y="20" />
           </Anchors>
         </FontString>
+        <FontString parentKey="RunHistory" inherits="GameFontNormalMed1">
+          <Color r="0" g="1" b="0" />
+          <Anchors>
+            <Anchor point="BOTTOMRIGHT" x="-20" y="20" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="RunHistoryTitle" inherits="GameFontHighlight">
+          <Anchors>
+            <Anchor point="BOTTOMRIGHT" x="-20" y="40" />
+          </Anchors>
+        </FontString>
       </Layer>
     </Layers>
   </Frame>

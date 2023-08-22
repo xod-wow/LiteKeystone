@@ -80,6 +80,16 @@ local function UpdateDungeonScroll(self)
     HybridScrollFrame_Update(self, totalHeight, shownHeight)
 end
 
+local function GetRunHistoryText()
+    local runLevels = {}
+    for _, info in ipairs(C_MythicPlus.GetRunHistory(false, true)) do
+        table.insert(runLevels, info.level)
+    end
+    table.sort(runLevels, function (a, b) return a > b end)
+    for i = 9, #runLevels do runLevels[i] = nil end
+    return table.concat(runLevels, ' ')
+end
+
 LiteKeystoneDungeonInfoMixin = {}
 
 function LiteKeystoneDungeonInfoMixin:Update()
@@ -87,9 +97,12 @@ function LiteKeystoneDungeonInfoMixin:Update()
 
     local dungeonScore = C_ChallengeMode.GetOverallDungeonScore() or 0
 
-    local color = C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore);
-    self.OverallScore:SetVertexColor(color.r, color.g, color.b);
+    local color = C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore)
+    self.OverallScore:SetVertexColor(color.r, color.g, color.b)
     self.OverallScore:SetText(dungeonScore)
+
+    local runHistory = GetRunHistoryText()
+    self.RunHistory:SetText(runHistory)
 end
 
 function LiteKeystoneDungeonInfoMixin:OnLoad()
@@ -104,13 +117,18 @@ function LiteKeystoneDungeonInfoMixin:OnLoad()
     end
 
     self.Scroll.update = UpdateDungeonScroll
+
+    self.RunHistoryTitle:SetText(string.format(WEEKLY_REWARDS_MYTHIC_TOP_RUNS, 8))
 end
 
 function LiteKeystoneDungeonInfoMixin:OnShow()
+    self:RegisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
+    C_MythicPlus.RequestMapInfo()
     self:Update()
 end
 
 function LiteKeystoneDungeonInfoMixin:OnHide()
+    self:UnregisterAllEvents()
 end
 
 function LiteKeystoneDungeonInfoMixin:OnEvent(event, ...)
