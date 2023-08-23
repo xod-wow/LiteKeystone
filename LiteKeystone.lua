@@ -317,7 +317,7 @@ function LiteKeystone:GetMyKeyFromLink(link)
         playerFaction=self.playerFaction,
         mapID=mapID,
         mapName=C_ChallengeMode.GetMapUIInfo(mapID),
-        weekBest=weekBest,
+        weekBest=0,
         keyLevel=keyLevel,
         weekNum=WeekNum(),
         weekTime=WeekTime(),
@@ -880,6 +880,10 @@ function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
 end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
+    -- This is to try to force new data for weekbest, but if there is no new
+    -- data it won't trigger CHALLENGE_MODE_MAPS_UPDATE so we have to
+    -- double-scan in some cases just to be annoying.
+    C_MythicPlus.RequestMapInfo()
     self:DelayScan('CHALLENGE_MODE_COMPLETED')
 end
 
