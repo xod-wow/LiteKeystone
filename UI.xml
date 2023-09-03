@@ -2,7 +2,7 @@
 
 <!--
 
-  Copyright 2011-2020 Mike Battersby
+  Copyright 2020 Mike Battersby
 
   LiteKeystone is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License, version 2, as published by
@@ -344,6 +344,36 @@
     </Layers>
   </Button>
 
+  <!-- See WeeklyRewardActivityTemplate -->
+
+  <Frame name="LiteKeystoneActivityTemplate" parentArray="Activities" virtual="true">
+    <Size x="219" y="18" />
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString parentKey="Threshold" inherits="GameFontNormalSmall2" justifyH="LEFT">
+          <Anchors>
+            <Anchor point="LEFT" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="Progress" inherits="GameFontGreen" justifyH="LEFT">
+          <Anchors>
+            <Anchor point="RIGHT" />
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+    <Scripts>
+      <OnEnter>
+        if self.info.progress >= self.info.threshold then
+            self:ShowPreviewItemTooltip()
+        end
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide();
+      </OnLeave>
+    </Scripts>
+  </Frame>
+
   <Frame name="LiteKeystoneDungeonInfoTemplate" virtual="true" mixin="LiteKeystoneDungeonInfoMixin" hidden="true">
     <Scripts>
       <OnLoad method="OnLoad" />
@@ -361,7 +391,7 @@
       <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-44" />
-          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="86" />
         </Anchors>
       </ScrollFrame>
     </Frames>

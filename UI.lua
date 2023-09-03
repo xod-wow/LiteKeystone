@@ -1,6 +1,6 @@
 --[[----------------------------------------------------------------------------
 
-  Copyright 2011-2020 Mike Battersby
+  Copyright 2020 Mike Battersby
 
   LiteKeystone is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License, version 2, as published by

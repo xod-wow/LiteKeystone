@@ -1,6 +1,6 @@
 --[[----------------------------------------------------------------------------
 
-  Copyright 2011-2020 Mike Battersby
+  Copyright 2020 Mike Battersby
 
   LiteKeystone is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License, version 2, as published by
@@ -881,10 +881,9 @@ end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
     -- This is to try to force new data for weekbest, but if there is no new
-    -- data it won't trigger CHALLENGE_MODE_MAPS_UPDATE so we have to
-    -- double-scan in some cases just to be annoying.
+    -- data it won't trigger CHALLENGE_MODE_MAPS_UPDATE and I have no idea how
+    -- this is actually meant to work.
     C_MythicPlus.RequestMapInfo()
-    self:DelayScan('CHALLENGE_MODE_COMPLETED')
 end
 
 function LiteKeystone:ITEM_PUSH(bag, iconID)
