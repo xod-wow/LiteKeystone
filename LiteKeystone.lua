@@ -195,6 +195,13 @@ function LiteKeystone:SlashCommand(arg)
         return true
     end
 
+    if arg1 == ('mykeys'):sub(1,n) then
+        if IsInGroup(LE_PARTY_CATEGORY_HOME) then
+            self:ReportKeys('IsMyKey', 'PARTY')
+        end
+        return true
+    end
+
     if arg1 == ('report'):sub(1,n) then
         if IsInGroup(LE_PARTY_CATEGORY_HOME) then
             self:ReportKeys('IsMyFactionKey', 'PARTY')
