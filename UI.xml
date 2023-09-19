@@ -378,8 +378,6 @@
     <Scripts>
       <OnLoad method="OnLoad" />
       <OnShow method="OnShow" />
-      <OnHide method="OnHide" />
-      <OnEvent method="OnEvent" />
     </Scripts>
     <Frames>
       <Frame parentKey="Header" inherits="LiteKeystoneDungeonHeaderTemplate">
@@ -391,36 +389,10 @@
       <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-44" />
-          <Anchor point="BOTTOMRIGHT" x="-32" y="86" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="0" />
         </Anchors>
       </ScrollFrame>
     </Frames>
-    <Layers>
-      <Layer level="ARTWORK">
-        <FontString justifyV="TOP" inherits="GameFontHighlightMedium" text="DUNGEON_SCORE">
-          <Size x="200" y="0"/>
-          <Anchors>
-            <Anchor point="BOTTOM" y="50" />
-          </Anchors>
-        </FontString>
-        <FontString parentKey="OverallScore" inherits="GameFontNormalHuge">
-          <Anchors>
-            <Anchor point="BOTTOM" y="20" />
-          </Anchors>
-        </FontString>
-        <FontString parentKey="RunHistory" inherits="GameFontNormalMed1">
-          <Color r="0" g="1" b="0" />
-          <Anchors>
-            <Anchor point="BOTTOMRIGHT" x="-20" y="20" />
-          </Anchors>
-        </FontString>
-        <FontString parentKey="RunHistoryTitle" inherits="GameFontHighlight">
-          <Anchors>
-            <Anchor point="BOTTOMRIGHT" x="-20" y="40" />
-          </Anchors>
-        </FontString>
-      </Layer>
-    </Layers>
   </Frame>
 
   <Frame name="LiteKeystoneKeyInfoTemplate" virtual="true" mixin="LiteKeystoneKeyInfoMixin" hidden="true">
@@ -440,7 +412,7 @@
       <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-44" />
-          <Anchor point="BOTTOMRIGHT" x="-32" y="16" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="0" />
         </Anchors>
       </ScrollFrame>
     </Frames>
@@ -457,6 +429,8 @@
     <Scripts>
       <OnLoad inherit="append" method="OnLoad" />
       <OnShow inherit="append" method="OnShow" />
+      <OnHide method="OnHide" />
+      <OnEvent method="OnEvent" />
     </Scripts>
 
     <Frames>
@@ -493,8 +467,18 @@
         </Scripts>
       </Button>
 
-      <Frame parentKey="Key" inherits="LiteKeystoneKeyInfoTemplate" setAllPoints="true" />
-      <Frame parentKey="Dungeon" inherits="LiteKeystoneDungeonInfoTemplate" setAllPoints="true" />
+      <Frame parentKey="Key" inherits="LiteKeystoneKeyInfoTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" />
+          <Anchor point="BOTTOMRIGHT" y="80" />
+        </Anchors>
+      </Frame>
+      <Frame parentKey="Dungeon" inherits="LiteKeystoneDungeonInfoTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" />
+          <Anchor point="BOTTOMRIGHT" y="80" />
+        </Anchors>
+      </Frame>
 
       <Button parentKey="CloseButton" inherits="UIPanelCloseButton">
         <Anchors>
@@ -502,6 +486,33 @@
         </Anchors>
       </Button>
     </Frames>
+
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString justifyV="TOP" inherits="GameFontHighlightMedium" text="DUNGEON_SCORE">
+          <Size x="200" y="0"/>
+          <Anchors>
+            <Anchor point="BOTTOM" y="50" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="OverallScore" inherits="GameFontNormalHuge">
+          <Anchors>
+            <Anchor point="BOTTOM" y="20" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="RunHistory" inherits="GameFontNormalMed1">
+          <Color r="0" g="1" b="0" />
+          <Anchors>
+            <Anchor point="BOTTOMRIGHT" x="-20" y="16" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="RunHistoryTitle" inherits="GameFontHighlight">
+          <Anchors>
+            <Anchor point="BOTTOMRIGHT" x="-20" y="36" />
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
   </Frame>
 
 </Ui>
