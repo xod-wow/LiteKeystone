@@ -347,7 +347,7 @@
   <!-- See WeeklyRewardActivityTemplate -->
 
   <Frame name="LiteKeystoneActivityTemplate" parentArray="Activities" virtual="true">
-    <Size x="219" y="18" />
+    <Size x="249" y="18" />
     <Layers>
       <Layer level="ARTWORK">
         <FontString parentKey="Threshold" inherits="GameFontNormalSmall2" justifyH="LEFT">
@@ -358,6 +358,11 @@
         <FontString parentKey="Progress" inherits="GameFontGreen" justifyH="LEFT">
           <Anchors>
             <Anchor point="RIGHT" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="ItemLevel" inherits="GameFontGreen" justifyH="LEFT">
+          <Anchors>
+            <Anchor point="RIGHT" x="-32" />
           </Anchors>
         </FontString>
       </Layer>

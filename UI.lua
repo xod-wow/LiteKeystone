@@ -147,8 +147,16 @@ function LiteKeystoneInfoMixin:UpdateActivities()
         frame.Threshold:SetFormattedText(WEEKLY_REWARDS_THRESHOLD_MYTHIC, info.threshold)
         if info.level > 0 then
             frame.Progress:SetFormattedText('+%d', info.level)
+            local itemLink = C_WeeklyRewards.GetExampleRewardItemHyperlinks(info.id)
+            local itemLevel = itemLink and GetDetailedItemLevelInfo(itemLink)
+            if itemLevel then
+                frame.ItemLevel:SetFormattedText("%d", itemLevel or 0)
+            else
+                frame.ItemLevel:SetText("")
+            end
         else
             frame.Progress:SetFormattedText(GENERIC_FRACTION_STRING, info.progress, info.threshold)
+            frame.ItemLevel:SetText("")
         end
     end
 end
