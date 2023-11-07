@@ -490,6 +490,19 @@
           <Anchor point="TOPRIGHT" x="0" y="25" />
         </Anchors>
       </Button>
+
+      <Button parentKey="AnnounceButton" inherits="UIPanelButtonTemplate" text="CHAT_ANNOUNCE">
+        <Size x="96" y="22" />
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.Key" x="-16" y="-4"/>
+        </Anchors>
+        <Scripts>
+          <OnClick>
+            self:GetParent():Announce()
+          </OnClick>
+        </Scripts>
+      </Button>
+
     </Frames>
 
     <Layers>

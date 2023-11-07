@@ -46,6 +46,16 @@ function LiteKeystoneInfoMixin:UpdateTabs()
     self.TabRight.rightSelectedTexture:SetShown(show)
 end
 
+function LiteKeystoneInfoMixin:GetFilterMethod()
+    if self.selectedTab == 2 then
+        return 'IsGuildKey'
+    elseif self.selectedTab == 3 then
+        return 'IsGroupKey'
+    elseif self.selectedTab == 4 then
+        return 'IsMyKey'
+    end
+end
+
 function LiteKeystoneInfoMixin:Update()
     if self.selectedTab == 9 then
         self.Key:Hide()
@@ -55,12 +65,17 @@ function LiteKeystoneInfoMixin:Update()
         self.Dungeon:Hide()
         self.Key:Show()
         self.Key:Update()
+        self.AnnounceButton:Show()
     end
+
+    self.AnnounceButton:SetShown(tContains({2,3,4}, self.selectedTab))
+
     self:UpdateTabs()
 
     self:UpdateDungeonScore()
     self:UpdateRunHistory()
     self:UpdateActivities()
+
 end
 
 function LiteKeystoneInfoMixin:OnLoad()
@@ -163,6 +178,14 @@ end
 
 function LiteKeystoneInfoMixin:OnEvent(event, ...)
     self:Update()
+end
+
+function LiteKeystoneInfoMixin:Announce()
+    if IsInGroup(LE_PARTY_CATEGORY_HOME) then
+        LiteKeystone:ReportKeys(self:GetFilterMethod(), "PARTY")
+    else
+        LiteKeystone:ReportKeys(self:GetFilterMethod(), "GUILD")
+    end
 end
 
 LiteKeystoneTabButtonMixin = {}

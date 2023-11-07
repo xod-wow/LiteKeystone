@@ -37,6 +37,12 @@ function LiteKeystoneKeyButtonMixin:Update(index)
     end
 end
 
+function LiteKeystoneKeyButtonMixin:OnClick()
+    if mouseButton == 'LeftButton' and IsModifiedClick("CHATLINK") then
+        ChatEdit_InsertLink(LiteKeystone:GetKeyText(self.key))
+    end
+end
+
 LiteKeystoneKeyInfoMixin = {}
 
 local sortType = 'KEYLEVEL'
@@ -44,18 +50,7 @@ local sortType = 'KEYLEVEL'
 local function UpdateKeyScroll(self)
     local offset = HybridScrollFrame_GetOffset(self)
 
-    local filterMethod
-    if LiteKeystoneInfo.selectedTab == 1 then
-        filterMethod = nil
-    elseif LiteKeystoneInfo.selectedTab == 2 then
-        filterMethod = 'IsGuildKey'
-    elseif LiteKeystoneInfo.selectedTab == 3 then
-        filterMethod = 'IsGroupKey'
-    elseif LiteKeystoneInfo.selectedTab == 4 then
-        filterMethod = 'IsMyKey'
-    end
-
-    local keys = LiteKeystone:SortedKeys(filterMethod, sortType)
+    local keys = LiteKeystone:SortedKeys(LiteKeystoneInfo:GetFilterMethod(), sortType)
 
     for i, button in ipairs(self.buttons) do
         button.key = keys[offset + i]
