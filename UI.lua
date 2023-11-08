@@ -154,7 +154,7 @@ function LiteKeystoneInfoMixin:UpdateRunHistory()
 end
 
 function LiteKeystoneInfoMixin:UpdateActivities()
-    local activityType = Enum.WeeklyRewardChestThresholdType.MythicPlus
+    local activityType = Enum.WeeklyRewardChestThresholdType.Activities
     local activities = C_WeeklyRewards.GetActivities(activityType)
     for i, info in ipairs(activities) do
         local frame = self.Activities[i]
