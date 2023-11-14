@@ -93,8 +93,8 @@ function LiteKeystoneInfoMixin:OnLoad()
     -- SetupActivities
     for i = 1,3 do
         local frame = CreateFrame("FRAME", nil, self, "LiteKeystoneActivityTemplate")
-        frame.ShowPreviewItemTooltip = WeeklyRewardsActivityMixin.ShowPreviewItemTooltip
-        frame.HandlePreviewMythicRewardTooltip = WeeklyRewardsActivityMixin.HandlePreviewMythicRewardTooltip
+        -- Can't do this in the XML as WeeklyRewards not loaded yet
+        Mixin(frame, WeeklyRewardsActivityMixin)
         if i == 1 then
             frame:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 20, 16)
         else
