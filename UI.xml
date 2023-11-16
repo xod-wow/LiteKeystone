@@ -425,7 +425,7 @@
 
   <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG" movable="true" mixin="LiteKeystoneInfoMixin" inherits="TooltipBackdropTemplate">
 
-    <Size x="700" y="500" />
+    <Size x="760" y="500" />
 
     <Anchors>
       <Anchor point="CENTER" />
