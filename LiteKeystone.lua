@@ -471,7 +471,7 @@ function LiteKeystone:UpdateWeekly(playerName, weekBest)
     end
 end
 
-function LiteKeystone:ReceiveKey(newKey, action, isUnreliable)
+function LiteKeystone:ReceiveKey(newKey, action)
     local existingKey = self.db.playerKeys[newKey.playerName]
 
     -- Don't accept our own keys back from other people
@@ -481,32 +481,20 @@ function LiteKeystone:ReceiveKey(newKey, action, isUnreliable)
         return
     end
 
-    -- Third party reports are unreliable, try to make sure we don't
-    -- overwrite better info.
+    if existingKey and existingKey.weekTime >= newKey.weekTime then
+        return
+    end
 
-    if isUnreliable then
+    if existingKey then
         newKey.weekBest = math.max(existingKey.weekBest or 0, newKey.weekBest or 0)
-        if newKey.rating then
-            newKey.rating = math.max(existingKey.rating or 0, newKey.rating or 0)
-        end
+        newKey.rating = math.max(existingKey.rating or 0, newKey.rating or 0)
     end
 
-    if not self:IsNewKey(existingKey, newKey) then
-        return
-    end
-
-    if existingKey and newKey.weekTime <= existingKey.weekTime then
-        existingKey.weekBest = math.max(existingKey.weekBest, newKey.weekBest)
-        if newKey.rating then
-            existingKey.rating = math.max(existingKey.rating or 0, newKey.rating)
-        end
-        self:Fire()
-        return
+    if self:IsNewKey(existingKey, newKey) then
+        debug('%s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link)
     end
 
     self.db.playerKeys[newKey.playerName] = newKey
-
-    debug('Got key from %s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link)
 
     self:Fire()
 
