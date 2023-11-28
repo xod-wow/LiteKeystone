@@ -105,14 +105,17 @@ function LiteKeystoneInfoMixin:OnLoad()
     end
 
     -- SetupAffixes, see ChallengesFrameWeeklyInfoMixin:SetUp
-    ChallengeMode_LoadUI()
     local affixes = C_MythicPlus.GetCurrentAffixes()
     if affixes then
         for i, info in ipairs(affixes) do
             local frame = CreateFrame("FRAME", nil, self.AffixesContainer)
             frame.affixID = info.id
             frame:SetSize(16, 16)
-            frame:SetScript('OnEnter', ChallengesKeystoneFrameAffixMixin.OnEnter)
+            frame:SetScript('OnEnter',
+                function (...)
+                    ChallengeMode_LoadUI()
+                    ChallengesKeystoneFrameAffixMixin.OnEnter(...)
+                end)
             local name, _, filedataid = C_ChallengeMode.GetAffixInfo(info.id);
             local portrait = frame:CreateTexture();
             portrait:SetAllPoints()
