@@ -503,6 +503,16 @@
         </Scripts>
       </Button>
 
+      <Frame parentKey="AffixesContainer" inherits="VerticalLayoutFrame">
+        <Size x="1" y="1"/>
+        <KeyValues>
+          <KeyValue key="spacing" value="4" type="number"/>
+        </KeyValues>
+        <Anchors>
+          <Anchor point="BOTTOM" x="90" y="16"/>
+        </Anchors>
+      </Frame>
+
     </Frames>
 
     <Layers>

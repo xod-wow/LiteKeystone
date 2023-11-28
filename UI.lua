@@ -103,6 +103,28 @@ function LiteKeystoneInfoMixin:OnLoad()
             frame:SetPoint("BOTTOMLEFT", self.Activities[i-1], "TOPLEFT", 0, 0)
         end
     end
+
+    -- SetupAffixes, see ChallengesFrameWeeklyInfoMixin:SetUp
+    ChallengeMode_LoadUI()
+    local affixes = C_MythicPlus.GetCurrentAffixes()
+    if affixes then
+        for i, info in ipairs(affixes) do
+            local frame = CreateFrame("FRAME", nil, self.AffixesContainer)
+            frame.affixID = info.id
+            frame:SetSize(16, 16)
+            frame:SetScript('OnEnter', ChallengesKeystoneFrameAffixMixin.OnEnter)
+            local name, _, filedataid = C_ChallengeMode.GetAffixInfo(info.id);
+            local portrait = frame:CreateTexture();
+            portrait:SetAllPoints()
+            portrait:SetTexture(filedataid)
+            local text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+            text:SetPoint("LEFT", frame, "RIGHT", 6, 0)
+            text:SetText(name)
+            frame.layoutIndex = i
+            frame.align = "center"
+        end
+        self.AffixesContainer:Layout()
+    end
 end
 
 function LiteKeystoneInfoMixin:OnShow()
