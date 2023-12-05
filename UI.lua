@@ -78,32 +78,7 @@ function LiteKeystoneInfoMixin:Update()
 
 end
 
-function LiteKeystoneInfoMixin:OnLoad()
-    tinsert(UISpecialFrames, self:GetName())
-    self.selectedTab = 1
-
-    -- The tooltips piggyback on Blizzard's code but unless the frame is shown
-    -- they don't hide the expiration warning which is visible=true by default.
-    WeeklyRewards_LoadUI()
-    WeeklyRewardExpirationWarningDialog:Hide()
-
-    -- SetupRunHistory
-    self.RunHistoryTitle:SetText(string.format(WEEKLY_REWARDS_MYTHIC_TOP_RUNS, 8))
-
-    -- SetupActivities
-    for i = 1,3 do
-        local frame = CreateFrame("FRAME", nil, self, "LiteKeystoneActivityTemplate")
-        -- Can't do this in the XML as WeeklyRewards not loaded yet
-        Mixin(frame, WeeklyRewardsActivityMixin)
-        if i == 1 then
-            frame:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 20, 16)
-        else
-            -- Because there's a parentArray in the template as frames are created they
-            -- are automatically appended to the Activities array.
-            frame:SetPoint("BOTTOMLEFT", self.Activities[i-1], "TOPLEFT", 0, 0)
-        end
-    end
-
+function LiteKeystoneInfoMixin:SetupAffixes()
     -- SetupAffixes, see ChallengesFrameWeeklyInfoMixin:SetUp
     local affixes = C_MythicPlus.GetCurrentAffixes()
     if affixes then
@@ -128,6 +103,38 @@ function LiteKeystoneInfoMixin:OnLoad()
         end
         self.AffixesContainer:Layout()
     end
+end
+
+function LiteKeystoneInfoMixin:OnLoad()
+    tinsert(UISpecialFrames, self:GetName())
+    self.selectedTab = 1
+
+    -- The tooltips piggyback on Blizzard's code but unless the frame is shown
+    -- they don't hide the expiration warning which is visible=true by default.
+    WeeklyRewards_LoadUI()
+    WeeklyRewardExpirationWarningDialog:Hide()
+
+    -- SetupRunHistory
+    self.RunHistoryTitle:SetText(string.format(WEEKLY_REWARDS_MYTHIC_TOP_RUNS, 8))
+
+    -- SetupAffixes
+    EventUtil.RegisterOnceFrameEventAndCallback('MYTHIC_PLUS_CURRENT_AFFIX_UPDATE', function () self:SetupAffixes() end)
+    C_MythicPlus.RequestCurrentAffixes()
+
+    -- SetupActivities
+    for i = 1,3 do
+        local frame = CreateFrame("FRAME", nil, self, "LiteKeystoneActivityTemplate")
+        -- Can't do this in the XML as WeeklyRewards not loaded yet
+        Mixin(frame, WeeklyRewardsActivityMixin)
+        if i == 1 then
+            frame:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 20, 16)
+        else
+            -- Because there's a parentArray in the template as frames are created they
+            -- are automatically appended to the Activities array.
+            frame:SetPoint("BOTTOMLEFT", self.Activities[i-1], "TOPLEFT", 0, 0)
+        end
+    end
+
 end
 
 function LiteKeystoneInfoMixin:OnShow()
@@ -181,11 +188,13 @@ end
 function LiteKeystoneInfoMixin:UpdateActivities()
     local activityType = Enum.WeeklyRewardChestThresholdType.Activities
     local activities = C_WeeklyRewards.GetActivities(activityType)
+    local runs = C_MythicPlus.GetRunHistory(false, true)
+
     for i, info in ipairs(activities) do
         local frame = self.Activities[i]
         frame.info = info
         frame.Threshold:SetFormattedText(WEEKLY_REWARDS_THRESHOLD_MYTHIC, info.threshold)
-        if info.level > 0 then
+        if #runs >= info.threshold then
             frame.Progress:SetFormattedText('+%d', info.level)
             local itemLink = C_WeeklyRewards.GetExampleRewardItemHyperlinks(info.id)
             local itemLevel = itemLink and GetDetailedItemLevelInfo(itemLink)
@@ -195,7 +204,7 @@ function LiteKeystoneInfoMixin:UpdateActivities()
                 frame.ItemLevel:SetText("")
             end
         else
-            frame.Progress:SetFormattedText(GENERIC_FRACTION_STRING, info.progress, info.threshold)
+            frame.Progress:SetFormattedText(GENERIC_FRACTION_STRING, #runs, info.threshold)
             frame.ItemLevel:SetText("")
         end
     end
