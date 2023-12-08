@@ -91,6 +91,7 @@ function LiteKeystoneInfoMixin:SetupAffixes()
                     ChallengeMode_LoadUI()
                     ChallengesKeystoneFrameAffixMixin.OnEnter(...)
                 end)
+            frame:SetScript('OnLeave', GameTooltip_Hide)
             local name, _, filedataid = C_ChallengeMode.GetAffixInfo(info.id);
             local portrait = frame:CreateTexture();
             portrait:SetAllPoints()
