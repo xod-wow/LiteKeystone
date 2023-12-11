@@ -56,6 +56,10 @@ function LiteKeystoneInfoMixin:GetFilterMethod()
     end
 end
 
+function LiteKeystoneInfoMixin:UpdateScale()
+    self:SetScale(LiteKeystone.db.uiScale)
+end
+
 function LiteKeystoneInfoMixin:Update()
     if self.selectedTab == 9 then
         self.Key:Hide()
@@ -75,7 +79,6 @@ function LiteKeystoneInfoMixin:Update()
     self:UpdateDungeonScore()
     self:UpdateRunHistory()
     self:UpdateActivities()
-
 end
 
 function LiteKeystoneInfoMixin:SetupAffixes()
@@ -107,6 +110,12 @@ function LiteKeystoneInfoMixin:SetupAffixes()
 end
 
 function LiteKeystoneInfoMixin:OnLoad()
+    -- Stop you from dragging it off the screen where you can't get it back. Or worse,
+    -- rescale doing it for you.
+    local w, h = self:GetSize()
+    self:SetClampRectInsets(0.75*w, -0.75*w, 24, h-24)
+    self:SetClampedToScreen(true)
+
     tinsert(UISpecialFrames, self:GetName())
     self.selectedTab = 1
 
@@ -135,10 +144,10 @@ function LiteKeystoneInfoMixin:OnLoad()
             frame:SetPoint("BOTTOMLEFT", self.Activities[i-1], "TOPLEFT", 0, 0)
         end
     end
-
 end
 
 function LiteKeystoneInfoMixin:OnShow()
+    self:UpdateScale()
     self:RegisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
     C_MythicPlus.RequestMapInfo()
     self:Update()

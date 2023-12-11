@@ -211,12 +211,20 @@ function LiteKeystone:SlashCommand(arg)
         return true
     end
 
+    if arg1 == 'scale' and tonumber(arg2) then
+        local scale = Clamp(tonumber(arg2), 0.5, 1.5)
+        self.db.uiScale = scale
+        LiteKeystoneInfo:UpdateScale()
+        return true
+    end
+
     printf('Usage:')
     printf(' /lk keys')
     printf(' /lk mykeys')
     printf(' /lk push')
     printf(' /lk request')
     printf(' /lk scan')
+    printf(' /lk scale 0.5 - 1.5')
     return true
 end
 
@@ -227,6 +235,7 @@ function LiteKeystone:Initialize()
     LiteKeystoneDB = LiteKeystoneDB or {}
     self.db = LiteKeystoneDB
     self.db.playerKeys = self.db.playerKeys or {}
+    self.db.uiScale = self.db.uiScale or 1.0
 
     SlashCmdList.LiteKeystone = function (...) self:SlashCommand(...) end
     _G.SLASH_LiteKeystone1 = "/litekeystone"
