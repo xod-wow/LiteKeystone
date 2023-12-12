@@ -487,8 +487,40 @@
 
       <Button parentKey="CloseButton" inherits="UIPanelCloseButton">
         <Anchors>
-          <Anchor point="TOPRIGHT" x="0" y="25" />
+          <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-2" y="-2" />
         </Anchors>
+      </Button>
+
+      <Button parentKey="ScaleUpButton">
+        <Size x="16" y="16" />
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-6" y="-6" />
+        </Anchors>
+        <NormalTexture file="Interface\Buttons\UI-PlusButton-UP" />
+        <HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
+        <Scripts>
+          <OnClick>
+            local s = Clamp(LiteKeystone.db.uiScale + 0.1, 0.5, 1.5)
+            LiteKeystone.db.uiScale = s
+            self:GetParent():UpdateScale()
+          </OnClick>
+        </Scripts>
+      </Button>
+
+      <Button parentKey="ScaleDownButton">
+        <Size x="16" y="16" />
+        <Anchors>
+          <Anchor point="RIGHT" relativePoint="LEFT" relativeKey="$parent.ScaleUpButton" />
+        </Anchors>
+        <NormalTexture file="Interface\Buttons\UI-MinusButton-UP" />
+        <HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
+        <Scripts>
+          <OnClick>
+            local s = Clamp(LiteKeystone.db.uiScale - 0.1, 0.5, 1.5)
+            LiteKeystone.db.uiScale = s
+            self:GetParent():UpdateScale()
+          </OnClick>
+        </Scripts>
       </Button>
 
       <Button parentKey="AnnounceButton" inherits="UIPanelButtonTemplate" text="CHAT_ANNOUNCE">
