@@ -480,7 +480,7 @@ function LiteKeystone:UpdateWeekly(playerName, weekBest)
     end
 end
 
-function LiteKeystone:ReceiveKey(newKey, action)
+function LiteKeystone:ReceiveKey(newKey, action, isReliable)
     local existingKey = self.db.playerKeys[newKey.playerName]
 
     -- Don't accept our own keys back from other people
@@ -490,7 +490,7 @@ function LiteKeystone:ReceiveKey(newKey, action)
         return
     end
 
-    if existingKey and existingKey.weekTime >= newKey.weekTime then
+    if existingKey and not isReliable and existingKey.weekTime >= newKey.weekTime then
         return
     end
 
@@ -629,7 +629,7 @@ function LiteKeystone.UpdateOpenRaidKeys()
             }
             newKey.link = self:GetKeystoneLink(newKey)
             if self:IsGuildKey(newKey) then
-                self:ReceiveKey(newKey, 'LibOpenRaid')
+                self:ReceiveKey(newKey, 'LibOpenRaid', true)
             end
         end
     end
@@ -812,7 +812,7 @@ function LiteKeystone:ProcessAddonMessage(text, source)
 
     if action == 'updateV8' or action == 'update4' then
         local newKey = self:GetKeyFromUpdate(content, source)
-        self:ReceiveKey(newKey, action)
+        self:ReceiveKey(newKey, action, true)
     elseif action == 'sync5' then
         for entry in content:gmatch('[^_]+') do
             local newKey = self:GetKeyFromSync(entry, source)
