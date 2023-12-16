@@ -8,5 +8,7 @@
 ## SavedVariables: LiteKeystoneDB
 ## X-Curse-Project-ID: 868592
 
+embeds.xml
+
 LiteKeystone.xml
 UI.xml

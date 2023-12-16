@@ -1,0 +1,18 @@
+ignore:
+  - get-libs.sh
+  - Libs/LibDeflate/dev_docs
+  - Libs/LibDeflate/docs
+  - Libs/LibDeflate/examples
+  - Libs/LibDeflate/rockspecs
+  - Libs/LibDeflate/tests
+  - Libs/LibDeflate/tools
+  - Libs/LibDeflate/*.toc
+  - Libs/LibDeflate/*.md
+  - Libs/LibStub/tests
+
+externals:
+  Libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
+  Libs/LibOpenRaid-1.0: https://github.com/Tercioo/Open-Raid-Library.git
+  Libs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate.git
+
+enable-nolib-creation: no

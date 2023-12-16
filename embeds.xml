@@ -1,0 +1,5 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Include file="Libs\LibStub\LibStub.lua" />
+    <Include file="Libs\LibDeflate\LibDeflate.lua" />
+    <Include file="Libs\LibOpenRaid-1.0\lib.xml" />
+</Ui>

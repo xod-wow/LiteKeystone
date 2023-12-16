@@ -42,6 +42,8 @@ local function IsKeystoneItem(item)
     return item == 187786 or item == 180653
 end
 
+local lor = LibStub('LibOpenRaid-1.0', true)
+
 --[[------------------------------------------------------------------------]]--
 
 LiteKeystone = CreateFrame('Frame')
@@ -182,7 +184,7 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == ('request'):sub(1,n) then
-        self.UpdateOpenRaidKeys()
+        lor.RequestKeystoneDataFromGuild()
         self:RequestKeysFromGuild()
         self:RequestKeysFromFriends()
         return true
@@ -270,13 +272,8 @@ function LiteKeystone:Initialize()
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
 
-    if LibStub then
-        local lor = LibStub('LibOpenRaid-1.0', true)
-        if lor then
-            lor.RegisterCallback(self, 'KeystoneUpdate', 'UpdateOpenRaidKeys')
-            lor.RequestKeystoneDataFromGuild()
-        end
-    end
+    lor.RegisterCallback(self, 'KeystoneUpdate', 'UpdateOpenRaidKeys')
+    lor.RequestKeystoneDataFromGuild()
 
     printf('Initialized.')
 end
@@ -466,7 +463,7 @@ function LiteKeystone:PushMyKeys(key)
     local _, numFriendsOnline = BNGetNumFriends()
     for i = 1, numFriendsOnline do
         local info = C_BattleNet.GetFriendAccountInfo(i)
-        if info and info.gameAcccountInfo and info.gameAccountInfo.clientProgram == 'WoW' then
+        if info and info.gameAccountInfo and info.gameAccountInfo.clientProgram == 'WoW' then
             BNSendGameData(info.gameAccountInfo.gameAccountID, 'AstralKeys', msg)
         end
     end
@@ -606,7 +603,6 @@ end
 -- LibOpenRaid doesn't pass self even though it insists on a method
 function LiteKeystone.UpdateOpenRaidKeys()
     local self = LiteKeystone
-    local lor = LibStub('LibOpenRaid-1.0', true)
 
     for unitName, info in pairs(lor.GetAllKeystonesInfo()) do
         if not unitName:find('-') then
@@ -647,7 +643,7 @@ function LiteKeystone:RequestKeysFromFriends()
     local numFriends, numFriendsOnline = BNGetNumFriends()
     for i = 1, numFriendsOnline do
         local info = C_BattleNet.GetFriendAccountInfo(i)
-        if info and info.gameAcccountInfo and info.gameAccountInfo.clientProgram == 'WoW' then
+        if info and info.gameAccountInfo and info.gameAccountInfo.clientProgram == 'WoW' then
             BNSendGameData(info.gameAccountInfo.gameAccountID, 'AstralKeys', 'BNet_query ping')
         end
     end
@@ -822,9 +818,10 @@ function LiteKeystone:ProcessAddonMessage(text, source)
         end
     elseif action == 'updateWeekly' then
         self:UpdateWeekly(source, tonumber(content))
-    elseif event == 'BNet_query_ping' then
-        -- ignore
-    elseif event == 'request' then
+    elseif action == 'BNet_query ping' then
+        -- XXX limit to sender? XXX
+        self:PushMyKeys()
+    elseif action == 'request' then
         self:PushMyKeys()
         self:PushSyncKeys()
     end
