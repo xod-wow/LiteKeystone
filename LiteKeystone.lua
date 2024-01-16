@@ -172,7 +172,7 @@ function LiteKeystone:SlashCommand(arg)
         return true
     end
 
-    if arg1 == ('push'):sub(1,n) then
+    if arg1 == 'push' then
         self:PushMyKeys()
         self:PushSyncKeys()
         return true
@@ -184,6 +184,13 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == ('request'):sub(1,n) then
+        lor.RequestKeystoneDataFromGuild()
+        self:RequestKeysFromGuild()
+        self:RequestKeysFromFriends()
+        return true
+    end
+
+    if arg1 == 'reset' then
         lor.RequestKeystoneDataFromGuild()
         self:RequestKeysFromGuild()
         self:RequestKeysFromFriends()
