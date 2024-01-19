@@ -504,7 +504,7 @@ function LiteKeystone:ReceiveKey(newKey, action, isReliable)
     end
 
     if self:IsNewKey(existingKey, newKey) then
-        debug('%s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link)
+        debug('%s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link or UNKNOWN)
     end
 
     self.db.playerKeys[newKey.playerName] = newKey
