@@ -54,8 +54,10 @@ LiteKeystone:SetScript('OnEvent',
 LiteKeystone:RegisterEvent('PLAYER_LOGIN')
 local regionStartTimes = {
     [ 1] = 1500390000,  -- US
+    [ 2] = 0,           -- KR
     [ 3] = 1500447600,  -- EU
     [ 4] = 1500505200,  -- TW
+    [ 5] = 0,           -- CN
     [72] = 1500390000,  -- PTR
 }
 
@@ -152,15 +154,20 @@ function LiteKeystone:IsNewPlayerData(existingKey, newKey)
     end
 end
 
+local function GetRegion()
+    local info = C_BattleNet.GetGameAccountInfoByGUID(UnitGUID('player'))
+    return info and info.regionID or GetCurrentRegion()
+end
+
 -- Astral Keys' idea of the week number
 local function WeekNum()
-    local r = GetCurrentRegion()
+    local r = GetRegion()
     return math.floor( (GetServerTime() - regionStartTimes[r]) / 604800 )
 end
 
 -- How many seconds we are into the current keystone week
 local function WeekTime()
-    local r = GetCurrentRegion()
+    local r = GetRegion()
     return math.floor( (GetServerTime() - regionStartTimes[r] ) % 604800 )
 end
 
