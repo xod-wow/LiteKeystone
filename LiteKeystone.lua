@@ -53,9 +53,10 @@ LiteKeystone:SetScript('OnEvent',
         end)
 LiteKeystone:RegisterEvent('PLAYER_LOGIN')
 local regionStartTimes = {
-    [1] = 1500390000,   -- US
-    [2] = 1500390000,   -- EU (says 1500447600 but doesn't use it)
-    [3] = 1500505200,   -- CN
+    [ 1] = 1500390000,  -- US
+    [ 3] = 1500447600,  -- EU
+    [ 4] = 1500505200,  -- TW
+    [72] = 1500390000,  -- PTR
 }
 
 -- Trivial callback system, it's terrible but good enough for just
