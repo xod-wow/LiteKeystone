@@ -277,6 +277,7 @@ function LiteKeystone:Initialize()
     self:RegisterEvent('GUILD_ROSTER_UPDATE')
     self:RegisterEvent('CHALLENGE_MODE_COMPLETED')
     self:RegisterEvent('CHALLENGE_MODE_MAPS_UPDATE')
+    self:RegisterEvent('CHALLENGE_MODE_START')
     self:RegisterEvent('ITEM_PUSH')
     self:RegisterEvent('ITEM_COUNT_CHANGED')
     self:RegisterEvent('ITEM_CHANGED')
@@ -893,6 +894,16 @@ end
 
 function LiteKeystone:CHALLENGE_MODE_MAPS_UPDATE()
     self:DelayScan('CHALLENGE_MODE_MAPS_UPDATE')
+end
+
+-- As soon as you start a keystone the key level lowers by one but you don't
+-- get an ITEM_CHANGED event. I used not to care about this but LibOpenRaid
+-- updates it right away which can cause issues. It's equaly annoying that
+-- AstralKeys also has this issue and then we keep flipflopping between
+-- believing AstralKeys and LibOpenRaid.
+
+function LiteKeystone:CHALLENGE_MODE_START()
+    self:DelayScan('CHALLENGE_MODE_START')
 end
 
 function LiteKeystone:CHALLENGE_MODE_COMPLETED()
