@@ -974,9 +974,18 @@ end
 
 function LiteKeystone:GetRatingIncreaseForTimingKey(key)
     local curTotal, fort, tyr = self:GetKeyScores(key)
-    local nAffix = key.keyLevel >= 14 and 3 or key.keyLevel >= 7 and 2 or 1
+    local newScore
 
-    local newScore = 20 + key.keyLevel*5 + max(key.keyLevel-10,0)*2 + nAffix*10
+    if C_MythicPlus.GetCurrentSeason() < 12 then
+        local nAffix = key.keyLevel >= 14 and 3 or key.keyLevel >= 7 and 2 or 1
+        newScore = 20 + key.keyLevel*5 + max(key.keyLevel-10,0)*2 + nAffix*10
+    else
+        -- This is the same calc as above but keylevels are 10 above previously
+        -- and you always get the 50 points (5*10) for the non-existent levels.
+        local nAffix = key.keyLevel >= 10 and 3 or key.keyLevel >= 5 and 2 or 1
+        newScore = 70 + key.keyLevel*7 + nAffix*10
+    end
+
 
     if C_MythicPlus.GetCurrentAffixes()[1].id == 10 then
         fort = newScore
