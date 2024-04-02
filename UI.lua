@@ -185,7 +185,7 @@ end
 
 function LiteKeystoneInfoMixin:UpdateDungeonScore()
     local dungeonScore = C_ChallengeMode.GetOverallDungeonScore() or 0
-    local color = C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore)
+    local color = C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore) or HIGHLIGHT_FONT_COLOR
     self.OverallScore:SetVertexColor(color.r, color.g, color.b)
     self.OverallScore:SetText(dungeonScore)
 end
