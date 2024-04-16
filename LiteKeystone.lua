@@ -363,6 +363,16 @@ function LiteKeystone:GetMyKeyFromLink(link)
     return newKey
 end
 
+function LiteKeystone:AnnounceNewKeystone(newKey)
+    if not IsInGroup(LE_PARTY_CATEGORY_HOME) then
+        return
+    elseif C_ChallengeMode.GetCompletionInfo() != 0 then
+        return
+    else
+        SendChatMessage('New keystone: ' .. newKey.link, 'PARTY')
+    end
+end
+
 function LiteKeystone:ProcessItem(item)
     local db, changed
 
@@ -382,9 +392,7 @@ function LiteKeystone:ProcessItem(item)
     if self:IsNewKey(existingKey, newKey) then
         debug('New key, saving.')
         db[self.playerName] = newKey
-        if IsInGroup(LE_PARTY_CATEGORY_HOME) then
-            SendChatMessage('New keystone: ' .. newKey.link, 'PARTY')
-        end
+        self:AnnounceNewKeystone(newKey)
         self:PushMyKeys(newKey)
         self:Fire()
     elseif self:IsNewPlayerData(existingKey, newKey) then
