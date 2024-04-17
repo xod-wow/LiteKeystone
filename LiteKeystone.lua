@@ -366,7 +366,7 @@ end
 function LiteKeystone:AnnounceNewKeystone(newKey)
     if not IsInGroup(LE_PARTY_CATEGORY_HOME) then
         return
-    elseif C_ChallengeMode.GetCompletionInfo() != 0 then
+    elseif C_ChallengeMode.GetCompletionInfo() ~= 0 then
         return
     else
         SendChatMessage('New keystone: ' .. newKey.link, 'PARTY')
