@@ -40,6 +40,11 @@ function LiteKeystoneInfoMixin:UpdateTabs()
     self.Tab4.midSelectedTexture:SetShown(show)
     self.Tab4.rightSelectedTexture:SetShown(show)
 
+    show = (self.selectedTab == 8)
+    self.TabLog.leftSelectedTexture:SetShown(show)
+    self.TabLog.midSelectedTexture:SetShown(show)
+    self.TabLog.rightSelectedTexture:SetShown(show)
+
     show = (self.selectedTab == 9)
     self.TabRight.leftSelectedTexture:SetShown(show)
     self.TabRight.midSelectedTexture:SetShown(show)
@@ -61,14 +66,20 @@ function LiteKeystoneInfoMixin:UpdateScale()
 end
 
 function LiteKeystoneInfoMixin:Update()
-    if self.selectedTab == 9 then
+    if self.selectedTab == 8 then
         self.Key:Hide()
+        self.Log:Show()
+        self.Dungeon:Hide()
+    elseif self.selectedTab == 9 then
+        self.Key:Hide()
+        self.Log:Hide()
         self.Dungeon:Show()
         self.Dungeon:Update()
     else
-        self.Dungeon:Hide()
         self.Key:Show()
         self.Key:Update()
+        self.Log:Hide()
+        self.Dungeon:Hide()
         self.AnnounceButton:Show()
     end
 

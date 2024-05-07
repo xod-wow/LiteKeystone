@@ -24,12 +24,6 @@ local function printf(fmt, ...)
     SELECTED_CHAT_FRAME:AddMessage(printTag .. msg)
 end
 
-local function debug(...)
-    --@debug@
-    printf(...)
-    --@end-debug@
-end
-
 local function IsKeystoneItem(item)
     if type(item) == 'string' then
         if LinkUtil.IsLinkType(item, "keystone") then
@@ -60,6 +54,15 @@ local regionStartTimes = {
     [ 5] = 0,           -- CN
     [72] = 1500390000,  -- PTR
 }
+
+function LiteKeystone:Debug(...)
+    --@debug@
+    local ts = BetterDate(TIMESTAMP_FORMAT_HHMMSS_24HR, time())
+    local msg = format(...)
+    table.insert(self.messageLog, ts .. " " .. msg)
+    self:Fire()
+    --@end-debug@
+end
 
 -- Trivial callback system, it's terrible but good enough for just
 -- updating the UI when new keys info is available.
@@ -254,6 +257,8 @@ function LiteKeystone:Initialize()
     self.db.playerKeys = self.db.playerKeys or {}
     self.db.uiScale = self.db.uiScale or 1.0
 
+    self.messageLog = {}
+
     SlashCmdList.LiteKeystone = function (...) self:SlashCommand(...) end
     _G.SLASH_LiteKeystone1 = "/litekeystone"
     _G.SLASH_LiteKeystone2 = "/lk"
@@ -366,7 +371,7 @@ end
 function LiteKeystone:AnnounceNewKeystone(newKey)
     if not IsInGroup(LE_PARTY_CATEGORY_HOME) then
         return
-    elseif C_ChallengeMode.GetCompletionInfo() ~= 0 then
+    elseif C_ChallengeMode.IsChallengeModeactive() then
         return
     else
         SendChatMessage('New keystone: ' .. newKey.link, 'PARTY')
@@ -384,30 +389,38 @@ function LiteKeystone:ProcessItem(item)
 
     local newKey = self:GetMyKeyFromLink(item:GetItemLink())
 
-    debug('Found key: mapid %d (%s), level %d, weekbest %d, rating %d.',
+    self:Debug('Found key: mapid %d (%s), level %d, weekbest %d, rating %d.',
             newKey.mapID, newKey.mapName, newKey.keyLevel, newKey.weekBest, newKey.rating)
 
     local existingKey = db[self.playerName]
 
     if self:IsNewKey(existingKey, newKey) then
-        debug('New key, saving.')
+        self:Debug('New key, saving.')
         db[self.playerName] = newKey
         self:AnnounceNewKeystone(newKey)
         self:PushMyKeys(newKey)
         self:Fire()
     elseif self:IsNewPlayerData(existingKey, newKey) then
-        debug('New player data, saving.')
+        self:Debug('New player data, saving.')
         db[self.playerName] = newKey
         self:PushMyKeys(newKey)
         self:Fire()
     else
-        debug('Same key, ignored.')
+        self:Debug('Same key, ignored.')
     end
 end
 
 -- Don't call C_MythicPlus.RequestMapInfo here or it'll infinite loop
 function LiteKeystone:ScanAndPushKeys(reason)
-    debug('Scanning my keys: %s.', tostring(reason))
+    self:Debug('Scanning my keys: %s.', tostring(reason))
+    self:Debug("> GetActiveChallengeMapID: %s", tostring(C_ChallengeMode.GetActiveChallengeMapID()))
+    self:Debug("> HasSlottedKeystone: %s", tostring(C_ChallengeMode.HasSlottedKeystone()))
+    self:Debug("> IsChallengeModeActive: %s", tostring(C_ChallengeMode.IsChallengeModeActive()))
+    local id, affixTable, level = C_ChallengeMode.GetSlottedKeystoneInfo()
+    self:Debug("> GetSlottedKeystoneInfo: id=%s, level=%s", tostring(id), tostring(level))
+    local id, level, time, onTime, plusLevels = C_ChallengeMode.GetCompletionInfo()
+    self:Debug("> GetCompletionInfo: id=%s level=%s time=%s onTime=%s plusLevels=%s",
+            tostring(id), tostring(level), tostring(time), tostring(onTime), tostring(plusLevels))
 
     for bag = 0, 4 do
         for slot = 1, C_Container.GetContainerNumSlots(bag) do
@@ -521,7 +534,7 @@ function LiteKeystone:ReceiveKey(newKey, action, isReliable)
     end
 
     if self:IsNewKey(existingKey, newKey) then
-        debug('%s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link or UNKNOWN)
+        self:Debug('%s via %s: %s %s', newKey.source, action, newKey.playerName, newKey.link or UNKNOWN)
     end
 
     self.db.playerKeys[newKey.playerName] = newKey
@@ -891,7 +904,7 @@ function LiteKeystone:GUILD_ROSTER_UPDATE()
 end
 
 function LiteKeystone:DelayScan(trigger, delay)
-    if trigger then debug('DelayScan ' .. trigger) end
+    if trigger then self:Debug('DelayScan ' .. trigger) end
     C_Timer.After(delay or 1, function () self:ScanAndPushKeys(trigger) end)
 end
 

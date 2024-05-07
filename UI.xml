@@ -21,6 +21,7 @@
 
   <Script file="UIDungeon.lua"/>
   <Script file="UIKey.lua"/>
+  <Script file="UILog.lua"/>
   <Script file="UI.lua"/>
 
   <Frame name="LiteKeystoneStripeButtonTemplate" virtual="true">
@@ -423,6 +424,21 @@
     </Frames>
   </Frame>
 
+  <Frame name="LiteKeystoneLogInfoTemplate" virtual="true" mixin="LiteKeystoneLogInfoMixin" hidden="true">
+    <Scripts>
+      <OnShow method="OnShow" />
+      <OnHide method="OnHide" />
+    </Scripts>
+    <Frames>
+      <Frame parentKey="EditScroll" inherits="ScrollingEditBoxTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-16" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="0" />
+        </Anchors>
+      </Frame>
+    </Frames>
+  </Frame>
+
   <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG" movable="true" mixin="LiteKeystoneInfoMixin" inherits="TooltipBackdropTemplate">
 
     <Size x="760" y="500" />
@@ -472,12 +488,31 @@
         </Scripts>
       </Button>
 
+      <!--@debug@-->
+      <Button parentKey="TabLog" inherits="LiteKeystoneInfoTabTemplate" text="GUILD_BANK_LOG" id="8">
+        <Anchors>
+          <Anchor point="RIGHT" relativeKey="$parent.TabRight" relativePoint="LEFT" />
+        </Anchors>
+        <Scripts>
+            <OnLoad inherit="append"> self.Text:SetTextColor(0, 1, 1) </OnLoad>
+        </Scripts>
+      </Button>
+      <!--@end-debug@-->
+
       <Frame parentKey="Key" inherits="LiteKeystoneKeyInfoTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" />
           <Anchor point="BOTTOMRIGHT" y="80" />
         </Anchors>
       </Frame>
+
+      <Frame parentKey="Log" inherits="LiteKeystoneLogInfoTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" />
+          <Anchor point="BOTTOMRIGHT" y="80" />
+        </Anchors>
+      </Frame>
+
       <Frame parentKey="Dungeon" inherits="LiteKeystoneDungeonInfoTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" />
