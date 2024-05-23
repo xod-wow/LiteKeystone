@@ -87,36 +87,49 @@ function LiteKeystoneInfoMixin:Update()
 
     self:UpdateTabs()
 
+    self:UpdateAffixes()
     self:UpdateDungeonScore()
     self:UpdateRunHistory()
     self:UpdateActivities()
 end
 
-function LiteKeystoneInfoMixin:SetupAffixes()
-    -- SetupAffixes, see ChallengesFrameWeeklyInfoMixin:SetUp
+function LiteKeystoneInfoMixin:GetAffixFrame(i)
+    -- I am assuming these are in order
+    for _, frame in ipairs(self.AffixesContainer:GetLayoutChildren()) do
+        if frame.layoutIndex == i then
+            return frame
+        end
+    end
+
+    frame = CreateFrame("FRAME", nil, self.AffixesContainer)
+    frame:SetSize(16, 16)
+    frame:SetScript('OnEnter',
+        function (...)
+            ChallengeMode_LoadUI()
+            ChallengesKeystoneFrameAffixMixin.OnEnter(...)
+        end)
+    frame:SetScript('OnLeave', GameTooltip_Hide)
+    frame.portrait = frame:CreateTexture();
+    frame.portrait:SetAllPoints()
+    frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    frame.text:SetPoint("LEFT", frame, "RIGHT", 6, 0)
+    frame.layoutIndex = i
+    frame.align = "center"
+    self.AffixesContainer:Layout()
+    return frame
+end
+
+function LiteKeystoneInfoMixin:UpdateAffixes()
+    -- see ChallengesFrameWeeklyInfoMixin:SetUp
     local affixes = C_MythicPlus.GetCurrentAffixes()
     if affixes then
         for i, info in ipairs(affixes) do
-            local frame = CreateFrame("FRAME", nil, self.AffixesContainer)
+            local frame = self:GetAffixFrame(i)
             frame.affixID = info.id
-            frame:SetSize(16, 16)
-            frame:SetScript('OnEnter',
-                function (...)
-                    ChallengeMode_LoadUI()
-                    ChallengesKeystoneFrameAffixMixin.OnEnter(...)
-                end)
-            frame:SetScript('OnLeave', GameTooltip_Hide)
             local name, _, filedataid = C_ChallengeMode.GetAffixInfo(info.id);
-            local portrait = frame:CreateTexture();
-            portrait:SetAllPoints()
-            portrait:SetTexture(filedataid)
-            local text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-            text:SetPoint("LEFT", frame, "RIGHT", 6, 0)
-            text:SetText(name)
-            frame.layoutIndex = i
-            frame.align = "center"
+            frame.portrait:SetTexture(filedataid)
+            frame.text:SetText(name)
         end
-        self.AffixesContainer:Layout()
     end
 end
 
@@ -139,7 +152,7 @@ function LiteKeystoneInfoMixin:OnLoad()
     self.RunHistoryTitle:SetText(string.format(WEEKLY_REWARDS_MYTHIC_TOP_RUNS, 8))
 
     -- SetupAffixes
-    EventUtil.RegisterOnceFrameEventAndCallback('MYTHIC_PLUS_CURRENT_AFFIX_UPDATE', function () self:SetupAffixes() end)
+    self:RegisterEvent('MYTHIC_PLUS_CURRENT_AFFIX_UPDATE')
     C_MythicPlus.RequestCurrentAffixes()
 
     -- SetupActivities
@@ -161,13 +174,14 @@ function LiteKeystoneInfoMixin:OnShow()
     self:UpdateScale()
     self:RegisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
     C_MythicPlus.RequestMapInfo()
+    C_MythicPlus.RequestCurrentAffixes()
     self:Update()
     LiteKeystone:UpdateKeyRatings()
     self:Update()
 end
 
 function LiteKeystoneInfoMixin:OnHide()
-    self:UnregisterAllEvents()
+    self:UnregisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
 end
 
 local RunColors = {
@@ -232,7 +246,11 @@ function LiteKeystoneInfoMixin:UpdateActivities()
 end
 
 function LiteKeystoneInfoMixin:OnEvent(event, ...)
-    self:Update()
+    if event == 'MYTHIC_PLUS_CURRENT_AFFIX_UPDATE' then
+        self:UpdateAffixes()
+    else
+        self:Update()
+    end
 end
 
 function LiteKeystoneInfoMixin:Announce()
