@@ -610,4 +610,30 @@
     </Layers>
   </Frame>
 
+  <Button name="LiteKeystoneToggleButton">
+    <Size x="24" y="24"/>
+    <NormalTexture atlas="socialqueuing-icon-group" />
+    <Anchors>
+      <Anchor point="RIGHT" relativeTo="PVEFrameCloseButton" relativePoint="LEFT" x="-4" />
+    </Anchors>
+    <Scripts>
+      <OnLoad>
+        local parent = PVEFrame
+        self:SetParent(parent)
+        self:SetFrameStrata(parent.CloseButton:GetFrameStrata())
+        self:SetFrameLevel(parent.CloseButton:GetFrameLevel())
+      </OnLoad>
+      <OnClick>
+        local shown = LiteKeystoneInfo:IsShown()
+        LiteKeystoneInfo:SetShown(not shown)
+      </OnClick>
+      <OnEnter>
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("LiteKeystone")
+        GameTooltip:Show()
+      </OnEnter>
+      <OnLeave function="GameTooltip_Hide" />
+    </Scripts>
+  </Button>
+
 </Ui>
