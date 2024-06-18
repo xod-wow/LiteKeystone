@@ -17,6 +17,22 @@
 
 ----------------------------------------------------------------------------]]--
 
+local function FindTeleportSpell(mapName)
+    for i = 1, GetNumFlyouts() do
+        local flyoutID = GetFlyoutID(i)
+        local numSlots = select(3, GetFlyoutInfo(flyoutID))
+        for slot = 1, numSlots do
+            local spellID, _, isKnown = GetFlyoutSlotInfo(flyoutID, slot)
+            local spellDescription = GetSpellDescription(spellID)
+            if spellDescription and spellDescription:find(mapName) then
+                return spellID, isKnown
+            end
+        end
+    end
+end
+
+--[[------------------------------------------------------------------------]]--
+
 LiteKeystoneDungeonButtonMixin = {}
 
 function LiteKeystoneDungeonButtonMixin:OnEnter()
@@ -49,6 +65,31 @@ function LiteKeystoneDungeonButtonMixin:OnLeave()
     GameTooltip:Hide()
 end
 
+function LiteKeystoneDungeonButtonMixin:OnLoad()
+    self.TeleportButton:RegisterForClicks('AnyDown', 'AnyUp')
+    self.TeleportButton:SetAttribute("pressAndHoldAction", true)
+    self.TeleportButton:SetAttribute("type", "spell")
+    self.TeleportButton:SetAttribute("typerelease", "spell")
+    self.TeleportButton.cooldown:SetCountdownFont("GameFontHighlightSmall")
+end
+
+function LiteKeystoneDungeonButtonMixin:UpdateCooldown()
+    if self.TeleportButton.spellID then
+        local cooldown = self.TeleportButton.cooldown
+        local start, duration, enable, modRate = GetSpellCooldown(self.TeleportButton.spellID)
+        if cooldown and start and duration then
+            if enable then
+                cooldown:Hide();
+            else
+                cooldown:Show();
+            end
+            CooldownFrame_Set(cooldown, start, duration, enable, false, modRate);
+        else
+            cooldown:Hide();
+        end
+    end
+end
+
 function LiteKeystoneDungeonButtonMixin:Update(index)
     if not self.dungeon then
         self:Hide()
@@ -61,6 +102,17 @@ function LiteKeystoneDungeonButtonMixin:Update(index)
         self.TyrannicalLevel:SetText(tyr and tyr.level or "")
         self.TyrannicalScore:SetText(tyr and tyr.score or "")
         self.Stripe:SetShown(index % 2 == 1)
+        local spellID, isKnown = FindTeleportSpell(self.dungeon.mapName)
+        if spellID and isKnown then
+            self.TeleportButton.spellID = spellID
+            local _, _, tex = GetSpellInfo(spellID)
+            self.TeleportButton:SetNormalTexture(tex)
+            self.TeleportButton:SetAttribute("spell", spellID)
+            self:UpdateCooldown()
+            self.TeleportButton:Show()
+        else
+            self.TeleportButton:Hide()
+        end
         self:Show()
     end
 end

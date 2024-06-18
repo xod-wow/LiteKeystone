@@ -160,6 +160,7 @@
     <Size y="36" />
 
     <Scripts>
+      <OnLoad method="OnLoad" inherit="APPEND" />
       <OnEnter method="OnEnter" />
       <OnLeave method="OnLeave" />
     </Scripts>
@@ -216,6 +217,26 @@
 
       </Layer>
     </Layers>
+    <Frames>
+      <Button parentKey="TeleportButton" inherits="SecureActionButtonTemplate">
+        <Size x="22" y="22" />
+        <Anchors> <Anchor point="RIGHT" x="-16" /> </Anchors>
+        <Frames>
+          <Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate"/>
+        </Frames>
+        <Scripts>
+          <OnEnter>
+            if self.spellID then
+              GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+              GameTooltip:SetSpellByID(self.spellID)
+              GameTooltip:Show()
+            end
+          </OnEnter>
+          <OnLeave function="GameTooltip_Hide" />
+        </Scripts>
+      </Button>
+    </Frames>
+
   </Frame>
 
   <Frame name="LiteKeystoneDungeonHeaderTemplate" virtual="true">
