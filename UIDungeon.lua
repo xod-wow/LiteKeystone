@@ -134,6 +134,26 @@ end
 
 LiteKeystoneDungeonInfoMixin = {}
 
+function LiteKeystoneDungeonInfoMixin:UpdateHeader()
+    local TYRANNICAL = C_ChallengeMode.GetAffixInfo(9)
+    local FORTIFIED = C_ChallengeMode.GetAffixInfo(10)
+    self.Header.Tyrannical:SetText(TYRANNICAL)
+    self.Header.Fortified:SetText(FORTIFIED)
+
+    local baseAffix = C_MythicPlus.GetCurrentAffixes()[1]
+    local r, g, b = EPIC_PURPLE_COLOR:GetRGB()
+    if not baseAffix then
+        self.Header.Fortified:SetTextColor(1, 1, 1)
+        self.Header.Tyrannical:SetTextColor(1, 1, 1)
+    elseif baseAffix.id == 9 then
+        self.Header.Fortified:SetTextColor(1, 1, 1)
+        self.Header.Tyrannical:SetTextColor(r, g, b)
+    elseif basAffix.id == 10 then
+        self.Header.Fortified:SetTextColor(r, g, b)
+        self.Header.Tyrannical:SetTextColor(1, 1, 1)
+    end
+end
+
 function LiteKeystoneDungeonInfoMixin:Update()
     UpdateDungeonScroll(self.Scroll)
 end
@@ -153,5 +173,6 @@ function LiteKeystoneDungeonInfoMixin:OnLoad()
 end
 
 function LiteKeystoneDungeonInfoMixin:OnShow()
+    self:UpdateHeader()
     self:Update()
 end
