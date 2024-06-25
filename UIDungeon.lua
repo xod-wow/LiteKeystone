@@ -38,7 +38,7 @@ LiteKeystoneDungeonButtonMixin = {}
 function LiteKeystoneDungeonButtonMixin:OnEnter()
     local gains = {}
     for i = 2, 27 do
-        if #gains > 5 then break end
+        if #gains >= 10 then break end
         local fakeKey = { mapID = self.dungeon.mapID, keyLevel = i }
         local gain = LiteKeystone:GetRatingIncreaseForTimingKey(fakeKey)
         if gain > 0 then

@@ -255,14 +255,14 @@
 
       <Layer level="OVERLAY">
 
-        <FontString parentKey="Map" inherits="SystemFont_Med3" text="Dungeon" justifyH="LEFT">
+        <FontString parentKey="Map" inherits="SystemFont_Med3" text="LFG_TYPE_DUNGEON" justifyH="LEFT">
           <Size x="200" />
           <Anchors>
             <Anchor point="LEFT" x="8" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="OverallScore" inherits="SystemFont_Med3" text="Score">
+        <FontString parentKey="OverallScore" inherits="SystemFont_Med3" text="RATING">
           <Size x="48" />
           <Anchors>
             <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.Map" />
