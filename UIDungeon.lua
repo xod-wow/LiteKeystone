@@ -66,7 +66,7 @@ function LiteKeystoneDungeonButtonMixin:OnLeave()
 end
 
 function LiteKeystoneDungeonButtonMixin:OnLoad()
-    self.TeleportButton:RegisterForClicks('AnyDown', 'AnyUp')
+    self.TeleportButton:RegisterForClicks('AnyUp')
     self.TeleportButton:SetAttribute("pressAndHoldAction", true)
     self.TeleportButton:SetAttribute("type", "spell")
     self.TeleportButton:SetAttribute("typerelease", "spell")
