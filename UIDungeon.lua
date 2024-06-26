@@ -148,7 +148,7 @@ function LiteKeystoneDungeonInfoMixin:UpdateHeader()
     elseif baseAffix.id == 9 then
         self.Header.Fortified:SetTextColor(1, 1, 1)
         self.Header.Tyrannical:SetTextColor(r, g, b)
-    elseif basAffix.id == 10 then
+    elseif baseAffix.id == 10 then
         self.Header.Fortified:SetTextColor(r, g, b)
         self.Header.Tyrannical:SetTextColor(1, 1, 1)
     end
