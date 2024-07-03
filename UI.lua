@@ -101,7 +101,7 @@ function LiteKeystoneInfoMixin:GetAffixFrame(i)
         end
     end
 
-    frame = CreateFrame("FRAME", nil, self.AffixesContainer)
+    local frame = CreateFrame("FRAME", nil, self.AffixesContainer)
     frame:SetSize(16, 16)
     frame:SetScript('OnEnter',
         function (...)

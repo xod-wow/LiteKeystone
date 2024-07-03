@@ -314,8 +314,8 @@ function LiteKeystone:GetUIMapIDByName(name)
     if not mapTable then
         mapTable = { }
         for mapID = 1, 1000 do
-            local name = C_ChallengeMode.GetMapUIInfo(mapID)
-            if name then mapTable[name] = mapID end
+            local mapName = C_ChallengeMode.GetMapUIInfo(mapID)
+            if mapName then mapTable[mapName] = mapID end
         end
     end
     return mapTable[name]
@@ -416,11 +416,15 @@ function LiteKeystone:ScanAndPushKeys(reason)
     self:Debug("> GetActiveChallengeMapID: %s", tostring(C_ChallengeMode.GetActiveChallengeMapID()))
     self:Debug("> HasSlottedKeystone: %s", tostring(C_ChallengeMode.HasSlottedKeystone()))
     self:Debug("> IsChallengeModeActive: %s", tostring(C_ChallengeMode.IsChallengeModeActive()))
-    local id, affixTable, level = C_ChallengeMode.GetSlottedKeystoneInfo()
-    self:Debug("> GetSlottedKeystoneInfo: id=%s, level=%s", tostring(id), tostring(level))
-    local id, level, time, onTime, plusLevels = C_ChallengeMode.GetCompletionInfo()
-    self:Debug("> GetCompletionInfo: id=%s level=%s time=%s onTime=%s plusLevels=%s",
+    do
+        local id, affixTable, level = C_ChallengeMode.GetSlottedKeystoneInfo()
+        self:Debug("> GetSlottedKeystoneInfo: id=%s, level=%s", tostring(id), tostring(level))
+    end
+    do
+        local id, level, time, onTime, plusLevels = C_ChallengeMode.GetCompletionInfo()
+        self:Debug("> GetCompletionInfo: id=%s level=%s time=%s onTime=%s plusLevels=%s",
             tostring(id), tostring(level), tostring(time), tostring(onTime), tostring(plusLevels))
+    end
 
     for bag = 0, 4 do
         for slot = 1, C_Container.GetContainerNumSlots(bag) do
@@ -487,7 +491,7 @@ end
 
 function LiteKeystone:PushMyKeys(key)
 
-    local key = key or self:MyKey()
+    key = key or self:MyKey()
 
     if not key then return end
 
