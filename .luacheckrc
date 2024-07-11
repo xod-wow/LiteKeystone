@@ -42,6 +42,7 @@ read_globals = {
     "C_Container",
     "C_FriendList",
     "C_MythicPlus",
+    "C_Spell",
     "C_Timer",
     "C_WeeklyRewards",
     "ChallengeMode_LoadUI",

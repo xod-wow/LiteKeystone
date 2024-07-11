@@ -17,6 +17,8 @@
 
 ----------------------------------------------------------------------------]]--
 
+local GetSpellDescription = GetSpellDescription or C_Spell.GetSpellDescription
+
 local function FindTeleportSpell(mapName)
     for i = 1, GetNumFlyouts() do
         local flyoutID = GetFlyoutID(i)
