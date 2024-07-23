@@ -175,7 +175,7 @@ function LiteKeystoneInfoMixin:OnShow()
     self:RegisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
-    self:Update()
+    LiteKeystone:RequestData()
     LiteKeystone:UpdateKeyRatings()
     self:Update()
 end

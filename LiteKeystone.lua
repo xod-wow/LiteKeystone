@@ -157,6 +157,12 @@ function LiteKeystone:IsNewPlayerData(existingKey, newKey)
     end
 end
 
+function LiteKeystone:RequestData()
+    lor.RequestKeystoneDataFromGuild()
+    self:RequestKeysFromGuild()
+    self:RequestKeysFromFriends()
+end
+
 local function GetRegion()
     local info = C_BattleNet.GetGameAccountInfoByGUID(UnitGUID('player'))
     return info and info.regionID or GetCurrentRegion()
@@ -195,16 +201,12 @@ function LiteKeystone:SlashCommand(arg)
     end
 
     if arg1 == ('request'):sub(1,n) then
-        lor.RequestKeystoneDataFromGuild()
-        self:RequestKeysFromGuild()
-        self:RequestKeysFromFriends()
+        self:RequestData()
         return true
     end
 
     if arg1 == 'reset' then
-        lor.RequestKeystoneDataFromGuild()
-        self:RequestKeysFromGuild()
-        self:RequestKeysFromFriends()
+        self:Reset()
         return true
     end
 
