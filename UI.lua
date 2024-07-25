@@ -40,10 +40,12 @@ function LiteKeystoneInfoMixin:UpdateTabs()
     self.Tab4.midSelectedTexture:SetShown(show)
     self.Tab4.rightSelectedTexture:SetShown(show)
 
-    show = (self.selectedTab == 8)
-    self.TabLog.leftSelectedTexture:SetShown(show)
-    self.TabLog.midSelectedTexture:SetShown(show)
-    self.TabLog.rightSelectedTexture:SetShown(show)
+    if self.TabLog then
+        show = (self.selectedTab == 8)
+        self.TabLog.leftSelectedTexture:SetShown(show)
+        self.TabLog.midSelectedTexture:SetShown(show)
+        self.TabLog.rightSelectedTexture:SetShown(show)
+    end
 
     show = (self.selectedTab == 9)
     self.TabRight.leftSelectedTexture:SetShown(show)
