@@ -218,7 +218,7 @@
       </Layer>
     </Layers>
     <Frames>
-      <Button parentKey="TeleportButton" inherits="SecureActionButtonTemplate">
+      <Button parentKey="TeleportButton" inherits="InsecureActionButtonTemplate">
         <Size x="22" y="22" />
         <Anchors> <Anchor point="RIGHT" x="-16" /> </Anchors>
         <Frames>
