@@ -17,15 +17,13 @@
 
 ----------------------------------------------------------------------------]]--
 
-local GetSpellDescription = GetSpellDescription or C_Spell.GetSpellDescription
-
 local function FindTeleportSpell(mapName)
     for i = 1, GetNumFlyouts() do
         local flyoutID = GetFlyoutID(i)
         local numSlots = select(3, GetFlyoutInfo(flyoutID))
         for slot = 1, numSlots do
             local spellID, _, isKnown = GetFlyoutSlotInfo(flyoutID, slot)
-            local spellDescription = GetSpellDescription(spellID)
+            local spellDescription = C_Spell.GetSpellDescription(spellID)
             if spellDescription and spellDescription:find(mapName) then
                 return spellID, isKnown
             end
@@ -78,14 +76,9 @@ end
 function LiteKeystoneDungeonButtonMixin:UpdateCooldown()
     if self.TeleportButton.spellID then
         local cooldown = self.TeleportButton.cooldown
-        local start, duration, enable, modRate = GetSpellCooldown(self.TeleportButton.spellID)
-        if cooldown and start and duration then
-            if enable then
-                cooldown:Hide();
-            else
-                cooldown:Show();
-            end
-            CooldownFrame_Set(cooldown, start, duration, enable, false, modRate);
+        local info = C_Spell.GetSpellCooldown(self.TeleportButton.spellID)
+        if info then
+            CooldownFrame_Set(cooldown, info.startTime, info.duration, info.isEnabled, false, info.modRate)
         else
             cooldown:Hide();
         end
@@ -107,8 +100,8 @@ function LiteKeystoneDungeonButtonMixin:Update(index)
         local spellID, isKnown = FindTeleportSpell(self.dungeon.mapName)
         if spellID and isKnown then
             self.TeleportButton.spellID = spellID
-            local _, _, tex = GetSpellInfo(spellID)
-            self.TeleportButton:SetNormalTexture(tex)
+            local info = C_Spell.GetSpellInfo(spellID)
+            self.TeleportButton:SetNormalTexture(info.iconID)
             self.TeleportButton:SetAttribute("spell", spellID)
             self:UpdateCooldown()
             self.TeleportButton:Show()
