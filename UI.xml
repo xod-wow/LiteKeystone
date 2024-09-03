@@ -391,7 +391,7 @@
     </Layers>
     <Scripts>
       <OnEnter>
-        if self.info.progress >= self.info.threshold then
+        if self.info and self.info.progress >= self.info.threshold then
             self:ShowPreviewItemTooltip()
         end
       </OnEnter>
