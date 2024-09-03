@@ -999,6 +999,13 @@ function LiteKeystone:GetKeyScores(key)
     return overallScore, fortScore, tyrScore
 end
 
+-- XXX FIXME XXX
+-- Disabled until rating formula for TWW is clear
+function LiteKeystone:GetRatingIncreaseForTimingKey(key)
+    return 0
+end
+
+--[[
 function LiteKeystone:GetRatingIncreaseForTimingKey(key)
     local curTotal, fort, tyr = self:GetKeyScores(key)
     local newScore
@@ -1013,7 +1020,6 @@ function LiteKeystone:GetRatingIncreaseForTimingKey(key)
         newScore = 70 + key.keyLevel*7 + nAffix*10
     end
 
-
     if C_MythicPlus.GetCurrentAffixes()[1].id == 10 then
         fort = newScore
     else
@@ -1022,6 +1028,7 @@ function LiteKeystone:GetRatingIncreaseForTimingKey(key)
     local newTotal = max(fort, tyr)*1.5 + min(fort,tyr)*0.5
     return max(newTotal-curTotal, 0)
 end
+]]
 
 function LiteKeystone:SortedDungeons()
     local output = { }
