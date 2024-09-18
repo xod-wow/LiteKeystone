@@ -392,7 +392,9 @@
     <Scripts>
       <OnEnter>
         if self.info and self.info.progress >= self.info.threshold then
-            self:ShowPreviewItemTooltip()
+            if self.ShowPreviewItemTooltip then
+                self:ShowPreviewItemTooltip()
+            end
         end
       </OnEnter>
       <OnLeave>
