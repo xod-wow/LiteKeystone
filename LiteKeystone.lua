@@ -651,14 +651,14 @@ function LiteKeystone.UpdateOpenRaidKeys()
         if not unitName:find('-') then
             unitName = unitName .. '-' .. self.playerRealm
         end
-        if info.mythicPlusMapID ~= 0 then
+        if info.challengeMapID ~= 0 then
             local newKey = {
                 itemID=180653,
                 playerName=unitName,
                 playerClass=select(2, GetClassInfo(info.classID)),
                 playerFaction=self.playerFaction,
-                mapID=info.mythicPlusMapID,
-                mapName=C_ChallengeMode.GetMapUIInfo(info.mythicPlusMapID),
+                mapID=info.challengeMapID,
+                mapName=C_ChallengeMode.GetMapUIInfo(info.challengeMapID),
                 keyLevel=info.level,
                 weekBest=0,
                 rating=info.rating,
