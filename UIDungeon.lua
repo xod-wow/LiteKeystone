@@ -48,15 +48,12 @@ function LiteKeystoneDungeonButtonMixin:OnEnter()
 
     if next(gains) == nil then return end
 
-    local baseAffixID = C_MythicPlus.GetCurrentAffixes()[1].id
-    local baseAffixName = C_ChallengeMode.GetAffixInfo(baseAffixID)
-
     GameTooltip:SetOwner(self, "ANCHOR_NONE")
     GameTooltip:SetPoint("BOTTOMLEFT", self, "RIGHT", -30, 0)
     GameTooltip:AddLine(self.dungeon.mapName)
     GameTooltip:AddLine(" ")
     for i, info in ipairs(gains) do
-        GameTooltip:AddDoubleLine(baseAffixName .. ' +' .. info[1], format(PVP_RATING_CHANGE, info[2]), 1, 1, 1, 1, 1, 1)
+        GameTooltip:AddDoubleLine('+' .. info[1], format(PVP_RATING_CHANGE, info[2]), 1, 1, 1, 1, 1, 1)
     end
     GameTooltip:Show()
 end
@@ -85,17 +82,27 @@ function LiteKeystoneDungeonButtonMixin:UpdateCooldown()
     end
 end
 
+local DurationFormatter = CreateFromMixins(SecondsFormatterMixin)
+DurationFormatter:Init(SECONDS_PER_MIN, SecondsFormatter.Abbreviation.OneLetter, false)
+DurationFormatter:SetStripIntervalWhitespace(true)
+
 function LiteKeystoneDungeonButtonMixin:Update(index)
     if not self.dungeon then
         self:Hide()
     else
         self.Map:SetText(self.dungeon.mapName)
         self.OverallScore:SetText(self.dungeon.overallScore)
-        local fort, tyr = self.dungeon.scores.Fortified, self.dungeon.scores.Tyrannical
-        self.FortifiedLevel:SetText(fort and fort.level or "")
-        self.FortifiedScore:SetText(fort and fort.score or "")
-        self.TyrannicalLevel:SetText(tyr and tyr.level or "")
-        self.TyrannicalScore:SetText(tyr and tyr.score or "")
+        self.KeyLevel:SetText(self.dungeon.level)
+        if self.dungeon.durationSec then
+            local timeText = DurationFormatter:Format(self.dungeon.durationSec)
+            local diff = self.dungeon.durationSec - self.dungeon.mapTimer
+            local diffText = DurationFormatter:Format(diff)
+            local text = format('%s (%ds)', timeText, diff)
+            self.KeyTimer:SetText(text)
+        else
+            self.KeyTimer:SetText(nil)
+        end
+        self.MapTimer:SetText(DurationFormatter:Format(self.dungeon.mapTimer))
         self.Stripe:SetShown(index % 2 == 1)
         local spellID, isKnown = FindTeleportSpell(self.dungeon.mapName)
         if spellID and isKnown then
@@ -129,26 +136,6 @@ end
 
 LiteKeystoneDungeonInfoMixin = {}
 
-function LiteKeystoneDungeonInfoMixin:UpdateHeader()
-    local TYRANNICAL = C_ChallengeMode.GetAffixInfo(9)
-    local FORTIFIED = C_ChallengeMode.GetAffixInfo(10)
-    self.Header.Tyrannical:SetText(TYRANNICAL)
-    self.Header.Fortified:SetText(FORTIFIED)
-
-    local baseAffix = C_MythicPlus.GetCurrentAffixes()[1]
-    local r, g, b = EPIC_PURPLE_COLOR:GetRGB()
-    if not baseAffix then
-        self.Header.Fortified:SetTextColor(1, 1, 1)
-        self.Header.Tyrannical:SetTextColor(1, 1, 1)
-    elseif baseAffix.id == 9 then
-        self.Header.Fortified:SetTextColor(1, 1, 1)
-        self.Header.Tyrannical:SetTextColor(r, g, b)
-    elseif baseAffix.id == 10 then
-        self.Header.Fortified:SetTextColor(r, g, b)
-        self.Header.Tyrannical:SetTextColor(1, 1, 1)
-    end
-end
-
 function LiteKeystoneDungeonInfoMixin:Update()
     UpdateDungeonScroll(self.Scroll)
 end
@@ -168,6 +155,5 @@ function LiteKeystoneDungeonInfoMixin:OnLoad()
 end
 
 function LiteKeystoneDungeonInfoMixin:OnShow()
-    self:UpdateHeader()
     self:Update()
 end

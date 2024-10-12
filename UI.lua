@@ -104,7 +104,7 @@ function LiteKeystoneInfoMixin:GetAffixFrame(i)
     end
 
     local frame = CreateFrame("FRAME", nil, self.AffixesContainer)
-    frame:SetSize(16, 16)
+    frame:SetSize(250, 16)
     frame:SetScript('OnEnter',
         function (...)
             ChallengeMode_LoadUI()
@@ -112,14 +112,19 @@ function LiteKeystoneInfoMixin:GetAffixFrame(i)
         end)
     frame:SetScript('OnLeave', GameTooltip_Hide)
     frame.portrait = frame:CreateTexture();
-    frame.portrait:SetAllPoints()
+    frame.portrait:SetSize(16, 16)
+    frame.portrait:SetPoint("LEFT", frame, "LEFT", 32, 0)
+    frame.level = frame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    frame.level:SetPoint("RIGHT", frame.portrait, "LEFT", -6, 0)
     frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    frame.text:SetPoint("LEFT", frame, "RIGHT", 6, 0)
+    frame.text:SetPoint("LEFT", frame.portrait, "RIGHT", 8, 0)
     frame.layoutIndex = i
     frame.align = "center"
     self.AffixesContainer:Layout()
     return frame
 end
+
+local AffixKeyLevel = { [1] = 2, [2] = 4, [3] = 7, [4] = 10, [5] = 12 }
 
 function LiteKeystoneInfoMixin:UpdateAffixes()
     -- see ChallengesFrameWeeklyInfoMixin:SetUp
@@ -131,6 +136,7 @@ function LiteKeystoneInfoMixin:UpdateAffixes()
             local name, _, filedataid = C_ChallengeMode.GetAffixInfo(info.id);
             frame.portrait:SetTexture(filedataid)
             frame.text:SetText(name)
+            frame.level:SetText(format('+%d', AffixKeyLevel[i]))
         end
     end
 end

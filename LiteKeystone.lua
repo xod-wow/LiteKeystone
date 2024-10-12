@@ -984,51 +984,26 @@ function LiteKeystone:CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN()
     end
 end
 
-function LiteKeystone:GetKeyScores(key)
-    local scores, overallScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(key.mapID)
-    if not scores then return 0, 0, 0 end
-
-    local fortScore, tyrScore = 0, 0
-    for _,info in ipairs(scores) do
-        if info.name == "Tyrannical" then
-            tyrScore = info.score
-        else
-            fortScore = info.score
-        end
-    end
-    return overallScore, fortScore, tyrScore
+function LiteKeystone:GetKeyScore(key)
+    local _, overallScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(key.mapID)
+    return overallScore or 0
 end
 
--- XXX FIXME XXX
--- Disabled until rating formula for TWW is clear
-function LiteKeystone:GetRatingIncreaseForTimingKey(key)
-    return 0
+local function GetAffixRatingBonus(key)
+    local bonus = 0
+    if key.keyLevel >= 2 then bonus = bonus + 15 end
+    if key.keyLevel >= 4 then bonus = bonus + 10 end
+    if key.keyLevel >= 7 then bonus = bonus + 15 end
+    if key.keyLevel >= 10 then bonus = bonus + 10 end
+    if key.keyLevel >= 12 then bonus = bonus + 15 end
+    return bonus
 end
 
---[[
 function LiteKeystone:GetRatingIncreaseForTimingKey(key)
-    local curTotal, fort, tyr = self:GetKeyScores(key)
-    local newScore
-
-    if C_MythicPlus.GetCurrentSeason() < 12 then
-        local nAffix = key.keyLevel >= 14 and 3 or key.keyLevel >= 7 and 2 or 1
-        newScore = 20 + key.keyLevel*5 + max(key.keyLevel-10,0)*2 + nAffix*10
-    else
-        -- This is the same calc as above but keylevels are 10 above previously
-        -- and you always get the 50 points (5*10) for the non-existent levels.
-        local nAffix = key.keyLevel >= 10 and 3 or key.keyLevel >= 5 and 2 or 1
-        newScore = 70 + key.keyLevel*7 + nAffix*10
-    end
-
-    if C_MythicPlus.GetCurrentAffixes()[1].id == 10 then
-        fort = newScore
-    else
-        tyr = newScore
-    end
-    local newTotal = max(fort, tyr)*1.5 + min(fort,tyr)*0.5
+    local curTotal = self:GetKeyScore(key)
+    local newTotal = 120 + 15*key.keyLevel + GetAffixRatingBonus(key)
     return max(newTotal-curTotal, 0)
 end
-]]
 
 function LiteKeystone:SortedDungeons()
     local output = { }
@@ -1041,21 +1016,22 @@ function LiteKeystone:SortedDungeons()
             mapName = mapName,
             mapTimer = mapTimer,
             overallScore = overallScore or 0,
-            scores = {}
         }
-
         for _, info in ipairs(scores or {}) do
-            local stars
-            if info.durationSec < mapTimer * 0.6 then
-                stars = '+++'
-            elseif info.durationSec < mapTimer * 0.8 then
-                stars = '++'
-            elseif info.durationSec < mapTimer then
-                stars = '+'
-            else
-                stars= ''
+            if info.score == overallScore then
+                local stars
+                if info.durationSec < mapTimer * 0.6 then
+                    stars = '+++'
+                elseif info.durationSec < mapTimer * 0.8 then
+                    stars = '++'
+                elseif info.durationSec < mapTimer then
+                    stars = '+'
+                else
+                    stars= ''
+                end
+                outputRow.level = format('%s%d', stars, info.level)
+                outputRow.durationSec = info.durationSec
             end
-            outputRow.scores[info.name] = { score=info.score, level=format('%s%d', stars, info.level) }
         end
         table.insert(output, outputRow)
     end

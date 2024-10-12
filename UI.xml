@@ -179,39 +179,31 @@
         <FontString parentKey="OverallScore" inherits="SystemFont_Med3">
           <Size x="48" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.Map" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.Map" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="FortifiedLevel" inherits="SystemFont_Med3" justifyH="RIGHT">
+        <FontString parentKey="KeyLevel" inherits="SystemFont_Med3" justifyH="RIGHT">
           <Color r="1" g="1" b="0" />
           <Size x="48" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="48" relativeKey="$parent.OverallScore" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.OverallScore" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="FortifiedScore" inherits="SystemFont_Med3" justifyH="RIGHT">
+        <FontString parentKey="KeyTimer" inherits="SystemFont_Med1" justifyH="RIGHT">
           <Color r="1" g="1" b="0" />
-          <Size x="48" />
+          <Size x="128" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="4" relativeKey="$parent.FortifiedLevel" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.KeyLevel" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="TyrannicalLevel" inherits="SystemFont_Med3" justifyH="RIGHT">
+        <FontString parentKey="MapTimer" inherits="SystemFont_Med1" justifyH="RIGHT">
           <Color r="1" g="1" b="0" />
-          <Size x="48" />
+          <Size x="96" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="48" relativeKey="$parent.FortifiedScore" />
-          </Anchors>
-        </FontString>
-
-        <FontString parentKey="TyrannicalScore" inherits="SystemFont_Med3" justifyH="RIGHT">
-          <Color r="1" g="1" b="0" />
-          <Size x="48" />
-          <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="4" relativeKey="$parent.TyrannicalLevel" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.KeyTimer" />
           </Anchors>
         </FontString>
 
@@ -265,19 +257,28 @@
         <FontString parentKey="OverallScore" inherits="SystemFont_Med3" text="RATING">
           <Size x="48" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="8" relativeKey="$parent.Map" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.Map" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="Fortified" inherits="SystemFont_Med3" text="Fortified">
+        <FontString parentKey="KeyLevel" inherits="SystemFont_Med3" text="LEVEL">
+          <Size x="48" />
           <Anchors>
-            <Anchor point="CENTER" x="132" relativeKey="$parent.OverallScore" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="32" relativeKey="$parent.OverallScore" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="Tyrannical" inherits="SystemFont_Med3" text="Tyrannical">
+        <FontString parentKey="KeyTimer" inherits="SystemFont_Med3" text="Time Taken">
+          <Size x="128" />
           <Anchors>
-            <Anchor point="CENTER" x="148" relativeKey="$parent.Fortified" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="20" relativeKey="$parent.KeyLevel" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="MapTimer" inherits="SystemFont_Med3" text="Map Timer">
+          <Size x="96" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="32" relativeKey="$parent.KeyTimer" />
           </Anchors>
         </FontString>
 
@@ -464,7 +465,7 @@
 
   <Frame name="LiteKeystoneInfo" parent="UIParent" hidden="true" framestrata="DIALOG" movable="true" mixin="LiteKeystoneInfoMixin" inherits="TooltipBackdropTemplate">
 
-    <Size x="760" y="500" />
+    <Size x="760" y="540" />
 
     <Anchors>
       <Anchor point="CENTER" />
@@ -525,21 +526,21 @@
       <Frame parentKey="Key" inherits="LiteKeystoneKeyInfoTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" />
-          <Anchor point="BOTTOMRIGHT" y="80" />
+          <Anchor point="BOTTOMRIGHT" y="120" />
         </Anchors>
       </Frame>
 
       <Frame parentKey="Log" inherits="LiteKeystoneLogInfoTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" />
-          <Anchor point="BOTTOMRIGHT" y="80" />
+          <Anchor point="BOTTOMRIGHT" y="120" />
         </Anchors>
       </Frame>
 
       <Frame parentKey="Dungeon" inherits="LiteKeystoneDungeonInfoTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" />
-          <Anchor point="BOTTOMRIGHT" y="80" />
+          <Anchor point="BOTTOMRIGHT" y="120" />
         </Anchors>
       </Frame>
 
@@ -584,7 +585,7 @@
       <Button parentKey="AnnounceButton" inherits="UIPanelButtonTemplate" text="CHAT_ANNOUNCE">
         <Size x="96" y="22" />
         <Anchors>
-          <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.Key" x="-16" y="-4"/>
+          <Anchor point="TOP" relativePoint="BOTTOM" relativeKey="$parent.Key" y="-8"/>
         </Anchors>
         <Scripts>
           <OnClick>
@@ -599,7 +600,7 @@
           <KeyValue key="spacing" value="4" type="number"/>
         </KeyValues>
         <Anchors>
-          <Anchor point="BOTTOM" x="90" y="16"/>
+          <Anchor point="BOTTOMRIGHT" x="-20" y="16"/>
         </Anchors>
       </Frame>
 
@@ -621,12 +622,12 @@
         <FontString parentKey="RunHistory" inherits="GameFontNormalMed1">
           <Color r="0" g="1" b="0" />
           <Anchors>
-            <Anchor point="BOTTOMRIGHT" x="-20" y="16" />
+            <Anchor point="BOTTOMLEFT" x="20" y="80" />
           </Anchors>
         </FontString>
         <FontString parentKey="RunHistoryTitle" inherits="GameFontHighlight">
           <Anchors>
-            <Anchor point="BOTTOMRIGHT" x="-20" y="36" />
+            <Anchor point="BOTTOMLEFT" x="20" y="100" />
           </Anchors>
         </FontString>
       </Layer>
