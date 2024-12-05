@@ -24,7 +24,7 @@ local function FindTeleportSpell(mapName)
         for slot = 1, numSlots do
             local spellID, _, isKnown = GetFlyoutSlotInfo(flyoutID, slot)
             local spellDescription = C_Spell.GetSpellDescription(spellID)
-            if spellDescription and spellDescription:find(mapName) then
+            if spellDescription and spellDescription:find(mapName, nil, true) then
                 return spellID, isKnown
             end
         end
