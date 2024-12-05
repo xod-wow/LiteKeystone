@@ -151,9 +151,8 @@ function LiteKeystoneInfoMixin:OnLoad()
     tinsert(UISpecialFrames, self:GetName())
     self.selectedTab = 1
 
-    -- The tooltips piggyback on Blizzard's code but unless the frame is shown
-    -- they don't hide the expiration warning which is visible=true by default.
-    -- WeeklyRewards_LoadUI()
+    -- The tooltips piggyback on Blizzard's code via WeeklyRewardsActivityMixin
+    C_AddOns.LoadAddOn("Blizzard_WeeklyRewards")
 
     -- SetupRunHistory
     self.RunHistoryTitle:SetText(string.format(WEEKLY_REWARDS_MYTHIC_TOP_RUNS, 8))
@@ -166,7 +165,7 @@ function LiteKeystoneInfoMixin:OnLoad()
     for i = 1,3 do
         local frame = CreateFrame("FRAME", nil, self, "LiteKeystoneActivityTemplate")
         -- Can't do this in the XML as WeeklyRewards not loaded yet
-        -- Mixin(frame, WeeklyRewardsActivityMixin)
+        Mixin(frame, WeeklyRewardsActivityMixin)
         if i == 1 then
             frame:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 20, 16)
         else
