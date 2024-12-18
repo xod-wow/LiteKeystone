@@ -193,7 +193,7 @@
 
         <FontString parentKey="KeyTimer" inherits="SystemFont_Med1" justifyH="RIGHT">
           <Color r="1" g="1" b="0" />
-          <Size x="128" />
+          <Size x="160" />
           <Anchors>
             <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.KeyLevel" />
           </Anchors>
@@ -269,7 +269,7 @@
         </FontString>
 
         <FontString parentKey="KeyTimer" inherits="SystemFont_Med3" text="Time Taken">
-          <Size x="128" />
+          <Size x="160" />
           <Anchors>
             <Anchor point="LEFT" relativePoint="RIGHT" x="20" relativeKey="$parent.KeyLevel" />
           </Anchors>
