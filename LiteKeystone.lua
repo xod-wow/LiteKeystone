@@ -327,11 +327,11 @@ function LiteKeystone:GetMyKeyFromLink(link)
     local fields = { string.split(':', link) }
     local itemID, mapID, keyLevel
 
-    if fields[1]:find('keystone') then
+    if fields[1]:find('keystone', nil, true) then
         itemID = tonumber(fields[2])
         mapID = tonumber(fields[3])
         keyLevel = tonumber(fields[4])
-    elseif fields[1]:find('item') then
+    elseif fields[1]:find('item', nil, true) then
         itemID = fields[2]
         local numBonus = tonumber(fields[14]) or 0
         local numModifiers = tonumber(fields[15+numBonus]) or 0
@@ -648,7 +648,7 @@ function LiteKeystone.UpdateOpenRaidKeys()
     local self = LiteKeystone
 
     for unitName, info in pairs(lor.GetAllKeystonesInfo()) do
-        if not unitName:find('-') then
+        if not unitName:find('-', nil, true) then
             unitName = unitName .. '-' .. self.playerRealm
         end
         if info.challengeMapID ~= 0 then
