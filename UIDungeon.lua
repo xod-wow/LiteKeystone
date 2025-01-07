@@ -20,12 +20,14 @@
 local function FindTeleportSpell(mapName)
     for i = 1, GetNumFlyouts() do
         local flyoutID = GetFlyoutID(i)
-        local numSlots = select(3, GetFlyoutInfo(flyoutID))
-        for slot = 1, numSlots do
-            local spellID, _, isKnown = GetFlyoutSlotInfo(flyoutID, slot)
-            local spellDescription = C_Spell.GetSpellDescription(spellID)
-            if spellDescription and spellDescription:find(mapName, nil, true) then
-                return spellID, isKnown
+        local _, _, numSlots, isKnownFlyout = GetFlyoutInfo(flyoutID)
+        if isKnownFlyout then
+            for slot = 1, numSlots do
+                local spellID, _, isKnown = GetFlyoutSlotInfo(flyoutID, slot)
+                local spellDescription = C_Spell.GetSpellDescription(spellID)
+                if isKnown and spellDescription and spellDescription:find(mapName, nil, true) then
+                    return spellID
+                end
             end
         end
     end
@@ -109,8 +111,8 @@ function LiteKeystoneDungeonButtonMixin:Update(index)
         end
         self.MapTimer:SetText(DurationFormatter:Format(self.dungeon.mapTimer))
         self.Stripe:SetShown(index % 2 == 1)
-        local spellID, isKnown = FindTeleportSpell(self.dungeon.mapName)
-        if spellID and isKnown then
+        local spellID = FindTeleportSpell(self.dungeon.mapName)
+        if spellID then
             self.TeleportButton.spellID = spellID
             local info = C_Spell.GetSpellInfo(spellID)
             self.TeleportButton:SetNormalTexture(info.iconID)
