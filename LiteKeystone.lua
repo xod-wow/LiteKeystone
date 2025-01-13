@@ -1011,28 +1011,26 @@ function LiteKeystone:SortedDungeons()
     for _, mapID in pairs(C_ChallengeMode.GetMapTable()) do
         local mapName, _, mapTimer = C_ChallengeMode.GetMapUIInfo(mapID)
         local info = C_MythicPlus.GetSeasonBestForMap(mapID)
-        -- Challenger's Peril adds 90s to timer
-        if info.level >= 7 then mapTimer = mapTimer + 90 end
+        -- Challenger's Peril adds 90s to timer (not scaled for + rating)
+        local extraTime = info.level >= 7 and 90 or 0
         local outputRow = {
             mapID = mapID,
             mapName = mapName,
-            mapTimer = mapTimer,
+            mapTimer = mapTimer + extraTime,
             overallScore = info and info.dungeonScore or 0,
         }
-        if info.score == overallScore then
-            local stars
-            if info.durationSec < mapTimer * 0.6 then
-                stars = '+++'
-            elseif info.durationSec < mapTimer * 0.8 then
-                stars = '++'
-            elseif info.durationSec < mapTimer then
-                stars = '+'
-            else
-                stars= ''
-            end
-            outputRow.level = format('%s%d', stars, info.level)
-            outputRow.durationSec = info.durationSec
+        local stars
+        if info.durationSec < mapTimer * 0.6 + extraTime then
+            stars = '+++'
+        elseif info.durationSec < mapTimer * 0.8 + extraTime then
+            stars = '++'
+        elseif info.durationSec < mapTimer + extraTime then
+            stars = '+'
+        else
+            stars= ''
         end
+        outputRow.level = format('%s%d', stars, info.level)
+        outputRow.durationSec = info.durationSec
         table.insert(output, outputRow)
     end
 
