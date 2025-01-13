@@ -85,7 +85,7 @@ function LiteKeystoneDungeonButtonMixin:UpdateCooldown()
 end
 
 local DurationFormatter = CreateFromMixins(SecondsFormatterMixin)
-DurationFormatter:Init(SECONDS_PER_MIN, SecondsFormatter.Abbreviation.OneLetter, false)
+DurationFormatter:Init(0, SecondsFormatter.Abbreviation.OneLetter, false, true, true)
 DurationFormatter:SetStripIntervalWhitespace(true)
 
 function LiteKeystoneDungeonButtonMixin:Update(index)
