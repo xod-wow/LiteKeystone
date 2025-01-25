@@ -1011,27 +1011,29 @@ function LiteKeystone:SortedDungeons()
     for _, mapID in pairs(C_ChallengeMode.GetMapTable()) do
         local mapName, _, mapTimer = C_ChallengeMode.GetMapUIInfo(mapID)
         local info = C_MythicPlus.GetSeasonBestForMap(mapID)
-        -- Challenger's Peril adds 90s to timer (not scaled for + rating)
-        local extraTime = info.level >= 7 and 90 or 0
-        local outputRow = {
-            mapID = mapID,
-            mapName = mapName,
-            mapTimer = mapTimer + extraTime,
-            overallScore = info and info.dungeonScore or 0,
-        }
-        local stars
-        if info.durationSec < mapTimer * 0.6 + extraTime then
-            stars = '+++'
-        elseif info.durationSec < mapTimer * 0.8 + extraTime then
-            stars = '++'
-        elseif info.durationSec < mapTimer + extraTime then
-            stars = '+'
-        else
-            stars= ''
+        if info then
+            -- Challenger's Peril adds 90s to timer (not scaled for + rating)
+            local extraTime = info.level >= 7 and 90 or 0
+            local outputRow = {
+                mapID = mapID,
+                mapName = mapName,
+                mapTimer = mapTimer + extraTime,
+                overallScore = info and info.dungeonScore or 0,
+            }
+            local stars
+            if info.durationSec < mapTimer * 0.6 + extraTime then
+                stars = '+++'
+            elseif info.durationSec < mapTimer * 0.8 + extraTime then
+                stars = '++'
+            elseif info.durationSec < mapTimer + extraTime then
+                stars = '+'
+            else
+                stars= ''
+            end
+            outputRow.level = format('%s%d', stars, info.level)
+            outputRow.durationSec = info.durationSec
+            table.insert(output, outputRow)
         end
-        outputRow.level = format('%s%d', stars, info.level)
-        outputRow.durationSec = info.durationSec
-        table.insert(output, outputRow)
     end
 
     table.sort(output,
