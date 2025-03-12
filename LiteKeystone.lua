@@ -1010,17 +1010,16 @@ end
 
 local function GetAffixRatingBonus(key)
     local bonus = 0
-    if key.keyLevel >= 2 then bonus = bonus + 15 end
-    if key.keyLevel >= 4 then bonus = bonus + 10 end
+    if key.keyLevel >= 4 then bonus = bonus + 15 end
     if key.keyLevel >= 7 then bonus = bonus + 15 end
-    if key.keyLevel >= 10 then bonus = bonus + 10 end
+    if key.keyLevel >= 10 then bonus = bonus + 15 end
     if key.keyLevel >= 12 then bonus = bonus + 15 end
     return bonus
 end
 
 function LiteKeystone:GetRatingIncreaseForTimingKey(key)
     local curTotal = self:GetKeyScore(key)
-    local newTotal = 120 + 15*key.keyLevel + GetAffixRatingBonus(key)
+    local newTotal = 125 + 15*key.keyLevel + GetAffixRatingBonus(key)
     return max(newTotal-curTotal, 0)
 end
 
@@ -1032,7 +1031,7 @@ function LiteKeystone:SortedDungeons()
         local info = C_MythicPlus.GetSeasonBestForMap(mapID)
         if info then
             -- Challenger's Peril adds 90s to timer (not scaled for + rating)
-            local extraTime = info.level >= 7 and 90 or 0
+            local extraTime = info.level >= 12 and 90 or 0
             local outputRow = {
                 mapID = mapID,
                 mapName = mapName,
