@@ -250,6 +250,20 @@ function LiteKeystone:SlashCommand(arg)
     return true
 end
 
+-- In 11.1 Blizzard added (or enforced?) listing 5 affix numbers. This should
+-- only be needed for transition and then I can delete it.
+
+function LiteKeystone:FixDBKeyLinks()
+    local function IsValid(link)
+        return link and link:find("|Hkeystone:%d+:%d+:%d+:%d+:%d+:%d+:%d+:%d+|h") ~= nil
+    end
+    for _, key in pairs(self.db.playerKeys) do
+        if not IsValid(key.link) then
+            key.link = self:GetKeystoneLink(key)
+        end
+    end
+end
+
 function LiteKeystone:Initialize()
 
     self.callbacks = {}
@@ -275,6 +289,7 @@ function LiteKeystone:Initialize()
         self.playerFaction = 1
     end
     self:RemoveExpiredKeys()
+    self:FixDBKeyLinks()
     EventUtil.ContinueOnAddOnLoaded('RaiderIO', function () self:UpdateKeyRatings() end)
 
     C_ChatInfo.RegisterAddonMessagePrefix('AstralKeys')
@@ -725,23 +740,27 @@ function LiteKeystone:GetKeyText(key)
 end
 
 function LiteKeystone:GetKeystoneLink(key)
+    -- Everything is in the same week so just assume current affixes
     local affixes = self:GetAffixes()
 
     -- Sometimes this is called at long before the affix info is available.
     if not affixes then return end
 
     local affixFormat
-    if key.keyLevel > 9 then
-        affixFormat = '%d:%d:%d:%d'
-    elseif key.keyLevel > 6 then
-        affixFormat = '%d:%d:%d:0'
-    elseif key.keyLevel > 3 then
-        affixFormat = '%d:%d:0:0'
+    if key.keyLevel >= 12 then
+        affixFormat = '%d:%d:%d:%d:0'
+    elseif key.keyLevel >= 10 then
+        affixFormat = '%d:%d:%d:0:0'
+    elseif key.keyLevel >= 7 then
+        affixFormat = '%d:%d:0:0:0'
+    elseif key.keyLevel >= 4 then
+        affixFormat = '%d:0:0:0:0'
     else
-        affixFormat = '%d:0:0:0'
+        affixFormat = '0:0:0:0:0'
     end
 
     local affixString = string.format(affixFormat, unpack(affixes))
+
     return string.format(
             '|cffa335ee|Hkeystone:180653:%d:%d:%s|h[Keystone: %s (%d)]|h|r',
             key.mapID, key.keyLevel, affixString, key.mapName, key.keyLevel
