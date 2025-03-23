@@ -1023,21 +1023,35 @@ function LiteKeystone:GetRatingIncreaseForTimingKey(key)
     return max(newTotal-curTotal, 0)
 end
 
+local function GetSeasonBestForMap(mapID)
+    local inTimeInfo, overTimeInfo = C_MythicPlus.GetSeasonBestForMap(mapID)
+    if not inTimeInfo then
+        return overTimeInfo
+    elseif not overTimeInfo then
+        return inTimeInfo
+    elseif inTimeInfo.dungeonScore >= overTimeInfo.dungeonScore then
+        return inTimeInfo
+    else
+        return overTimeInfo
+    end
+end
+
 function LiteKeystone:SortedDungeons()
     local output = { }
 
     for _, mapID in pairs(C_ChallengeMode.GetMapTable()) do
         local mapName, _, mapTimer = C_ChallengeMode.GetMapUIInfo(mapID)
-        local info = C_MythicPlus.GetSeasonBestForMap(mapID)
+        local info = GetSeasonBestForMap(mapID)
+        local outputRow = {
+            mapID = mapID,
+            mapName = mapName,
+            mapTimer = mapTimer
+        }
         if info then
             -- Challenger's Peril adds 90s to timer (not scaled for + rating)
             local extraTime = info.level >= 12 and 90 or 0
-            local outputRow = {
-                mapID = mapID,
-                mapName = mapName,
-                mapTimer = mapTimer + extraTime,
-                overallScore = info and info.dungeonScore or 0,
-            }
+            outputRow.mapTimer = mapTimer + extraTime
+            outputRow.overallScore = info.dungeonScore
             local stars
             if info.durationSec < mapTimer * 0.6 + extraTime then
                 stars = '+++'
@@ -1050,14 +1064,14 @@ function LiteKeystone:SortedDungeons()
             end
             outputRow.level = format('%s%d', stars, info.level)
             outputRow.durationSec = info.durationSec
-            table.insert(output, outputRow)
         end
+        table.insert(output, outputRow)
     end
 
     table.sort(output,
         function (a, b)
             if a.overallScore ~= b.overallScore then
-                return a.overallScore > b.overallScore
+                return (a.overallScore or 0) > (b.overallScore or 0)
             else
                 return a.mapName < b.mapName
             end
