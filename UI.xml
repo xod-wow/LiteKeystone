@@ -170,7 +170,7 @@
 
         <FontString parentKey="Map" inherits="SystemFont_Med3" justifyH="LEFT">
           <Color r="0.784" g="0.270" b="0.980" />
-          <Size x="200" />
+          <Size x="270" />
           <Anchors>
             <Anchor point="LEFT" x="8" />
           </Anchors>
@@ -248,7 +248,7 @@
       <Layer level="OVERLAY">
 
         <FontString parentKey="Map" inherits="SystemFont_Med3" text="LFG_TYPE_DUNGEON" justifyH="LEFT">
-          <Size x="200" />
+          <Size x="270" />
           <Anchors>
             <Anchor point="LEFT" x="8" />
           </Anchors>
