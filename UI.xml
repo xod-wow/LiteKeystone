@@ -179,29 +179,37 @@
         <FontString parentKey="OverallScore" inherits="SystemFont_Med3">
           <Size x="48" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.Map" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="6" relativeKey="$parent.Map" />
           </Anchors>
         </FontString>
 
         <FontString parentKey="KeyLevel" inherits="SystemFont_Med3" justifyH="RIGHT">
           <Color r="1" g="1" b="0" />
-          <Size x="48" />
+          <Size x="32" />
           <Anchors>
             <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.OverallScore" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="KeyTimer" inherits="SystemFont_Med1" justifyH="RIGHT">
+        <FontString parentKey="MapTimer" inherits="SystemFont_Med1" justifyH="RIGHT">
           <Color r="1" g="1" b="0" />
-          <Size x="160" />
+          <Size x="72" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.KeyLevel" />
+            <Anchor point="LEFT" relativePoint="RIGHT" x="10" relativeKey="$parent.KeyLevel" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="MapTimer" inherits="SystemFont_Med1" justifyH="RIGHT">
+        <FontString parentKey="KeyTimer" inherits="SystemFont_Med1" justifyH="RIGHT">
           <Color r="1" g="1" b="0" />
-          <Size x="96" />
+          <Size x="72" />
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.MapTimer" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="KeyTimerDiff" inherits="SystemFont_Med1" justifyH="RIGHT">
+          <Color r="1" g="1" b="0" />
+          <Size x="72" />
           <Anchors>
             <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.KeyTimer" />
           </Anchors>
@@ -254,31 +262,38 @@
           </Anchors>
         </FontString>
 
-        <FontString parentKey="OverallScore" inherits="SystemFont_Med3" text="RATING">
+        <FontString parentKey="OverallScore" inherits="SystemFont_Med3" justifyH="CENTER" text="RATING">
           <Size x="48" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="16" relativeKey="$parent.Map" />
+            <Anchor point="CENTER" relativePoint="RIGHT" x="30" relativeKey="$parent.Map" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="KeyLevel" inherits="SystemFont_Med3" text="LEVEL">
+        <FontString parentKey="KeyLevel" inherits="SystemFont_Med3" justifyH="CENTER" text="LEVEL">
           <Size x="48" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="32" relativeKey="$parent.OverallScore" />
+            <Anchor point="CENTER" x="62" relativePoint="CENTER" relativeKey="$parent.OverallScore" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="KeyTimer" inherits="SystemFont_Med3" text="Time Taken">
-          <Size x="160" />
+        <FontString parentKey="MapTimer" inherits="SystemFont_Med3" justifyH="CENTER" text="Timer">
+          <Size x="72" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="20" relativeKey="$parent.KeyLevel" />
+            <Anchor point="CENTER" x="78" relativeKey="$parent.KeyLevel" />
           </Anchors>
         </FontString>
 
-        <FontString parentKey="MapTimer" inherits="SystemFont_Med3" text="Map Timer">
-          <Size x="96" />
+        <FontString parentKey="KeyTimer" inherits="SystemFont_Med3" justifyH="CENTER" text="Time">
+          <Size x="72" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" x="32" relativeKey="$parent.KeyTimer" />
+            <Anchor point="CENTER" x="82" relativeKey="$parent.MapTimer" />
+          </Anchors>
+        </FontString>
+
+        <FontString parentKey="KeyTimerDiff" inherits="SystemFont_Med3" justifyH="CENTER" text="+/- Time">
+          <Size x="72" />
+          <Anchors>
+            <Anchor point="CENTER" x="82" relativeKey="$parent.KeyTimer" />
           </Anchors>
         </FontString>
 

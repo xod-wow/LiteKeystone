@@ -97,17 +97,18 @@ function LiteKeystoneDungeonButtonMixin:Update(index)
         self.KeyLevel:SetText(self.dungeon.level)
         if self.dungeon.durationSec then
             local timeText = DurationFormatter:Format(self.dungeon.durationSec)
+            self.KeyTimer:SetText(timeText)
             local diff = self.dungeon.durationSec - self.dungeon.mapTimer
             local diffText
             if diff < 0 then
                 diffText = '-' .. DurationFormatter:Format(-diff)
             else
-                diffText = DurationFormatter:Format(diff)
+                diffText = '+' .. DurationFormatter:Format(diff)
             end
-            local text = format('%s (%s)', timeText, diffText)
-            self.KeyTimer:SetText(text)
+            self.KeyTimerDiff:SetText(diffText)
         else
             self.KeyTimer:SetText(nil)
+            self.KeyTimerDiff:SetText(nil)
         end
         self.MapTimer:SetText(DurationFormatter:Format(self.dungeon.mapTimer))
         self.Stripe:SetShown(index % 2 == 1)
