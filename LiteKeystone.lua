@@ -340,20 +340,21 @@ function LiteKeystone:GetUIMapIDByName(name)
 end
 
 function LiteKeystone:GetMyKeyFromLink(link)
-    local fields = { string.split(':', link) }
+    local linkType, linkOptions = LinkUtil.ExtractLink(link)
+    local fields = { string.split(':', linkOptions) }
     local itemID, mapID, keyLevel
 
-    if fields[1]:find('keystone', nil, true) then
-        itemID = tonumber(fields[2])
-        mapID = tonumber(fields[3])
-        keyLevel = tonumber(fields[4])
-    elseif fields[1]:find('item', nil, true) then
-        itemID = fields[2]
-        local numBonus = tonumber(fields[14]) or 0
-        local numModifiers = tonumber(fields[15+numBonus]) or 0
+    if linkType == 'keystone' then
+        itemID = tonumber(fields[1])
+        mapID = tonumber(fields[2])
+        keyLevel = tonumber(fields[3])
+    elseif linkType == 'item' then
+        itemID = fields[1]
+        local numBonus = tonumber(fields[13]) or 0
+        local numModifiers = tonumber(fields[14+numBonus]) or 0
         for i = 0, numModifiers-1 do
-            local k = tonumber(fields[16+numBonus+2*i])
-            local v = tonumber(fields[16+numBonus+2*i+1])
+            local k = tonumber(fields[15+numBonus+2*i])
+            local v = tonumber(fields[15+numBonus+2*i+1])
             if k == 17 then
                 mapID = v
             elseif k == 18 then
