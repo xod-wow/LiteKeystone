@@ -52,7 +52,6 @@ local regionStartTimes = {
     [ 3] = 1500447600,  -- EU
     [ 4] = 1500505200,  -- TW
     [ 5] = 0,           -- CN
-    [72] = 1500390000,  -- PTR
 }
 
 function LiteKeystone:Debug(...)
@@ -171,13 +170,15 @@ end
 -- Astral Keys' idea of the week number
 local function WeekNum()
     local r = GetRegion()
-    return math.floor( (GetServerTime() - regionStartTimes[r]) / 604800 )
+    local startTime = regionStartTimes[r] or regionStartTimes[1]
+    return math.floor( (GetServerTime() - startTime) / 604800 )
 end
 
 -- How many seconds we are into the current keystone week
 local function WeekTime()
     local r = GetRegion()
-    return math.floor( (GetServerTime() - regionStartTimes[r] ) % 604800 )
+    local startTime = regionStartTimes[r] or regionStartTimes[1]
+    return math.floor( (GetServerTime() - startTime ) % 604800 )
 end
 
 function LiteKeystone:SlashCommand(arg)
