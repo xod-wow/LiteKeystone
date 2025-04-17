@@ -19,22 +19,18 @@
 
 LiteKeystoneKeyButtonMixin = {}
 
-function LiteKeystoneKeyButtonMixin:Update(index)
-    if not self.key then
-        self:Hide()
+function LiteKeystoneKeyButtonMixin:Initialize(key)
+    self.key = key
+
+    self.Mine:SetText(key.source == 'mine' and '*' or '')
+    self.PlayerName:SetText(LiteKeystone:GetPlayerName(key, true))
+    local plus = LiteKeystone:GetRatingIncreaseForTimingKey(key)
+    if plus > 0 then
+        self.Keystone.Text:SetText(LiteKeystone:GetKeyText(key) .. ' + ' .. tostring(plus))
     else
-        self.Mine:SetText(self.key.source == 'mine' and '*' or '')
-        self.PlayerName:SetText(LiteKeystone:GetPlayerName(self.key, true))
-        local plus = LiteKeystone:GetRatingIncreaseForTimingKey(self.key)
-        if plus > 0 then
-            self.Keystone.Text:SetText(LiteKeystone:GetKeyText(self.key) .. ' + ' .. tostring(plus))
-        else
-            self.Keystone.Text:SetText(LiteKeystone:GetKeyText(self.key))
-        end
-        self.Rating:SetText(self.key.rating or '?')
-        self.Stripe:SetShown(index % 2 == 1)
-        self:Show()
+        self.Keystone.Text:SetText(LiteKeystone:GetKeyText(key))
     end
+    self.Rating:SetText(key.rating or '?')
 end
 
 function LiteKeystoneKeyButtonMixin:OnClick()
@@ -47,46 +43,31 @@ LiteKeystoneKeyInfoMixin = {}
 
 local sortType = 'KEYLEVEL'
 
-local function UpdateKeyScroll(self)
-    local offset = HybridScrollFrame_GetOffset(self)
-
-    local keys = LiteKeystone:SortedKeys(LiteKeystoneInfo:GetFilterMethod(), sortType)
-
-    for i, button in ipairs(self.buttons) do
-        button.key = keys[offset + i]
-        button:Update(offset + i)
-    end
-
-    local totalHeight = self.buttonHeight * #keys
-    local shownHeight = self.buttonHeight * #self.buttons
-    HybridScrollFrame_Update(self, totalHeight, shownHeight)
-end
-
 function LiteKeystoneKeyInfoMixin:Update()
-    UpdateKeyScroll(self.Scroll)
+    LiteKeystone:UpdateKeyRatings()
+    local keys = LiteKeystone:SortedKeys(LiteKeystoneInfo:GetFilterMethod(), sortType)
+    local dp = CreateDataProvider(keys)
+    self.ScrollBox:SetDataProvider(dp, ScrollBoxConstants.RetainScrollPosition)
 end
 
 function LiteKeystoneKeyInfoMixin:OnLoad()
-    HybridScrollFrame_CreateButtons(self.Scroll,
-                                    "LiteKeystoneKeyButtonTemplate",
-                                    0, -1, "TOPLEFT", "TOPLEFT",
-                                    0, -1, "TOP", "BOTTOM")
-
-    local w = self.Scroll:GetWidth()
-    for _,b in ipairs(self.Scroll.buttons) do
-        b:SetWidth(w)
-    end
-
-    self.Scroll.update = UpdateKeyScroll
+    local view = CreateScrollBoxListLinearView()
+    view:SetElementInitializer("LiteKeystoneKeyButtonTemplate",
+        function (button, elementData)
+            button:Initialize(elementData)
+        end)
+    ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, view)
+    ScrollUtil.RegisterAlternateRowBehavior(self.ScrollBox,
+        function (button, isAlternate)
+            button.Stripe:SetShown(isAlternate)
+        end)
 end
 
 function LiteKeystoneKeyInfoMixin:OnShow()
-    LiteKeystone:UpdateKeyRatings()
     self:RegisterEvent('GUILD_ROSTER_UPDATE')
     self:RegisterEvent('GROUP_ROSTER_UPDATE')
     self:RegisterEvent('RAID_ROSTER_UPDATE')
     LiteKeystone:RegisterCallback(self, function () self:Update() end)
-    self:Update()
 end
 
 function LiteKeystoneKeyInfoMixin:OnHide()
