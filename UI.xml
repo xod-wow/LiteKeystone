@@ -22,6 +22,7 @@
   <Script file="UIDungeon.lua"/>
   <Script file="UIKey.lua"/>
   <Script file="UILog.lua"/>
+  <Script file="UITeleport.lua"/>
   <Script file="UI.lua"/>
 
   <Frame name="LiteKeystoneStripeButtonTemplate" virtual="true">
@@ -155,6 +156,59 @@
       </Button>
     </Frames>
   </Frame>
+
+  <Frame name="LiteKeystoneTeleportCategoryTemplate" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
+    <Size y="26" />
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="Name" inherits="SystemFont_Med3" justifyH="LEFT">
+          <Anchors>
+            <Anchor point="LEFT" x="8" />
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+  </Frame>
+
+  <Button name="LiteKeystoneTeleportButtonTemplate" mixin="LiteKeystoneTeleportButtonMixin" inherits="InsecureActionButtonTemplate LiteKeystoneStripeButtonTemplate" virtual="true">
+    <Size y="26" />
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnEnter method="OnEnter" />
+      <OnLeave method="OnLeave" />
+    </Scripts>
+    <Frames>
+      <Button parentKey="Icon" motionScriptsWhileDisabled="true">
+        <Size x="22" y="22" />
+        <Anchors>
+          <Anchor point="LEFT" x="8" />
+        </Anchors>
+        <Scripts>
+          <OnEnter>
+            local spellID = self:GetParent().spellID
+            if spellID then
+              GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+              GameTooltip:SetSpellByID(spellID)
+              GameTooltip:Show()
+            end
+          </OnEnter>
+          <OnLeave function="GameTooltip_Hide" />
+        </Scripts>
+        <Frames>
+          <Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate" />
+        </Frames>
+      </Button>
+    </Frames>
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="Map" inherits="SystemFont_Med3" justifyH="LEFT">
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Icon" x="8" />
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+  </Button>
 
   <Frame name="LiteKeystoneDungeonButtonTemplate" mixin="LiteKeystoneDungeonButtonMixin" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
     <Size y="36" />
@@ -417,6 +471,30 @@
     </Scripts>
   </Frame>
 
+  <Frame name="LiteKeystoneTeleportInfoTemplate" virtual="true" mixin="LiteKeystoneTeleportInfoMixin" hidden="true">
+    <Scripts>
+      <OnLoad method="OnLoad" />
+      <OnShow method="OnShow" />
+    </Scripts>
+    <Frames>
+      <ScrollFrame parentKey="ScrollBox" inherits="WoWScrollBoxList">
+        <Anchors>
+          <Anchor point="TOPLEFT" x="16" y="-8" />
+          <Anchor point="BOTTOMRIGHT" x="-32" y="8" />
+        </Anchors>
+      </ScrollFrame>
+      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar" frameStrata="HIGH">
+        <KeyValues>
+          <KeyValue key="hideIfUnscrollable" value="true" type="boolean" />
+        </KeyValues>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.ScrollBox" relativePoint="TOPRIGHT" x="8" y="0"/>
+          <Anchor point="BOTTOMLEFT" relativeKey="$parent.ScrollBox" relativePoint="BOTTOMRIGHT" x="8" y="0"/>
+        </Anchors>
+      </EventFrame>
+    </Frames>
+  </Frame>
+
   <Frame name="LiteKeystoneDungeonInfoTemplate" virtual="true" mixin="LiteKeystoneDungeonInfoMixin" hidden="true">
     <Scripts>
       <OnLoad method="OnLoad" />
@@ -543,10 +621,16 @@
         </Scripts>
       </Button>
 
-      <!--@debug@-->
-      <Button parentKey="TabLog" inherits="LiteKeystoneInfoTabTemplate" text="GUILD_BANK_LOG" id="8">
+      <Button parentKey="TabRight2" inherits="LiteKeystoneInfoTabTemplate" text="Teleports" id="8">
         <Anchors>
           <Anchor point="RIGHT" relativeKey="$parent.TabRight" relativePoint="LEFT" />
+        </Anchors>
+      </Button>
+
+      <!--@debug@-->
+      <Button parentKey="TabLog" inherits="LiteKeystoneInfoTabTemplate" text="GUILD_BANK_LOG" id="7">
+        <Anchors>
+          <Anchor point="RIGHT" relativeKey="$parent.TabRight2" relativePoint="LEFT" />
         </Anchors>
         <Scripts>
             <OnLoad inherit="append"> self.Text:SetTextColor(0, 1, 1) </OnLoad>
@@ -562,6 +646,13 @@
       </Frame>
 
       <Frame parentKey="Log" inherits="LiteKeystoneLogInfoTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" />
+          <Anchor point="BOTTOMRIGHT" y="120" />
+        </Anchors>
+      </Frame>
+
+      <Frame parentKey="Teleport" inherits="LiteKeystoneTeleportInfoTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" />
           <Anchor point="BOTTOMRIGHT" y="120" />
