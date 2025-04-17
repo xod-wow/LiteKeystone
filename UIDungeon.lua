@@ -88,78 +88,60 @@ local DurationFormatter = CreateFromMixins(SecondsFormatterMixin)
 DurationFormatter:Init(0, SecondsFormatter.Abbreviation.OneLetter, false, true, true)
 DurationFormatter:SetStripIntervalWhitespace(true)
 
-function LiteKeystoneDungeonButtonMixin:Update(index)
-    if not self.dungeon then
-        self:Hide()
+function LiteKeystoneDungeonButtonMixin:Initialize(dungeon)
+    self.dungeon = dungeon
+
+    self.Map:SetText(dungeon.mapName)
+    self.OverallScore:SetText(dungeon.overallScore)
+    self.KeyLevel:SetText(dungeon.level)
+    if dungeon.durationSec then
+        local timeText = DurationFormatter:Format(dungeon.durationSec)
+        self.KeyTimer:SetText(timeText)
+        local diff = dungeon.durationSec - dungeon.mapTimer
+        local diffText
+        if diff < 0 then
+            diffText = '-' .. DurationFormatter:Format(-diff)
+        else
+            diffText = '+' .. DurationFormatter:Format(diff)
+        end
+        self.KeyTimerDiff:SetText(diffText)
     else
-        self.Map:SetText(self.dungeon.mapName)
-        self.OverallScore:SetText(self.dungeon.overallScore)
-        self.KeyLevel:SetText(self.dungeon.level)
-        if self.dungeon.durationSec then
-            local timeText = DurationFormatter:Format(self.dungeon.durationSec)
-            self.KeyTimer:SetText(timeText)
-            local diff = self.dungeon.durationSec - self.dungeon.mapTimer
-            local diffText
-            if diff < 0 then
-                diffText = '-' .. DurationFormatter:Format(-diff)
-            else
-                diffText = '+' .. DurationFormatter:Format(diff)
-            end
-            self.KeyTimerDiff:SetText(diffText)
-        else
-            self.KeyTimer:SetText(nil)
-            self.KeyTimerDiff:SetText(nil)
-        end
-        self.MapTimer:SetText(DurationFormatter:Format(self.dungeon.mapTimer))
-        self.Stripe:SetShown(index % 2 == 1)
-        local spellID = FindTeleportSpell(self.dungeon.mapName)
-        if spellID then
-            self.TeleportButton.spellID = spellID
-            local info = C_Spell.GetSpellInfo(spellID)
-            self.TeleportButton:SetNormalTexture(info.iconID)
-            self.TeleportButton:SetAttribute("spell", spellID)
-            self:UpdateCooldown()
-            self.TeleportButton:Show()
-        else
-            self.TeleportButton:Hide()
-        end
-        self:Show()
+        self.KeyTimer:SetText(nil)
+        self.KeyTimerDiff:SetText(nil)
     end
-end
-
-local function UpdateDungeonScroll(self)
-    local offset = HybridScrollFrame_GetOffset(self)
-
-    local dungeons = LiteKeystone:SortedDungeons()
-
-    for i, button in ipairs(self.buttons) do
-        button.dungeon = dungeons[offset + i]
-        button:Update(offset+i)
+    self.MapTimer:SetText(DurationFormatter:Format(dungeon.mapTimer))
+    local spellID = FindTeleportSpell(dungeon.mapName)
+    if spellID then
+        self.TeleportButton.spellID = spellID
+        local info = C_Spell.GetSpellInfo(spellID)
+        self.TeleportButton:SetNormalTexture(info.iconID)
+        self.TeleportButton:SetAttribute("spell", spellID)
+        self:UpdateCooldown()
+        self.TeleportButton:Show()
+    else
+        self.TeleportButton:Hide()
     end
-
-    local totalHeight = self.buttonHeight * #dungeons
-    local shownHeight = self.buttonHeight * #self.buttons
-    HybridScrollFrame_Update(self, totalHeight, shownHeight)
 end
 
 LiteKeystoneDungeonInfoMixin = {}
 
 function LiteKeystoneDungeonInfoMixin:Update()
-    UpdateDungeonScroll(self.Scroll)
+    local dungeons = LiteKeystone:SortedDungeons()
+    local dp = CreateDataProvider(dungeons)
+    self.ScrollBox:SetDataProvider(dp, ScrollBoxConstants.RetainScrollPosition)
 end
 
 function LiteKeystoneDungeonInfoMixin:OnLoad()
-    HybridScrollFrame_CreateButtons(self.Scroll,
-                                    "LiteKeystoneDungeonButtonTemplate",
-                                    0, -1, "TOPLEFT", "TOPLEFT",
-                                    0, -1, "TOP", "BOTTOM")
-
-    local w = self.Scroll:GetWidth()
-    for _,b in ipairs(self.Scroll.buttons) do
-        b:SetWidth(w)
-    end
-
-    self.Scroll.update = UpdateDungeonScroll
+    local view = CreateScrollBoxListLinearView()
+    view:SetElementInitializer("LiteKeystoneDungeonButtonTemplate",
+        function (button, elementData)
+            button:Initialize(elementData)
+        end)
+    ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, view)
+    ScrollUtil.RegisterAlternateRowBehavior(self.ScrollBox,
+        function (button, isAlternate)
+            button.Stripe:SetShown(isAlternate)
+        end)
 end
 
 function LiteKeystoneDungeonInfoMixin:OnShow()

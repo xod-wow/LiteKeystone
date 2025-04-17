@@ -429,12 +429,18 @@
           <Anchor point="TOPRIGHT" x="-32" y="-16" />
         </Anchors>
       </Frame>
-      <ScrollFrame parentKey="Scroll" inherits="MinimalHybridScrollFrameTemplate">
+      <ScrollFrame parentKey="ScrollBox" inherits="WoWScrollBoxList">
         <Anchors>
           <Anchor point="TOPLEFT" x="16" y="-44" />
           <Anchor point="BOTTOMRIGHT" x="-32" y="0" />
         </Anchors>
       </ScrollFrame>
+      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar" frameStrata="HIGH">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.ScrollBox" relativePoint="TOPRIGHT" x="8" y="0"/>
+          <Anchor point="BOTTOMLEFT" relativeKey="$parent.ScrollBox" relativePoint="BOTTOMRIGHT" x="8" y="0"/>
+        </Anchors>
+      </EventFrame>
     </Frames>
   </Frame>
 
