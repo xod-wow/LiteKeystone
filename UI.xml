@@ -158,54 +158,64 @@
   </Frame>
 
   <Frame name="LiteKeystoneTeleportCategoryTemplate" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
-    <Size y="26" />
+    <Size y="32" />
     <Layers>
       <Layer level="OVERLAY">
-        <FontString parentKey="Name" inherits="SystemFont_Med3" justifyH="LEFT">
+        <FontString parentKey="Name" inherits="SystemFont_Large" justifyH="LEFT">
           <Anchors>
             <Anchor point="LEFT" x="8" />
           </Anchors>
         </FontString>
+        <Texture parentKey="Underline">
+          <Size y="2" />
+          <Color r="1" g="1" b="1" a="0.5" />
+          <Anchors>
+            <Anchor point="BOTTOMLEFT" y="3" />
+            <Anchor point="BOTTOMRIGHT" y="3" />
+          </Anchors>
+        </Texture>
       </Layer>
     </Layers>
   </Frame>
 
-  <Button name="LiteKeystoneTeleportButtonTemplate" mixin="LiteKeystoneTeleportButtonMixin" inherits="InsecureActionButtonTemplate LiteKeystoneStripeButtonTemplate" virtual="true">
-    <Size y="26" />
+  <Button name="LiteKeystoneTeleportIconTemplate" inherits="InsecureActionButtonTemplate" mixin="LiteKeystoneTeleportIconMixin" motionScriptsWhileDisabled="true" virtual="true">
     <Scripts>
       <OnLoad method="OnLoad" />
+      <OnShow method="OnShow" />
+      <OnHide method="OnHide" />
+      <OnEvent method="OnEvent" />
       <OnEnter method="OnEnter" />
-      <OnLeave method="OnLeave" />
+      <OnLeave function="GameTooltip_Hide" />
     </Scripts>
     <Frames>
-      <Button parentKey="Icon" motionScriptsWhileDisabled="true">
+      <Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate" />
+    </Frames>
+  </Button>
+
+  <Button name="LiteKeystoneTeleportButtonTemplate" mixin="LiteKeystoneTeleportButtonMixin" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
+    <Size y="32" />
+    <Frames>
+      <Button parentKey="Icon" inherits="LiteKeystoneTeleportIconTemplate">
         <Size x="22" y="22" />
         <Anchors>
-          <Anchor point="LEFT" x="8" />
+          <Anchor point="RIGHT" x="-16" />
         </Anchors>
-        <Scripts>
-          <OnEnter>
-            local spellID = self:GetParent().spellID
-            if spellID then
-              GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-              GameTooltip:SetSpellByID(spellID)
-              GameTooltip:Show()
-            end
-          </OnEnter>
-          <OnLeave function="GameTooltip_Hide" />
-        </Scripts>
-        <Frames>
-          <Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate" />
-        </Frames>
       </Button>
     </Frames>
     <Layers>
       <Layer level="OVERLAY">
-        <FontString parentKey="Map" inherits="SystemFont_Med3" justifyH="LEFT">
+        <FontString parentKey="Zone" inherits="SystemFont_Med3" justifyH="LEFT">
+          <Size x="300" />
           <Anchors>
-            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Icon" x="8" />
+            <Anchor point="LEFT" x="8" />
           </Anchors>
         </FontString>
+        <FontString parentKey="Dungeon" inherits="SystemFont_Med3" justifyH="LEFT">
+          <Anchors>
+            <Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.Zone" x="8" />
+          </Anchors>
+        </FontString>
+
       </Layer>
     </Layers>
   </Button>
@@ -214,7 +224,6 @@
     <Size y="36" />
 
     <Scripts>
-      <OnLoad method="OnLoad" inherit="APPEND" />
       <OnEnter method="OnEnter" />
       <OnLeave method="OnLeave" />
     </Scripts>
@@ -272,22 +281,11 @@
       </Layer>
     </Layers>
     <Frames>
-      <Button parentKey="TeleportButton" inherits="InsecureActionButtonTemplate">
+      <Button parentKey="Icon" inherits="LiteKeystoneTeleportIconTemplate">
         <Size x="22" y="22" />
-        <Anchors> <Anchor point="RIGHT" x="-16" /> </Anchors>
-        <Frames>
-          <Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate"/>
-        </Frames>
-        <Scripts>
-          <OnEnter>
-            if self.spellID then
-              GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-              GameTooltip:SetSpellByID(self.spellID)
-              GameTooltip:Show()
-            end
-          </OnEnter>
-          <OnLeave function="GameTooltip_Hide" />
-        </Scripts>
+        <Anchors>
+          <Anchor point="RIGHT" x="-16" />
+        </Anchors>
       </Button>
     </Frames>
 
@@ -479,11 +477,11 @@
     <Frames>
       <ScrollFrame parentKey="ScrollBox" inherits="WoWScrollBoxList">
         <Anchors>
-          <Anchor point="TOPLEFT" x="16" y="-8" />
+          <Anchor point="TOPLEFT" x="16" y="-24" />
           <Anchor point="BOTTOMRIGHT" x="-32" y="8" />
         </Anchors>
       </ScrollFrame>
-      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar" frameStrata="HIGH">
+      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
         <KeyValues>
           <KeyValue key="hideIfUnscrollable" value="true" type="boolean" />
         </KeyValues>
@@ -492,6 +490,21 @@
           <Anchor point="BOTTOMLEFT" relativeKey="$parent.ScrollBox" relativePoint="BOTTOMRIGHT" x="8" y="0"/>
         </Anchors>
       </EventFrame>
+      <CheckButton parentKey="ShowAll" inherits="UICheckButtonArtTemplate">
+        <Size x="18" y="18" />
+        <Anchors>
+          <Anchor relativeKey="$parent.ScrollBox" point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-16" />
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString inherits="GameFontHighlight" text="Show all">
+              <Anchors>
+                <Anchor point="RIGHT" relativePoint="LEFT" x="-4" />
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+      </CheckButton>
     </Frames>
   </Frame>
 
@@ -513,7 +526,7 @@
           <Anchor point="BOTTOMRIGHT" x="-32" y="0" />
         </Anchors>
       </ScrollFrame>
-      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar" frameStrata="HIGH">
+      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
         <KeyValues>
           <KeyValue key="hideIfUnscrollable" value="true" type="boolean" />
         </KeyValues>
@@ -545,7 +558,7 @@
           <Anchor point="BOTTOMRIGHT" x="-32" y="0" />
         </Anchors>
       </ScrollFrame>
-      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar" frameStrata="HIGH">
+      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
         <KeyValues>
           <KeyValue key="hideIfUnscrollable" value="true" type="boolean" />
         </KeyValues>
@@ -625,6 +638,9 @@
         <Anchors>
           <Anchor point="RIGHT" relativeKey="$parent.TabRight" relativePoint="LEFT" />
         </Anchors>
+        <Scripts>
+            <OnLoad inherit="append"> self.Text:SetTextColor(1, 1, 0) </OnLoad>
+        </Scripts>
       </Button>
 
       <!--@debug@-->

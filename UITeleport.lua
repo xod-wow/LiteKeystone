@@ -19,27 +19,29 @@
 
 local dungeonMaps = {}
 
-local function GetMapContinentInfo(mapID)
-    while mapID do
-        local mapInfo = C_Map.GetMapInfo(mapID)
-        if not mapInfo then
-            return nil
-        elseif mapInfo.mapType == Enum.UIMapType.Continent then
-            return mapInfo
-        elseif mapID == mapInfo.parent then
-            return nil
-        else
-            mapID = mapInfo.parentMapID
+do
+    local function GetMapContinentInfo(mapID)
+        while mapID do
+            local mapInfo = C_Map.GetMapInfo(mapID)
+            if not mapInfo then
+                return nil
+            elseif mapInfo.mapType == Enum.UIMapType.Continent then
+                return mapInfo
+            elseif mapID == mapInfo.parent then
+                return nil
+            else
+                mapID = mapInfo.parentMapID
+            end
         end
     end
-end
 
-do
     for i = 1, 10000 do
         local info =  C_Map.GetMapInfo(i)
         if info and info.mapType == Enum.UIMapType.Dungeon and not dungeonMaps[info.name] then
             local cInfo = GetMapContinentInfo(i)
             info.continentName = cInfo and cInfo.name
+            local parentInfo = C_Map.GetMapInfo(info.parentMapID)
+            info.parentName = parentInfo and parentInfo.name
             dungeonMaps[info.name] = info
         end
     end
@@ -81,6 +83,8 @@ local function GetTeleports()
         function (a, b)
             if a.info.continentName ~= b.info.continentName then
                 return a.info.continentName < b.info.continentName
+            elseif a.info.parentName ~= b.info.parentName then
+                return a.info.parentName < b.info.parentName
             else
                 return a.info.name < b.info.name
             end
@@ -90,50 +94,83 @@ end
 
 --[[------------------------------------------------------------------------]]--
 
-LiteKeystoneTeleportButtonMixin = {}
+LiteKeystoneTeleportIconMixin = {}
 
-function LiteKeystoneTeleportButtonMixin:OnEnter()
-end
-
-function LiteKeystoneTeleportButtonMixin:OnLeave()
-    GameTooltip:Hide()
-end
-
-function LiteKeystoneTeleportButtonMixin:OnLoad()
+function LiteKeystoneTeleportIconMixin:OnLoad()
     self:RegisterForClicks('AnyUp')
     self:SetAttribute("pressAndHoldAction", true)
     self:SetAttribute("type", "spell")
     self:SetAttribute("typerelease", "spell")
-    self.Icon.cooldown:SetCountdownFont("GameFontHighlightSmall")
+    self.cooldown:SetCountdownFont("GameFontHighlightSmall")
 end
 
-function LiteKeystoneTeleportButtonMixin:UpdateCooldown()
+function LiteKeystoneTeleportIconMixin:OnShow()
+    self:RegisterUnitEvent('UNIT_SPELLCAST_SUCCEEDED', 'player')
+end
+
+function LiteKeystoneTeleportIconMixin:OnHide()
+    self:UnregisterEvent('UNIT_SPELLCAST_SUCCEEDED')
+end
+
+function LiteKeystoneTeleportIconMixin:OnEvent()
+    self:UpdateCooldown()
+end
+
+function LiteKeystoneTeleportIconMixin:OnEnter()
+    if self.spellID then
+      GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+      GameTooltip:SetSpellByID(self.spellID)
+      GameTooltip:Show()
+    end
+end
+
+function LiteKeystoneTeleportIconMixin:UpdateCooldown()
     if self.spellID then
         local info = C_Spell.GetSpellCooldown(self.spellID)
         if info then
-            CooldownFrame_Set(self.Icon.cooldown, info.startTime, info.duration, info.isEnabled, false, info.modRate)
+            CooldownFrame_Set(self.cooldown, info.startTime, info.duration, info.isEnabled, false, info.modRate)
         else
-            self.Icon.cooldown:Hide();
+            self.cooldown:Hide();
         end
     end
 end
 
+function LiteKeystoneTeleportIconMixin:SetSpell(spellID, isKnown)
+    self.spellID = spellID
+
+    if self.spellID then
+        local info = C_Spell.GetSpellInfo(self.spellID)
+        self:SetNormalTexture(info.iconID)
+    end
+    self:SetEnabled(isKnown)
+    self:SetAttribute("spell", self.spellID)
+    self:UpdateCooldown()
+end
+
+function LiteKeystoneTeleportIconMixin:FindAndSetSpell(text)
+    local spellID, isKnown = FindTeleportSpell(text)
+    self:SetSpell(spellID, isKnown)
+    return spellID, isKnown
+end
+
+--[[------------------------------------------------------------------------]]--
+
+LiteKeystoneTeleportButtonMixin = {}
+
 function LiteKeystoneTeleportButtonMixin:Initialize(node)
     local data = node:GetData()
     self.spellID = data.spellID
-    self.Map:SetText(data.info.name)
+    self.Dungeon:SetText(data.info.name)
+    self.Zone:SetText(data.info.parentName)
 
-    local info = C_Spell.GetSpellInfo(self.spellID)
-    self.Icon:SetNormalTexture(info.iconID)
     if data.isKnown then
-        self.Map:SetTextColor(0.784, 0.270, 0.980)
-        self.Icon:SetEnabled(true)
+        self.Dungeon:SetTextColor(0.784, 0.270, 0.980)
+        self.Zone:SetTextColor(0.784, 0.270, 0.980)
     else
-        self.Map:SetTextColor(0.66, 0.66, 0.66, 1)
-        self.Icon:SetEnabled(false)
+        self.Dungeon:SetTextColor(0.66, 0.66, 0.66, 1)
+        self.Zone:SetTextColor(0.66, 0.66, 0.66, 1)
     end
-    self:SetAttribute("spell", self.spellID)
-    self:UpdateCooldown()
+    self.Icon:SetSpell(self.spellID, data.isKnown)
 end
 
 
@@ -146,20 +183,23 @@ function LiteKeystoneTeleportInfoMixin:Update()
     local dp = CreateTreeDataProvider()
     local subTrees = {}
     for _, t in ipairs(teleports) do
-        if not subTrees[t.info.continentName] then
-            local data = {
-                isCategory = true,
-                name = t.info.continentName
-            }
-            subTrees[t.info.continentName] = dp:Insert(data)
+        if t.isKnown or self.ShowAll:GetChecked() then
+            if not subTrees[t.info.continentName] then
+                local data = {
+                    isCategory = true,
+                    name = t.info.continentName
+                }
+                subTrees[t.info.continentName] = dp:Insert(data)
+            end
+            subTrees[t.info.continentName]:Insert(t)
         end
-        subTrees[t.info.continentName]:Insert(t)
     end
     self.ScrollBox:SetDataProvider(dp, ScrollBoxConstants.RetainScrollPosition)
 end
 
 function LiteKeystoneTeleportInfoMixin:OnLoad()
-    local view = CreateScrollBoxListTreeListView(8)
+    local indent = 8
+    local view = CreateScrollBoxListTreeListView(indent)
     view:SetElementFactory(
         function (factory, node)
             local data = node:GetData()
@@ -180,6 +220,7 @@ function LiteKeystoneTeleportInfoMixin:OnLoad()
         function (button, isAlternate)
             button.Stripe:SetShown(isAlternate)
         end)
+    self.ShowAll:SetScript('OnClick', function () self:Update() end)
 end
 
 function LiteKeystoneTeleportInfoMixin:OnShow()

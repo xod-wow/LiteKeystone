@@ -17,24 +17,6 @@
 
 ----------------------------------------------------------------------------]]--
 
-local function FindTeleportSpell(mapName)
-    for i = 1, GetNumFlyouts() do
-        local flyoutID = GetFlyoutID(i)
-        local _, _, numSlots, isKnownFlyout = GetFlyoutInfo(flyoutID)
-        if isKnownFlyout then
-            for slot = 1, numSlots do
-                local spellID, _, isKnown = GetFlyoutSlotInfo(flyoutID, slot)
-                local spellDescription = C_Spell.GetSpellDescription(spellID)
-                if isKnown and spellDescription and spellDescription:find(mapName, nil, true) then
-                    return spellID
-                end
-            end
-        end
-    end
-end
-
---[[------------------------------------------------------------------------]]--
-
 LiteKeystoneDungeonButtonMixin = {}
 
 function LiteKeystoneDungeonButtonMixin:OnEnter()
@@ -64,26 +46,6 @@ function LiteKeystoneDungeonButtonMixin:OnLeave()
     GameTooltip:Hide()
 end
 
-function LiteKeystoneDungeonButtonMixin:OnLoad()
-    self.TeleportButton:RegisterForClicks('AnyUp')
-    self.TeleportButton:SetAttribute("pressAndHoldAction", true)
-    self.TeleportButton:SetAttribute("type", "spell")
-    self.TeleportButton:SetAttribute("typerelease", "spell")
-    self.TeleportButton.cooldown:SetCountdownFont("GameFontHighlightSmall")
-end
-
-function LiteKeystoneDungeonButtonMixin:UpdateCooldown()
-    if self.TeleportButton.spellID then
-        local cooldown = self.TeleportButton.cooldown
-        local info = C_Spell.GetSpellCooldown(self.TeleportButton.spellID)
-        if info then
-            CooldownFrame_Set(cooldown, info.startTime, info.duration, info.isEnabled, false, info.modRate)
-        else
-            cooldown:Hide();
-        end
-    end
-end
-
 local DurationFormatter = CreateFromMixins(SecondsFormatterMixin)
 DurationFormatter:Init(0, SecondsFormatter.Abbreviation.OneLetter, false, true, true)
 DurationFormatter:SetStripIntervalWhitespace(true)
@@ -110,17 +72,8 @@ function LiteKeystoneDungeonButtonMixin:Initialize(dungeon)
         self.KeyTimerDiff:SetText(nil)
     end
     self.MapTimer:SetText(DurationFormatter:Format(dungeon.mapTimer))
-    local spellID = FindTeleportSpell(dungeon.mapName)
-    if spellID then
-        self.TeleportButton.spellID = spellID
-        local info = C_Spell.GetSpellInfo(spellID)
-        self.TeleportButton:SetNormalTexture(info.iconID)
-        self.TeleportButton:SetAttribute("spell", spellID)
-        self:UpdateCooldown()
-        self.TeleportButton:Show()
-    else
-        self.TeleportButton:Hide()
-    end
+    local _, isKnown = self.Icon:FindAndSetSpell(dungeon.mapName)
+    self.Icon:SetShown(isKnown)
 end
 
 LiteKeystoneDungeonInfoMixin = {}
