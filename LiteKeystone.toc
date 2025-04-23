@@ -7,7 +7,7 @@
 ## AddonCompartmentFunc: LiteKeystone_AddonCompartmentFunc
 ## SavedVariables: LiteKeystoneDB
 ## X-Curse-Project-ID: 868592
-## Category-enUS: Dungeons & Raids
+## Category: Dungeons & Raids
 ## Category-deDE: Dungeons & Schlachtzüge
 ## Category-esES: Mazmorras y bandas
 ## Category-esMX: Calabozos y bandas
