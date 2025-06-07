@@ -17,6 +17,8 @@
 
 ----------------------------------------------------------------------------]]--
 
+local addonName = ...
+
 local printTag = ORANGE_FONT_COLOR_CODE.."LiteKeystone: "..FONT_COLOR_CODE_CLOSE
 
 local function printf(fmt, ...)
@@ -393,7 +395,8 @@ function LiteKeystone:AnnounceNewKeystone(newKey)
     elseif C_ChallengeMode.IsChallengeModeActive() then
         return
     else
-        SendChatMessage('New keystone: ' .. newKey.link, 'PARTY')
+        local msg = string.format("New <%s> %s", addonName, newKey.link)
+        SendChatMessage(msg, 'PARTY')
     end
 end
 
