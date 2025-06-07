@@ -472,14 +472,16 @@ function LiteKeystone:GetKeyUpdateString(key)
 end
 
 function LiteKeystone:GetKeySyncString(key)
-    return format('%s:%s:%d:%d:%d:%d:%s',
+    return format('%s:%s:%d:%d:%d:%d:%d:%d:%d',
                    key.playerName,
                    key.playerClass,
                    key.mapID,
                    key.keyLevel,
-                   key.weekBest,
                    key.weekNum,
-                   key.weekTime
+                   key.weekTime,
+                   key.playerFaction,
+                   key.weekBest,
+                   key.rating
                 )
 end
 
@@ -570,23 +572,24 @@ function LiteKeystone:ReceiveKey(newKey, action, isReliable)
     return true
 end
 
-function LiteKeystone:GetKeyFromSync(content, source)
-    local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, weekTime = string.split(':', content)
+function LiteKeystone:GetKeyFromUpdate5(content, source)
+    local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, playerFaction, rating = string.split(':', content)
 
     -- Make sure we got all the fields.
-    if not weekTime or not tonumber(weekTime) then return end
+    if not rating or not tonumber(rating) then return end
 
     local newKey = {
         itemID=180653,
         playerName=playerName,
         playerClass=playerClass,
-        playerFaction=self.playerFaction,
+        playerFaction=playerFaction,
         mapID=tonumber(mapID),
         mapName=C_ChallengeMode.GetMapUIInfo(tonumber(mapID)),
         keyLevel=tonumber(keyLevel),
         weekBest=tonumber(weekBest),
         weekNum=tonumber(weekNum),
         weekTime=tonumber(weekTime),
+        rating=tonumber(rating),
         source=source
     }
 
@@ -597,8 +600,36 @@ function LiteKeystone:GetKeyFromSync(content, source)
     return newKey
 end
 
-function LiteKeystone:GetKeyFromUpdate(content, source)
-    local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, playerFaction = string.split(':', content)
+function LiteKeystone:GetKeyFromSync6(content, source)
+    local playerName, playerClass, mapID, keyLevel, weekNum, weekTime, playerFaction, weekBest, rating = string.split(':', content)
+
+    -- Make sure we got all the fields.
+    if not rating or not tonumber(rating) then return end
+
+    local newKey = {
+        itemID=180653,
+        playerName=playerName,
+        playerClass=playerClass,
+        playerFaction=playerFaction,
+        mapID=tonumber(mapID),
+        mapName=C_ChallengeMode.GetMapUIInfo(tonumber(mapID)),
+        keyLevel=tonumber(keyLevel),
+        weekBest=tonumber(weekBest),
+        weekNum=tonumber(weekNum),
+        weekTime=tonumber(weekTime),
+        rating=tonumber(rating),
+        source=source
+    }
+
+    newKey.link = self:GetKeystoneLink(newKey)
+
+    self:UpdateKeyRating(newKey)
+
+    return newKey
+end
+
+function LiteKeystone:GetKeyFromUpdateV(content, source)
+    local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, rating, playerFaction = string.split(':', content)
 
     local newKey = {
         itemID=180653,
@@ -611,6 +642,7 @@ function LiteKeystone:GetKeyFromUpdate(content, source)
         weekBest=tonumber(weekBest),
         weekNum=tonumber(weekNum),
         weekTime=WeekTime(),
+        rating=tonumber(rating),
         source=source
     }
 
@@ -657,7 +689,7 @@ function LiteKeystone:PushSyncKeys()
     if #guildKeys == 0 then return end
 
     for _,msg in ipairs(batch(guildKeys, 240)) do
-        C_ChatInfo.SendAddonMessage('AstralKeys', 'sync5 ' .. msg, 'GUILD')
+        C_ChatInfo.SendAddonMessage('AstralKeys', 'sync6 ' .. msg, 'GUILD')
     end
 end
 
@@ -873,12 +905,14 @@ function LiteKeystone:ProcessAddonMessage(text, source)
 
     if source == self.playerName then return end
 
-    if action == 'updateV8' or action == 'update4' then
-        local newKey = self:GetKeyFromUpdate(content, source)
+    if action == 'updateV8' or action == 'updateV9' then
+        local newKey = self:GetKeyFromUpdateV(content, source)
         self:ReceiveKey(newKey, action, true)
-    elseif action == 'sync5' then
+    elseif action == 'update5' then
+        local newKey = self:GetKeyFromUpdate5(content, source)
+    elseif action == 'sync6' then
         for entry in content:gmatch('[^_]+') do
-            local newKey = self:GetKeyFromSync(entry, source)
+            local newKey = self:GetKeyFromSync6(entry, source)
             if newKey then
                 self:ReceiveKey(newKey, action)
             end
