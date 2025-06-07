@@ -99,6 +99,7 @@ function LiteKeystoneInfoMixin:Update()
 
     self:UpdateAffixes()
     self:UpdateDungeonScore()
+    self:UpdateResilienceLevel()
     self:UpdateRunHistory()
     self:UpdateActivities()
 end
@@ -227,6 +228,13 @@ function LiteKeystoneInfoMixin:UpdateDungeonScore()
     local color = C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore) or HIGHLIGHT_FONT_COLOR
     self.OverallScore:SetVertexColor(color.r, color.g, color.b)
     self.OverallScore:SetText(dungeonScore)
+end
+
+function LiteKeystoneInfoMixin:UpdateResilienceLevel()
+    local fmt = RESILIENT_KEY_LEVEL:gsub("%%d", "%%s")
+    local res = LiteKeystone:GetResilienceLevel()
+    local resText = ORANGE_FONT_COLOR:WrapTextInColorCode(res or NONE)
+    self.Resilience:SetText(string.format(fmt, resText))
 end
 
 function LiteKeystoneInfoMixin:UpdateRunHistory()

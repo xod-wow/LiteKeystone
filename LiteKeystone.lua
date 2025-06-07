@@ -1075,6 +1075,22 @@ local function GetSeasonBestForMap(mapID)
     end
 end
 
+function LiteKeystone:GetResilienceLevel()
+    local levels = {}
+    for _, mapID in pairs(C_ChallengeMode.GetMapTable()) do
+        local inTimeInfo = C_MythicPlus.GetSeasonBestForMap(mapID)
+        if inTimeInfo then
+            table.insert(levels, inTimeInfo.level)
+        else
+            return  -- at least one with no timed score, bail out
+        end
+    end
+    local minAllTimed = math.min(unpack(levels))
+    if minAllTimed >= 12 then
+        return minAllTimed
+    end
+end
+
 function LiteKeystone:SortedDungeons()
     local output = { }
 

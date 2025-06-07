@@ -749,12 +749,12 @@
         <FontString justifyV="TOP" inherits="GameFontHighlightMedium" text="DUNGEON_SCORE">
           <Size x="200" y="0"/>
           <Anchors>
-            <Anchor point="BOTTOM" y="50" />
+            <Anchor point="BOTTOM" y="44" />
           </Anchors>
         </FontString>
         <FontString parentKey="OverallScore" inherits="GameFontNormalHuge">
           <Anchors>
-            <Anchor point="BOTTOM" y="20" />
+            <Anchor point="BOTTOM" y="16" />
           </Anchors>
         </FontString>
         <FontString parentKey="RunHistory" inherits="GameFontNormalMed1">
@@ -766,6 +766,11 @@
         <FontString parentKey="RunHistoryTitle" inherits="GameFontHighlight">
           <Anchors>
             <Anchor point="BOTTOMLEFT" x="20" y="100" />
+          </Anchors>
+        </FontString>
+        <FontString parentKey="Resilience" inherits="GameFontHighlightMedium" justifyH="CENTER">
+          <Anchors>
+            <Anchor point="BOTTOM" x="0" y="70" />
           </Anchors>
         </FontString>
       </Layer>
