@@ -460,13 +460,14 @@ function LiteKeystone:ScanAndPushKeys(reason)
 end
 
 function LiteKeystone:GetKeyUpdateString(key)
-    return format('%s:%s:%d:%d:%d:%d:%s',
+    return format('%s:%s:%d:%d:%d:%d:%d:%d',
                    key.playerName,
                    key.playerClass,
                    key.mapID,
                    key.keyLevel,
                    key.weekBest,
                    key.weekNum,
+                   key.rating,
                    key.playerFaction
                 )
 end
@@ -519,7 +520,7 @@ function LiteKeystone:PushMyKeys(key)
 
     if not key then return end
 
-    local msg = 'updateV8 ' .. self:GetKeyUpdateString(key)
+    local msg = 'updateV9 ' .. self:GetKeyUpdateString(key)
 
     if IsInGuild() then
         C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
@@ -905,7 +906,7 @@ function LiteKeystone:ProcessAddonMessage(text, source)
 
     if source == self.playerName then return end
 
-    if action == 'updateV8' or action == 'updateV9' then
+    if action == 'updateV9' then
         local newKey = self:GetKeyFromUpdateV(content, source)
         self:ReceiveKey(newKey, action, true)
     elseif action == 'update5' then
