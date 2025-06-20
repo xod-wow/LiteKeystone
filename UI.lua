@@ -188,8 +188,10 @@ end
 function LiteKeystoneInfoMixin:OnShow()
     self:UpdateScale()
     self:RegisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
+    self:RegisterEvent("WEEKLY_REWARDS_UPDATE")
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
+    C_WeeklyRewards.OnUIInteract()
     LiteKeystone:RequestData()
     LiteKeystone:UpdateKeyRatings()
     self:Update()
@@ -197,6 +199,7 @@ end
 
 function LiteKeystoneInfoMixin:OnHide()
     self:UnregisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
+    self:UnregisterEvent("WEEKLY_REWARDS_UPDATE")
 end
 
 local RunColors = {
