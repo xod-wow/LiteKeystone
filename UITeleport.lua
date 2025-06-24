@@ -488,7 +488,16 @@ local teleports = {
         name = "Atal'Dazar",
         parentMapID = 862,
         spellID = { 424187, },
-    }
+    },
+    {
+        challengeModeID = { 542 },
+        continentMapID = 2274,
+        instanceID = 2830,
+        mapID = 2449,
+        name = "Eco-Dome Al'dani",
+        parentMapID = 2371,
+        spellID = { 1237215, },
+    },
 }
 
 -- Fill names in local language
