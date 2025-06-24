@@ -504,7 +504,7 @@ local teleports = {
 do
     for _, t in ipairs(teleports) do
         local mapInfo = C_Map.GetMapInfo(t.mapID)
-        t.mapName = mapInfo.name
+        t.mapName = mapInfo and mapInfo.name
         local parentInfo = C_Map.GetMapInfo(t.parentMapID)
         t.parentMapName = parentInfo and parentInfo.name
         local continentInfo = C_Map.GetMapInfo(t.continentMapID)
@@ -521,8 +521,12 @@ local function FindBestSpell(info)
     return info.spellID[1], false
 end
 
+local function TeleportExists(t)
+    return t.mapName ~= nil
+end
+
 local function GetSortedTeleports()
-    local out = GetValuesArray(teleports)
+    local out = tFilter(GetValuesArray(teleports), TeleportExists)
 
     table.sort(out,
         function (a, b)
