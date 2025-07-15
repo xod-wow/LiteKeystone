@@ -912,8 +912,6 @@ end
 function LiteKeystone:ProcessAddonMessage(text, source)
     local action, content = text:match('^(%S+)%s-(.-)$')
 
-print(text, action, content, source)
-
     if source == self.playerName then return end
 
     if action == 'updateV9' then
