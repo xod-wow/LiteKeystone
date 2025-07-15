@@ -735,11 +735,19 @@ end
 
 -- this is a dumb protocol, why not just use 'request'
 
+local function IsValidBNKeyFriend(info)
+    return info ~= nil
+        and info.gameAccountInfo ~= nil
+        and info.gameAccountInfo.clientProgram == 'WoW'
+        and info.gameAccountInfo.wowProjectID == 1
+        and info.isInCurrentRegion == true
+end
+
 function LiteKeystone:RequestKeysFromFriends()
     local numFriends, numFriendsOnline = BNGetNumFriends()
     for i = 1, numFriendsOnline do
         local info = C_BattleNet.GetFriendAccountInfo(i)
-        if info and info.gameAccountInfo and info.gameAccountInfo.clientProgram == 'WoW' then
+        if IsValidBNKeyFriend(info) then
             BNSendGameData(info.gameAccountInfo.gameAccountID, 'AstralKeys', 'BNet_query ping')
         end
     end
