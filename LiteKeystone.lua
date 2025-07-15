@@ -910,7 +910,7 @@ function LiteKeystone:ReportKeys(filterMethod, chatType, chatArg)
 end
 
 function LiteKeystone:ProcessAddonMessage(text, source)
-    local action, content = text:match('^(%S+)%s-(.-)$')
+    local action, content = string.split(' ', text, 2)
 
     if source == self.playerName then return end
 
