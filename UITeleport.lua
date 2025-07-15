@@ -33,7 +33,7 @@ local teleports = {
     {
         challengeModeID = { 200 },
         continentMapID = 619,
-        instanceID = 721,
+        journalInstanceID = 721,
         mapID = 704,
         name = "Halls of Valor",
         parentMapID = 634,
@@ -42,7 +42,7 @@ local teleports = {
     {
         challengeModeID = { 206 },
         continentMapID = 619,
-        instanceID = 767,
+        journalInstanceID = 767,
         mapID = 731,
         name = "Neltharion's Lair",
         parentMapID = 650,
@@ -51,7 +51,7 @@ local teleports = {
     {
         challengeModeID = { 210 },
         continentMapID = 619,
-        instanceID = 800,
+        journalInstanceID = 800,
         mapID = 761,
         name = "Court of Stars",
         parentMapID = 680,
@@ -60,7 +60,7 @@ local teleports = {
     {
         challengeModeID = { 199 },
         continentMapID = 619,
-        instanceID = 740,
+        journalInstanceID = 740,
         mapID = 751,
         name = "Black Rook Hold",
         parentMapID = 641,
@@ -69,7 +69,7 @@ local teleports = {
     {
         challengeModeID = { 198 },
         continentMapID = 619,
-        instanceID = 762,
+        journalInstanceID = 762,
         mapID = 733,
         name = "Darkheart Thicket",
         parentMapID = 641,
@@ -78,7 +78,7 @@ local teleports = {
     {
         challengeModeID = { 163 },
         continentMapID = 572,
-        instanceID = 385,
+        journalInstanceID = 385,
         mapID = 573,
         name = "Bloodmaul Slag Mines",
         parentMapID = 525,
@@ -87,7 +87,7 @@ local teleports = {
     {
         challengeModeID = { 166 },
         continentMapID = 572,
-        instanceID = 536,
+        journalInstanceID = 536,
         mapID = 606,
         name = "Grimrail Depot",
         parentMapID = 543,
@@ -96,7 +96,7 @@ local teleports = {
     {
         challengeModeID = { 169 },
         continentMapID = 572,
-        instanceID = 558,
+        journalInstanceID = 558,
         mapID = 595,
         name = "Iron Docks",
         parentMapID = 543,
@@ -105,7 +105,7 @@ local teleports = {
     {
         challengeModeID = { 168 },
         continentMapID = 572,
-        instanceID = 556,
+        journalInstanceID = 556,
         mapID = 620,
         name = "The Everbloom",
         parentMapID = 543,
@@ -114,7 +114,7 @@ local teleports = {
     {
         challengeModeID = { 165 },
         continentMapID = 572,
-        instanceID = 537,
+        journalInstanceID = 537,
         mapID = 574,
         name = "Shadowmoon Burial Grounds",
         parentMapID = 539,
@@ -123,7 +123,7 @@ local teleports = {
     {
         challengeModeID = { 161 },
         continentMapID = 572,
-        instanceID = 476,
+        journalInstanceID = 476,
         mapID = 601,
         name = "Skyreach",
         parentMapID = 542,
@@ -132,7 +132,7 @@ local teleports = {
     {
         challengeModeID = { 164 },
         continentMapID = 572,
-        instanceID = 547,
+        journalInstanceID = 547,
         mapID = 593,
         name = "Auchindoun",
         parentMapID = 535,
@@ -141,7 +141,7 @@ local teleports = {
     {
         challengeModeID = { 400 },
         continentMapID = 1978,
-        instanceID = 1198,
+        journalInstanceID = 1198,
         mapID = 2093,
         name = "The Nokhud Offensive",
         parentMapID = 2023,
@@ -150,7 +150,7 @@ local teleports = {
     {
         challengeModeID = { 402 },
         continentMapID = 1978,
-        instanceID = 1201,
+        journalInstanceID = 1201,
         mapID = 2097,
         name = "Algeth'ar Academy",
         parentMapID = 2025,
@@ -159,7 +159,7 @@ local teleports = {
     {
         challengeModeID = { 463, 464 },
         continentMapID = 1978,
-        instanceID = 1209,
+        journalInstanceID = 1209,
         mapID = 2198,
         name = "Dawn of the Infinite",
         parentMapID = 2025,
@@ -168,7 +168,7 @@ local teleports = {
     {
         challengeModeID = { 406 },
         continentMapID = 1978,
-        instanceID = 1204,
+        journalInstanceID = 1204,
         mapID = 2082,
         name = "Halls of Infusion",
         parentMapID = 2025,
@@ -177,7 +177,7 @@ local teleports = {
     {
         challengeModeID = { 405 },
         continentMapID = 1978,
-        instanceID = 1196,
+        journalInstanceID = 1196,
         mapID = 2096,
         name = "Brackenhide Hollow",
         parentMapID = 2024,
@@ -186,7 +186,7 @@ local teleports = {
     {
         challengeModeID = { 401 },
         continentMapID = 1978,
-        instanceID = 1203,
+        journalInstanceID = 1203,
         mapID = 2073,
         name = "The Azure Vault",
         parentMapID = 2024,
@@ -195,7 +195,7 @@ local teleports = {
     {
         challengeModeID = { 404 },
         continentMapID = 1978,
-        instanceID = 1199,
+        journalInstanceID = 1199,
         mapID = 2080,
         name = "Neltharus",
         parentMapID = 2022,
@@ -204,7 +204,7 @@ local teleports = {
     {
         challengeModeID = { 399 },
         continentMapID = 1978,
-        instanceID = 1202,
+        journalInstanceID = 1202,
         mapID = 2095,
         name = "Ruby Life Pools",
         parentMapID = 2022,
@@ -213,7 +213,7 @@ local teleports = {
     {
         challengeModeID = { 456 },
         continentMapID = 13,
-        instanceID = 65,
+        journalInstanceID = 65,
         mapID = 323,
         name = "Throne of the Tides",
         parentMapID = 204,
@@ -222,7 +222,7 @@ local teleports = {
     {
         challengeModeID = { 403 },
         continentMapID = 13,
-        instanceID = 1197,
+        journalInstanceID = 1197,
         mapID = 2071,
         name = "Uldaman: Legacy of Tyr",
         parentMapID = 15,
@@ -231,7 +231,7 @@ local teleports = {
     {
         challengeModeID = { 167 },
         continentMapID = 13,
-        instanceID = 559,
+        journalInstanceID = 559,
         mapID = 617,
         name = "Upper Blackrock Spire",
         parentMapID = 36,
@@ -240,7 +240,7 @@ local teleports = {
     {
         challengeModeID = { 227, 234 },
         continentMapID = 13,
-        instanceID = 860,
+        journalInstanceID = 860,
         mapID = 812,
         name = "Return to Karazhan",
         parentMapID = 42,
@@ -249,7 +249,7 @@ local teleports = {
     {
         challengeModeID = { 507 },
         continentMapID = 13,
-        instanceID = 71,
+        journalInstanceID = 71,
         mapID = 293,
         name = "Grim Batol",
         parentMapID = 241,
@@ -258,7 +258,7 @@ local teleports = {
     {
         challengeModeID = { 438 },
         continentMapID = 12,
-        instanceID = 68,
+        journalInstanceID = 68,
         mapID = 325,
         name = "The Vortex Pinnacle",
         parentMapID = 249,
@@ -267,7 +267,7 @@ local teleports = {
     {
         challengeModeID = { 503 },
         continentMapID = 2274,
-        instanceID = 1271,
+        journalInstanceID = 1271,
         mapID = 2357,
         name = "Ara-Kara, City of Echoes",
         parentMapID = 2255,
@@ -276,7 +276,7 @@ local teleports = {
     {
         challengeModeID = { 502 },
         continentMapID = 2274,
-        instanceID = 1274,
+        journalInstanceID = 1274,
         mapID = 2343,
         name = "City of Threads",
         parentMapID = 2255,
@@ -285,7 +285,7 @@ local teleports = {
     {
         challengeModeID = { 499 },
         continentMapID = 2274,
-        instanceID = 1267,
+        journalInstanceID = 1267,
         mapID = 2308,
         name = "Priory of the Sacred Flame",
         parentMapID = 2215,
@@ -294,7 +294,7 @@ local teleports = {
     {
         challengeModeID = { 505 },
         continentMapID = 2274,
-        instanceID = 1270,
+        journalInstanceID = 1270,
         mapID = 2359,
         name = "The Dawnbreaker",
         parentMapID = 2215,
@@ -303,7 +303,7 @@ local teleports = {
     {
         challengeModeID = { 506 },
         continentMapID = 2274,
-        instanceID = 1272,
+        journalInstanceID = 1272,
         mapID = 2335,
         name = "Cinderbrew Meadery",
         parentMapID = 2248,
@@ -312,7 +312,7 @@ local teleports = {
     {
         challengeModeID = { 500 },
         continentMapID = 2274,
-        instanceID = 1268,
+        journalInstanceID = 1268,
         mapID = 2316,
         name = "The Rookery",
         parentMapID = 2248,
@@ -321,7 +321,7 @@ local teleports = {
     {
         challengeModeID = { 504 },
         continentMapID = 2274,
-        instanceID = 1210,
+        journalInstanceID = 1210,
         mapID = 2303,
         name = "Darkflame Cleft",
         parentMapID = 2214,
@@ -330,7 +330,7 @@ local teleports = {
     {
         challengeModeID = { 525 },
         continentMapID = 2274,
-        instanceID = 1298,
+        journalInstanceID = 1298,
         mapID = 2387,
         name = "Operation: Floodgate",
         parentMapID = 2214,
@@ -339,7 +339,7 @@ local teleports = {
     {
         challengeModeID = { 501 },
         continentMapID = 2274,
-        instanceID = 1269,
+        journalInstanceID = 1269,
         mapID = 2341,
         name = "The Stonevault",
         parentMapID = 2214,
@@ -348,7 +348,7 @@ local teleports = {
     {
         challengeModeID = { 248 },
         continentMapID = 876,
-        instanceID = 1021,
+        journalInstanceID = 1021,
         mapID = 1015,
         name = "Waycrest Manor",
         parentMapID = 896,
@@ -357,7 +357,7 @@ local teleports = {
     {
         challengeModeID = { 369, 370 },
         continentMapID = 876,
-        instanceID = 1178,
+        journalInstanceID = 1178,
         mapID = 1491,
         name = "Operation: Mechagon",
         parentMapID = 1462,
@@ -366,7 +366,7 @@ local teleports = {
     {
         challengeModeID = { 245 },
         continentMapID = 876,
-        instanceID = 1001,
+        journalInstanceID = 1001,
         mapID = 936,
         name = "Freehold",
         parentMapID = 895,
@@ -375,7 +375,7 @@ local teleports = {
     {
         challengeModeID = { 353 },
         continentMapID = 876,
-        instanceID = 1023,
+        journalInstanceID = 1023,
         mapID = 1162,
         name = "Siege of Boralus",
         parentMapID = 895,
@@ -384,7 +384,7 @@ local teleports = {
     {
         challengeModeID = { 247 },
         continentMapID = 948,
-        instanceID = 1012,
+        journalInstanceID = 1012,
         mapID = 1010,
         name = "The MOTHERLODE!!",
         parentMapID = 194,
@@ -393,7 +393,7 @@ local teleports = {
     {
         challengeModeID = { 377 },
         continentMapID = 1550,
-        instanceID = 1188,
+        journalInstanceID = 1188,
         mapID = 1679,
         name = "De Other Side",
         parentMapID = 1565,
@@ -402,7 +402,7 @@ local teleports = {
     {
         challengeModeID = { 375 },
         continentMapID = 1550,
-        instanceID = 1184,
+        journalInstanceID = 1184,
         mapID = 1669,
         name = "Mists of Tirna Scithe",
         parentMapID = 1565,
@@ -411,7 +411,7 @@ local teleports = {
     {
         challengeModeID = { 381 },
         continentMapID = 1550,
-        instanceID = 1186,
+        journalInstanceID = 1186,
         mapID = 1693,
         name = "Spires of Ascension",
         parentMapID = 1533,
@@ -420,7 +420,7 @@ local teleports = {
     {
         challengeModeID = { 376 },
         continentMapID = 1550,
-        instanceID = 1182,
+        journalInstanceID = 1182,
         mapID = 1666,
         name = "The Necrotic Wake",
         parentMapID = 1533,
@@ -429,7 +429,7 @@ local teleports = {
     {
         challengeModeID = { 379 },
         continentMapID = 1550,
-        instanceID = 1183,
+        journalInstanceID = 1183,
         mapID = 1674,
         name = "Plaguefall",
         parentMapID = 1536,
@@ -438,7 +438,7 @@ local teleports = {
     {
         challengeModeID = { 382 },
         continentMapID = 1550,
-        instanceID = 1187,
+        journalInstanceID = 1187,
         mapID = 1683,
         name = "Theater of Pain",
         parentMapID = 1536,
@@ -447,7 +447,7 @@ local teleports = {
     {
         challengeModeID = { 378 },
         continentMapID = 1550,
-        instanceID = 1185,
+        journalInstanceID = 1185,
         mapID = 1663,
         name = "Halls of Atonement",
         parentMapID = 1525,
@@ -456,7 +456,7 @@ local teleports = {
     {
         challengeModeID = { 380 },
         continentMapID = 1550,
-        instanceID = 1189,
+        journalInstanceID = 1189,
         mapID = 1675,
         name = "Sanguine Depths",
         parentMapID = 1525,
@@ -465,7 +465,7 @@ local teleports = {
     {
         challengeModeID = { 391, 392 },
         continentMapID = 1550,
-        instanceID = 1194,
+        journalInstanceID = 1194,
         mapID = 1989,
         name = "Tazavesh, the Veiled Market",
         parentMapID = 1989,
@@ -474,7 +474,7 @@ local teleports = {
     {
         challengeModeID = { 251 },
         continentMapID = 875,
-        instanceID = 1022,
+        journalInstanceID = 1022,
         mapID = 1041,
         name = "The Underrot",
         parentMapID = 863,
@@ -483,7 +483,7 @@ local teleports = {
     {
         challengeModeID = { 244 },
         continentMapID = 875,
-        instanceID = 968,
+        journalInstanceID = 968,
         mapID = 934,
         name = "Atal'Dazar",
         parentMapID = 862,
@@ -492,7 +492,7 @@ local teleports = {
     {
         challengeModeID = { 542 },
         continentMapID = 2274,
-        instanceID = 2830,
+        journalInstanceID = 1303,
         mapID = 2449,
         name = "Eco-Dome Al'dani",
         parentMapID = 2371,
