@@ -1061,7 +1061,7 @@ local function GetAffixRatingBonus(key)
     if key.keyLevel >= 4 then bonus = bonus + 15 end
     if key.keyLevel >= 7 then bonus = bonus + 15 end
     if key.keyLevel >= 10 then bonus = bonus + 15 end
-    if key.keyLevel >= 12 then bonus = bonus + 15 end
+    if key.keyLevel >= 12 then bonus = bonus + 10 end
     return bonus
 end
 
