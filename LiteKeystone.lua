@@ -38,7 +38,24 @@ local function IsKeystoneItem(item)
     return item == 187786 or item == 180653
 end
 
+local function IsBNetWowAccount(gameAccountInfo)
+    return gameAccountInfo ~= nil
+        and gameAccountInfo.clientProgram == BNET_CLIENT_WOW
+        and gameAccountInfo.wowProjectID == 1
+        and gameAccountInfo.isInCurrentRegion == true
+end
+
+local function GetWoWGameAccountID(bnFriendIndex)
+    for gameAccountIndex = 1, C_BattleNet.GetFriendNumGameAccounts(bnFriendIndex) do
+        local info = C_BattleNet.GetFriendGameAccountInfo(bnFriendIndex, gameAccountIndex)
+        if IsBNetWowAccount(info) then
+            return info.gameAccountID
+        end
+    end
+end
+
 local lor = LibStub('LibOpenRaid-1.0', true)
+
 
 --[[------------------------------------------------------------------------]]--
 
@@ -514,7 +531,16 @@ function LiteKeystone:RemoveExpiredKeys()
     self:Fire()
 end
 
-function LiteKeystone:PushMyKeys(key)
+function LiteKeystone:RespondToPing(source)
+    local msg = 'BNet_query response'
+    if type(source) == 'number' then
+        BNSendGameData(source, 'AstralKeys', msg)
+    else
+        C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'WHISPER', nil, source)
+    end
+end
+
+function LiteKeystone:PushMyKeys(key, recipient)
 
     key = key or self:MyKey()
 
@@ -522,15 +548,23 @@ function LiteKeystone:PushMyKeys(key)
 
     local msg = 'updateV9 ' .. self:GetKeyUpdateString(key)
 
-    if IsInGuild() then
-        C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
-    end
+    if recipient then
+        if type(recipient) == 'number' then
+            BNSendGameData(recipient, 'AstralKeys', msg)
+        else
+            C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'WHISPER', recipient)
+        end
+    else
+        if IsInGuild() then
+            C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
+        end
 
-    local _, numFriendsOnline = BNGetNumFriends()
-    for i = 1, numFriendsOnline do
-        local info = C_BattleNet.GetFriendAccountInfo(i)
-        if info and info.gameAccountInfo and info.gameAccountInfo.clientProgram == 'WoW' then
-            BNSendGameData(info.gameAccountInfo.gameAccountID, 'AstralKeys', msg)
+        local numFriends = BNGetNumFriends()
+        for i = 1, numFriends do
+            local gameAccountID = GetWoWGameAccountID(i)
+            if gameAccountID then
+                BNSendGameData(gameAccountID, 'AstralKeys', msg)
+            end
         end
     end
 end
@@ -733,22 +767,12 @@ function LiteKeystone:RequestKeysFromGuild()
     end
 end
 
--- this is a dumb protocol, why not just use 'request'
-
-local function IsValidBNKeyFriend(info)
-    return info ~= nil
-        and info.gameAccountInfo ~= nil
-        and info.gameAccountInfo.clientProgram == 'WoW'
-        and info.gameAccountInfo.wowProjectID == 1
-        and info.isInCurrentRegion == true
-end
-
 function LiteKeystone:RequestKeysFromFriends()
-    local numFriends, numFriendsOnline = BNGetNumFriends()
-    for i = 1, numFriendsOnline do
-        local info = C_BattleNet.GetFriendAccountInfo(i)
-        if IsValidBNKeyFriend(info) then
-            BNSendGameData(info.gameAccountInfo.gameAccountID, 'AstralKeys', 'BNet_query ping')
+    local numFriends, numFriendsOnline, numFavorite, numFavoriteOnline = BNGetNumFriends()
+    for i = 1, numFriends do
+        local gameAccountID = GetWoWGameAccountID(i)
+        if gameAccountID then
+            BNSendGameData(gameAccountID, 'AstralKeys', 'BNet_query ping')
         end
     end
 
@@ -772,8 +796,13 @@ function LiteKeystone:GetAffixes()
     return self.keystoneAffixes
 end
 
-function LiteKeystone:GetPlayerName(key, useColor)
-    local p = key.playerName:gsub('-'..self.playerRealm, '')
+function LiteKeystone:GetPlayerName(key, useColor, hideRealm)
+    local p = key.playerName
+    if hideRealm then
+        p = strsplit('-', p)
+    else
+        p = p:gsub('-.*'..self.playerRealm, '')
+    end
     if useColor then
         return RAID_CLASS_COLORS[key.playerClass]:WrapTextInColorCode(p)
     else
@@ -813,8 +842,8 @@ function LiteKeystone:GetKeystoneLink(key)
     )
 end
 
-function LiteKeystone:GetPrintString(key, useColor)
-    local player = self:GetPlayerName(key, useColor)
+function LiteKeystone:GetPrintString(key, useColor, hideRealm)
+    local player = self:GetPlayerName(key, useColor, hideRealm)
     return string.format('%s : %s', player, key.link)
 end
 
@@ -904,7 +933,7 @@ end
 function LiteKeystone:ReportKeys(filterMethod, chatType, chatArg)
     local sortedKeys = self:SortedKeys(filterMethod)
     for _,key in ipairs(sortedKeys) do
-        local msg = self:GetPrintString(key)
+        local msg = self:GetPrintString(key, false, chatArg == 'PARTY')
         SendChatMessage(msg, chatType, nil, chatArg)
     end
 end
@@ -928,9 +957,10 @@ function LiteKeystone:ProcessAddonMessage(text, source)
         end
     elseif action == 'updateWeekly' then
         self:UpdateWeekly(source, tonumber(content))
-    elseif action == 'BNet_query ping' then
-        -- XXX limit to sender? XXX
-        self:PushMyKeys()
+    elseif action == 'BNet_query' and content == 'ping' then
+        self:RespondToPing(source)
+    elseif action == 'BNet_query' and content == 'response' then
+        self:PushMyKeys(nil, source)
     elseif action == 'request' then
         self:PushMyKeys()
         self:PushSyncKeys()
@@ -948,12 +978,9 @@ end
 
 function LiteKeystone:BN_CHAT_MSG_ADDON(prefix, text, chatType, gameAccountID)
     if prefix ~= 'AstralKeys' then return end
-    local gameInfo = C_BattleNet.GetGameAccountInfoByID(gameAccountID)
-    if gameInfo and gameInfo.clientProgram == 'WoW' and gameInfo.playerGuid then
-        -- local sender = string.format('%s-%s', info.characterName, info.realmName)
-        -- self:ProcessAddonMessage(text, sender)
-        local playerInfo = C_BattleNet.GetAccountInfoByGUID(gameInfo.playerGuid)
-        self:ProcessAddonMessage(text, playerInfo.battleTag)
+    local gameAccountInfo = C_BattleNet.GetGameAccountInfoByID(gameAccountID)
+    if IsBNetWowAccount(gameAccountInfo) then
+        self:ProcessAddonMessage(text, gameAccountID)
     end
 end
 
