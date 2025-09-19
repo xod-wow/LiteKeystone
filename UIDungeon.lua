@@ -36,7 +36,7 @@ function LiteKeystoneDungeonButtonMixin:OnEnter()
     GameTooltip:SetPoint("BOTTOMLEFT", self, "RIGHT", -30, 0)
     GameTooltip:AddLine(self.dungeon.mapName)
     GameTooltip:AddLine(" ")
-    for i, info in ipairs(gains) do
+    for _, info in ipairs(gains) do
         GameTooltip:AddDoubleLine('+' .. info[1], format(PVP_RATING_CHANGE, info[2]), 1, 1, 1, 1, 1, 1)
     end
     GameTooltip:Show()

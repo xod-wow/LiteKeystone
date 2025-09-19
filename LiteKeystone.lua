@@ -418,13 +418,11 @@ function LiteKeystone:AnnounceNewKeystone(newKey)
 end
 
 function LiteKeystone:ProcessItem(item)
-    local db, changed
-
-    if item:GetItemID() == 180653 then
-        db = self.db.playerKeys
-    else
+    if item:GetItemID() ~= 180653 then
         return
     end
+
+    local db = self.db.playerKeys
 
     local newKey = self:GetMyKeyFromLink(item:GetItemLink())
 
@@ -456,7 +454,7 @@ function LiteKeystone:ScanAndPushKeys(reason)
     self:Debug("> HasSlottedKeystone: %s", tostring(C_ChallengeMode.HasSlottedKeystone()))
     self:Debug("> IsChallengeModeActive: %s", tostring(C_ChallengeMode.IsChallengeModeActive()))
     do
-        local id, affixTable, level = C_ChallengeMode.GetSlottedKeystoneInfo()
+        local id, _, level = C_ChallengeMode.GetSlottedKeystoneInfo()
         self:Debug("> GetSlottedKeystoneInfo: id=%s, level=%s", tostring(id), tostring(level))
     end
     do
@@ -516,7 +514,7 @@ function LiteKeystone:UpdateKeyRating(key)
 end
 
 function LiteKeystone:UpdateKeyRatings()
-    for player,key in pairs(self.db.playerKeys) do
+    for _,key in pairs(self.db.playerKeys) do
         self:UpdateKeyRating(key)
     end
 end
@@ -623,7 +621,7 @@ function LiteKeystone:GetKeyFromUpdate5(content, source)
         keyLevel=tonumber(keyLevel),
         weekBest=tonumber(weekBest),
         weekNum=tonumber(weekNum),
-        weekTime=tonumber(weekTime),
+        weekTime=WeekTime(),
         rating=tonumber(rating),
         source=source
     }
@@ -768,7 +766,7 @@ function LiteKeystone:RequestKeysFromGuild()
 end
 
 function LiteKeystone:RequestKeysFromFriends()
-    local numFriends, numFriendsOnline, numFavorite, numFavoriteOnline = BNGetNumFriends()
+    local numFriends = BNGetNumFriends()
     for i = 1, numFriends do
         local gameAccountID = GetWoWGameAccountID(i)
         if gameAccountID then
@@ -948,6 +946,7 @@ function LiteKeystone:ProcessAddonMessage(text, source)
         self:ReceiveKey(newKey, action, true)
     elseif action == 'update5' then
         local newKey = self:GetKeyFromUpdate5(content, source)
+        self:ReceiveKey(newKey, action, true)
     elseif action == 'sync6' then
         for entry in content:gmatch('[^_]+') do
             local newKey = self:GetKeyFromSync6(entry, source)

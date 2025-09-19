@@ -631,10 +631,10 @@ end
 LiteKeystoneTeleportInfoMixin = {}
 
 function LiteKeystoneTeleportInfoMixin:Update()
-    local teleports = GetSortedTeleports()
+    local sortedTeleports = GetSortedTeleports()
     local dp = CreateTreeDataProvider()
     local subTrees = {}
-    for _, t in ipairs(teleports) do
+    for _, t in ipairs(sortedTeleports) do
         t.bestSpellID, t.isKnown = FindBestSpell(t)
         if t.isKnown or self.ShowAll:GetChecked() then
             if not subTrees[t.continentMapName] then
@@ -653,17 +653,18 @@ end
 function LiteKeystoneTeleportInfoMixin:OnLoad()
     local indent = 8
     local view = CreateScrollBoxListTreeListView(indent)
+
     view:SetElementFactory(
         function (factory, node)
             local data = node:GetData()
             if data.isCategory then
                 factory("LiteKeystoneTeleportCategoryTemplate",
-                    function (button, node)
+                    function (button, node) -- luacheck: ignore 432
                         button.Name:SetText(data.categoryName)
                     end)
             else
                 factory("LiteKeystoneTeleportButtonTemplate",
-                    function (button, node)
+                    function (button, node) -- luacheck: ignore 432
                         button:Initialize(node)
                     end)
             end
