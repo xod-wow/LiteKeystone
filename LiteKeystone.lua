@@ -933,7 +933,7 @@ end
 function LiteKeystone:ReportKeys(filterMethod, chatType, chatArg)
     local sortedKeys = self:SortedKeys(filterMethod)
     for _,key in ipairs(sortedKeys) do
-        local msg = self:GetPrintString(key, false, chatArg == 'PARTY')
+        local msg = self:GetPrintString(key, false, chatType == 'PARTY')
         SendChatMessage(msg, chatType, nil, chatArg)
     end
 end
