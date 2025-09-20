@@ -943,10 +943,14 @@ function LiteKeystone:ProcessAddonMessage(text, source)
 
     if action == 'updateV9' then
         local newKey = self:GetKeyFromUpdateV(content, source)
-        self:ReceiveKey(newKey, action, true)
+        if newKey then
+            self:ReceiveKey(newKey, action, true)
+        end
     elseif action == 'update5' then
         local newKey = self:GetKeyFromUpdate5(content, source)
-        self:ReceiveKey(newKey, action, true)
+        if newKey then
+            self:ReceiveKey(newKey, action, true)
+        end
     elseif action == 'sync6' then
         for entry in content:gmatch('[^_]+') do
             local newKey = self:GetKeyFromSync6(entry, source)
