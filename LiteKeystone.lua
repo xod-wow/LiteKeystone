@@ -444,6 +444,9 @@ function LiteKeystone:ProcessItem(item)
         db[self.playerName] = newKey
         self:PushMyKeys(newKey)
         self:Fire()
+    elseif not self:IsMyKey(existingKey) then
+        self:Debug('Replacing received key with new key.')
+        db[self.playerName] = newKey
     else
         self:Debug('Same key, ignored.')
     end
