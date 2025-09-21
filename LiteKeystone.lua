@@ -333,6 +333,8 @@ function LiteKeystone:Initialize()
     lor.RegisterCallback(self, 'KeystoneUpdate', 'UpdateOpenRaidKeys')
     lor.RequestKeystoneDataFromGuild()
 
+    self:DelayScan('Initialize')
+
     printf('Initialized.')
 end
 
