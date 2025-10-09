@@ -576,7 +576,6 @@ function LiteKeystone:PushMyKeys(key, recipient)
             C_ChatInfo.SendAddonMessage('AstralKeys', msgGuild, 'GUILD')
         end
 
-        local msg = 'update5 ' .. self:GetKeyUpdateString(key, false)
         local numFriends = BNGetNumFriends()
         for i = 1, numFriends do
             local gameAccountID = GetWoWGameAccountID(i)
