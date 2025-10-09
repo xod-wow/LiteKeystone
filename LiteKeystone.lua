@@ -479,31 +479,44 @@ function LiteKeystone:ScanAndPushKeys(reason)
     end
 end
 
-function LiteKeystone:GetKeyUpdateString(key)
-    return format('%s:%s:%d:%d:%d:%d:%d:%d',
+function LiteKeystone:GetKeyUpdateString(key, isGuild)
+    -- UpdateV9 format, no faction included
+    return format('%s:%s:%d:%d:%d:%d:%d',
                    key.playerName,
                    key.playerClass,
                    key.mapID,
                    key.keyLevel,
                    key.weekBest,
                    key.weekNum,
-                   key.rating,
-                   key.playerFaction
+                   key.rating
                 )
 end
 
-function LiteKeystone:GetKeySyncString(key)
-    return format('%s:%s:%d:%d:%d:%d:%d:%d:%d',
-                   key.playerName,
-                   key.playerClass,
-                   key.mapID,
-                   key.keyLevel,
-                   key.weekNum,
-                   key.weekTime,
-                   key.playerFaction,
-                   key.weekBest,
-                   key.rating
-                )
+function LiteKeystone:GetKeySyncString(key, isGuild)
+    if isGuild then
+        return format('%s:%s:%d:%d:%d:%d:%d:%d',
+                       key.playerName,
+                       key.playerClass,
+                       key.mapID,
+                       key.keyLevel,
+                       key.weekBest,
+                       key.weekNum,
+                       key.weekTime,
+                       key.rating
+                    )
+    else
+        return format('%s:%s:%d:%d:%d:%d:%d:%d:%d',
+                       key.playerName,
+                       key.playerClass,
+                       key.mapID,
+                       key.keyLevel,
+                       key.weekNum,
+                       key.weekTime,
+                       key.playerFaction,
+                       key.weekBest,
+                       key.rating
+                    )
+    end
 end
 
 function LiteKeystone:UpdateKeyRating(key)
@@ -549,24 +562,26 @@ function LiteKeystone:PushMyKeys(key, recipient)
 
     if not key then return end
 
-    local msg = 'updateV9 ' .. self:GetKeyUpdateString(key)
+    local msgWhisper = 'update5 ' .. self:GetKeyUpdateString(key, false)
+    local msgGuild = 'updateV9 ' .. self:GetKeyUpdateString(key, true)
 
     if recipient then
         if type(recipient) == 'number' then
-            BNSendGameData(recipient, 'AstralKeys', msg)
+            BNSendGameData(recipient, 'AstralKeys', msgWhisper)
         else
-            C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'WHISPER', recipient)
+            C_ChatInfo.SendAddonMessage('AstralKeys', msgWhisper, 'WHISPER', recipient)
         end
     else
         if IsInGuild() then
-            C_ChatInfo.SendAddonMessage('AstralKeys', msg, 'GUILD')
+            C_ChatInfo.SendAddonMessage('AstralKeys', msgGuild, 'GUILD')
         end
 
+        local msg = 'update5 ' .. self:GetKeyUpdateString(key, false)
         local numFriends = BNGetNumFriends()
         for i = 1, numFriends do
             local gameAccountID = GetWoWGameAccountID(i)
             if gameAccountID then
-                BNSendGameData(gameAccountID, 'AstralKeys', msg)
+                BNSendGameData(gameAccountID, 'AstralKeys', msgWhisper)
             end
         end
     end
@@ -638,8 +653,19 @@ function LiteKeystone:GetKeyFromUpdate5(content, source)
     return newKey
 end
 
+-- There are two incompatible sync6 packets coming from AstralKeys
+-- GUILD   playerName playerClass mapID keyLevel weekBest weekNum  weekTime rating
+-- WHISPER playerName playerClass mapID keyLevel weekNum  weekTime faction  weekBest rating
+
 function LiteKeystone:GetKeyFromSync6(content, source)
-    local playerName, playerClass, mapID, keyLevel, weekNum, weekTime, playerFaction, weekBest, rating = string.split(':', content)
+    local fields = { string.split(':', content) }
+
+    local playerName, playerClass, mapID, keyLevel, weekNum, weekTime, playerFaction, weekBest, rating
+    if #fields == 9 then
+        playerName, playerClass, mapID, keyLevel, weekNum, weekTime, playerFaction, weekBest, rating = unpack(fields)
+    else
+        playerName, playerClass, mapID, keyLevel, weekBest, weekNum, weekTime, rating = unpack(fields)
+    end
 
     -- Make sure we got all the fields.
     if not rating or not tonumber(rating) then return end
@@ -648,7 +674,7 @@ function LiteKeystone:GetKeyFromSync6(content, source)
         itemID=180653,
         playerName=playerName,
         playerClass=playerClass,
-        playerFaction=playerFaction,
+        playerFaction=playerFaction or self.playerFaction,
         mapID=tonumber(mapID),
         mapName=C_ChallengeMode.GetMapUIInfo(tonumber(mapID)),
         keyLevel=tonumber(keyLevel),
@@ -666,14 +692,20 @@ function LiteKeystone:GetKeyFromSync6(content, source)
     return newKey
 end
 
+-- AK still sending V8 and V9 where V9 has faction appended. V8 is a broken
+-- format because we can no longer assume guild members are the same faction
+-- as we are. LiteKeystone doesn't use faction for anything anyway.
+
 function LiteKeystone:GetKeyFromUpdateV(content, source)
     local playerName, playerClass, mapID, keyLevel, weekBest, weekNum, rating, playerFaction = string.split(':', content)
+
+    if not rating then return end
 
     local newKey = {
         itemID=180653,
         playerName=playerName,
         playerClass=playerClass,
-        playerFaction=playerFaction,
+        playerFaction=playerFaction or self.playerFaction,
         mapID=tonumber(mapID),
         mapName=C_ChallengeMode.GetMapUIInfo(tonumber(mapID)),
         keyLevel=tonumber(keyLevel),
@@ -691,6 +723,7 @@ function LiteKeystone:GetKeyFromUpdateV(content, source)
     return newKey
 end
 
+-- XXX I should turn this into a proper iterator
 local function batch(keyList, max)
     local batches = { }
     local msg
@@ -708,6 +741,7 @@ local function batch(keyList, max)
     if msg then
         table.insert(batches, msg)
     end
+
     return batches
 end
 
@@ -719,7 +753,7 @@ function LiteKeystone:PushSyncKeys()
     for i = 1, GetNumGuildMembers() do
         local name = GetGuildRosterInfo(i)
         if name ~= self.playerName and self.db.playerKeys[name] then
-            local msg = self:GetKeySyncString(self.db.playerKeys[name])
+            local msg = self:GetKeySyncString(self.db.playerKeys[name], true)
             table.insert(guildKeys, msg)
         end
     end
@@ -944,32 +978,41 @@ end
 function LiteKeystone:ProcessAddonMessage(text, source)
     local action, content = string.split(' ', text, 2)
 
+
     if source == self.playerName then return end
 
-    if action == 'updateV9' then
+    if action == 'updateV9' or action == 'updateV8' then
+        self:Debug('DATA %s: %s %s', tostring(source), action, content)
         local newKey = self:GetKeyFromUpdateV(content, source)
         if newKey then
             self:ReceiveKey(newKey, action, true)
         end
     elseif action == 'update5' then
+        self:Debug('DATA %s: %s %s', tostring(source), action, content)
         local newKey = self:GetKeyFromUpdate5(content, source)
         if newKey then
             self:ReceiveKey(newKey, action, true)
         end
     elseif action == 'sync6' then
         for entry in content:gmatch('[^_]+') do
+            self:Debug('DATA %s: %s %s', tostring(source), action, entry)
             local newKey = self:GetKeyFromSync6(entry, source)
             if newKey then
                 self:ReceiveKey(newKey, action)
             end
         end
     elseif action == 'updateWeekly' then
+        self:Debug('DATA %s: %s %s', tostring(source), action, content)
         self:UpdateWeekly(source, tonumber(content))
-    elseif action == 'BNet_query' and content == 'ping' then
-        self:RespondToPing(source)
-    elseif action == 'BNet_query' and content == 'response' then
-        self:PushMyKeys(nil, source)
+    elseif action == 'BNet_query' then
+        self:Debug('DATA %s: %s %s', tostring(source), action, content)
+        if content == 'ping' then
+            self:RespondToPing(source)
+        elseif content == 'response' then
+            self:PushMyKeys(nil, source)
+        end
     elseif action == 'request' then
+        self:Debug('DATA %s: %s', tostring(source), action)
         self:PushMyKeys()
         self:PushSyncKeys()
     end
