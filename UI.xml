@@ -51,7 +51,7 @@
         <FontString parentKey="Rating" inherits="SystemFont_Med3" justifyH="LEFT">
           <Size x="48" />
           <Anchors>
-            <Anchor point="RIGHT" x="-24" />
+            <Anchor point="RIGHT" x="-48" />
           </Anchors>
         </FontString>
 
@@ -66,6 +66,12 @@
     </Layers>
 
     <Frames>
+      <Button parentKey="Icon" inherits="LiteKeystoneTeleportIconTemplate">
+        <Size x="16" y="16" />
+        <Anchors>
+          <Anchor point="RIGHT" x="-8" />
+        </Anchors>
+      </Button>
       <Frame parentKey="Keystone">
         <Size y="24" />
 
@@ -126,7 +132,7 @@
           <Anchors><Anchor point="TOPLEFT" y="-1" /></Anchors>
         </ButtonText>
         <Anchors>
-          <Anchor point="RIGHT" x="-24" />
+          <Anchor point="RIGHT" x="-48" />
         </Anchors>
       </Button>
 

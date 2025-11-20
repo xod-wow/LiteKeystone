@@ -35,7 +35,8 @@ local function IsKeystoneItem(item)
     elseif type(item) == 'table' then
         item = item:GetItemID()
     end
-    return item == 187786 or item == 180653
+    -- return item == 187786 or item == 180653
+    return item == 180653
 end
 
 local function IsBNetWowAccount(gameAccountInfo)
@@ -420,7 +421,7 @@ function LiteKeystone:AnnounceNewKeystone(newKey)
 end
 
 function LiteKeystone:ProcessItem(item)
-    if item:GetItemID() ~= 180653 then
+    if not IsKeystoneItem(item) then
         return
     end
 

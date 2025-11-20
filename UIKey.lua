@@ -31,6 +31,7 @@ function LiteKeystoneKeyButtonMixin:Initialize(key)
         self.Keystone.Text:SetText(LiteKeystone:GetKeyText(key))
     end
     self.Rating:SetText(key.rating or '?')
+    self.Icon:SetByID(key.mapID)
 end
 
 function LiteKeystoneKeyButtonMixin:OnClick()
