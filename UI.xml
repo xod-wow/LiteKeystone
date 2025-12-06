@@ -578,16 +578,26 @@
 
   <Frame name="LiteKeystoneLogInfoTemplate" virtual="true" mixin="LiteKeystoneLogInfoMixin" hidden="true">
     <Scripts>
-      <OnShow method="OnShow" />
-      <OnHide method="OnHide" />
+      <OnShow method="OnShow" inherit="append" />
+      <OnHide method="OnHide" inherit="append" />
+      <OnLoad method="OnLoad" inherit="append" />
     </Scripts>
     <Frames>
       <Frame parentKey="EditScroll" inherits="ScrollingEditBoxTemplate">
         <Anchors>
-          <Anchor point="TOPLEFT" x="16" y="-16" />
-          <Anchor point="BOTTOMRIGHT" x="-32" y="0" />
+          <Anchor point="TOPLEFT" x="16" y="-24" />
+          <Anchor point="BOTTOMRIGHT" x="-24" y="0" />
         </Anchors>
       </Frame>
+      <EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
+          <KeyValues>
+              <KeyValue key="hideIfUnscrollable" value="true" type="boolean" />
+          </KeyValues>
+          <Anchors>
+              <Anchor relativeKey="$parent.EditScroll" point="TOPLEFT" relativePoint="TOPRIGHT" x="2" />
+              <Anchor relativeKey="$parent.EditScroll" point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="2" />
+          </Anchors>
+      </EventFrame>
     </Frames>
   </Frame>
 

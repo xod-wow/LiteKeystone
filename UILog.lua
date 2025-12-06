@@ -40,3 +40,7 @@ end
 function LiteKeystoneLogInfoMixin:OnHide()
     LiteKeystone:UnregisterCallback(self)
 end
+
+function LiteKeystoneLogInfoMixin:OnLoad()
+    ScrollUtil.RegisterScrollBoxWithScrollBar(self.EditScroll.ScrollBox, self.ScrollBar)
+end
