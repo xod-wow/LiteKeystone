@@ -92,6 +92,16 @@
             if key then
                 GameTooltip:SetOwner(self, "ANCHOR_TOP")
                 GameTooltip:SetHyperlink(LiteKeystone:GetKeystoneLink(key))
+                local units = { 'player', 'party1', 'party2', 'party3', 'party4' }
+                GameTooltip_AddBlankLineToTooltip(GameTooltip)
+                GameTooltip_AddHighlightLine(GameTooltip, "LiteKeystone")
+                for _, unit in ipairs(units) do
+                    local name = UnitName(unit)
+                    local runInfo = LiteKeystone:GetUnitSummaryForMap(unit, key.mapID)
+                    if name and runInfo then
+                        GameTooltip:AddDoubleLine(name, runInfo.bestRunString)
+                    end
+                end
                 GameTooltip:Show()
             end
           </OnEnter>

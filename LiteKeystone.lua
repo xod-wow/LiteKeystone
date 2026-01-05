@@ -1178,6 +1178,23 @@ function LiteKeystone:GetResilienceLevel()
     end
 end
 
+function LiteKeystone:GetLevelString(mapID, level, duration)
+    local _, _, mapTimer = C_ChallengeMode.GetMapUIInfo(mapID)
+    -- Challenger's Peril adds 90s to timer
+    local extraTime = level >= 12 and 90 or 0
+    local stars
+    if duration < mapTimer * 0.6 + extraTime then
+        stars = '+++'
+    elseif duration < mapTimer * 0.8 + extraTime then
+        stars = '++'
+    elseif duration < mapTimer + extraTime then
+        stars = '+'
+    else
+        stars= ''
+    end
+    return format('%s%d', stars, level)
+end
+
 function LiteKeystone:SortedDungeons()
     local output = { }
 
@@ -1194,17 +1211,7 @@ function LiteKeystone:SortedDungeons()
             local extraTime = info.level >= 12 and 90 or 0
             outputRow.mapTimer = mapTimer + extraTime
             outputRow.overallScore = info.dungeonScore
-            local stars
-            if info.durationSec < mapTimer * 0.6 + extraTime then
-                stars = '+++'
-            elseif info.durationSec < mapTimer * 0.8 + extraTime then
-                stars = '++'
-            elseif info.durationSec < mapTimer + extraTime then
-                stars = '+'
-            else
-                stars= ''
-            end
-            outputRow.level = format('%s%d', stars, info.level)
+            outputRow.level = self:GetLevelString(mapID, info.level, info.durationSec)
             outputRow.durationSec = info.durationSec
         end
         table.insert(output, outputRow)
@@ -1219,6 +1226,16 @@ function LiteKeystone:SortedDungeons()
             end
         end)
     return output
+end
+
+function LiteKeystone:GetUnitSummaryForMap(unit, mapID)
+    local summary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(unit)
+    for _, runInfo in ipairs(summary and summary.runs or {}) do
+        if runInfo.challengeModeID == mapID then
+            runInfo.bestRunString = self:GetLevelString(mapID, runInfo.bestRunLevel, runInfo.bestRunDurationMS/1000)
+            return runInfo
+        end
+    end
 end
 
 LiteKeystone_AddonCompartmentFunc = function () LiteKeystoneInfo:Show() end
