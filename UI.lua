@@ -185,21 +185,33 @@ function LiteKeystoneInfoMixin:OnLoad()
     end
 end
 
+local UpdateEvents = {
+    "CHALLENGE_MODE_COMPLETED",
+    "CHALLENGE_MODE_LEADERS_UPDATE",
+    "CHALLENGE_MODE_MAPS_UPDATE",
+    "CHALLENGE_MODE_MEMBER_INFO_UPDATED",
+    "WEEKLY_REWARDS_UPDATE",
+}
+
 function LiteKeystoneInfoMixin:OnShow()
     self:UpdateScale()
-    self:RegisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
-    self:RegisterEvent("WEEKLY_REWARDS_UPDATE")
-    C_MythicPlus.RequestMapInfo()
-    C_MythicPlus.RequestCurrentAffixes()
-    C_WeeklyRewards.OnUIInteract()
+
+    FrameUtil.RegisterFrameForEvents(self, UpdateEvents)
+
+    -- This is what ChallengesFrame does in OnShow to update the info
+    C_MythicPlus.RequestCurrentAffixes();
+    C_MythicPlus.RequestMapInfo();
+    for _, mapID in ipairs(C_ChallengeMode.GetMapTable()) do
+        C_ChallengeMode.RequestLeaders(mapID)
+    end
+
     LiteKeystone:RequestData()
     LiteKeystone:UpdateKeyRatings()
     self:Update()
 end
 
 function LiteKeystoneInfoMixin:OnHide()
-    self:UnregisterEvent("CHALLENGE_MODE_MAPS_UPDATE")
-    self:UnregisterEvent("WEEKLY_REWARDS_UPDATE")
+    FrameUtil.UnregisterFrameForEvents(self, UpdateEvents)
 end
 
 local RunColors = {
