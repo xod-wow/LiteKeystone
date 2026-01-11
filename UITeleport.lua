@@ -379,7 +379,7 @@ local teleports = {
         mapID = 1162,
         name = "Siege of Boralus",
         parentMapID = 895,
-        spellID = { 464256, },
+        spellID = { 445418, 464256, },
     },
     {
         challengeModeID = { 247 },
@@ -388,7 +388,7 @@ local teleports = {
         mapID = 1010,
         name = "The MOTHERLODE!!",
         parentMapID = 194,
-        spellID = { 467555, },
+        spellID = { 467553, 467555, },
     },
     {
         challengeModeID = { 377 },
