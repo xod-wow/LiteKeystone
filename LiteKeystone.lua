@@ -459,16 +459,6 @@ function LiteKeystone:ScanAndPushKeys(reason)
     self:Debug("> GetActiveChallengeMapID: %s", tostring(C_ChallengeMode.GetActiveChallengeMapID()))
     self:Debug("> HasSlottedKeystone: %s", tostring(C_ChallengeMode.HasSlottedKeystone()))
     self:Debug("> IsChallengeModeActive: %s", tostring(C_ChallengeMode.IsChallengeModeActive()))
-    do
-        local id, _, level = C_ChallengeMode.GetSlottedKeystoneInfo()
-        self:Debug("> GetSlottedKeystoneInfo: id=%s, level=%s", tostring(id), tostring(level))
-    end
-    do
-        local id, level, time, onTime, plusLevels = C_ChallengeMode.GetCompletionInfo()
-        self:Debug("> GetCompletionInfo: id=%s level=%s time=%s onTime=%s plusLevels=%s",
-            tostring(id), tostring(level), tostring(time), tostring(onTime), tostring(plusLevels))
-    end
-
     for bag = 0, 4 do
         for slot = 1, C_Container.GetContainerNumSlots(bag) do
             local item = Item:CreateFromBagAndSlot(bag, slot)
