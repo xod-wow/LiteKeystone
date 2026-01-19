@@ -127,7 +127,7 @@ local teleports = {
         mapID = 601,
         name = "Skyreach",
         parentMapID = 542,
-        spellID = { 159898, },
+        spellID = { 1254557, 159898 }
     },
     {
         challengeModeID = { 164 },
@@ -531,14 +531,6 @@ local teleports = {
         spellID = { 1254400 }
     },
     {
-        challengeModeID = { 402 },
-        continentMapID = 1978,
-        mapID = 2097,
-        name = "Algeth'ar Academy",
-        parentMapID = 2025,
-        spellID = { 393273 }
-    },
-    {
         challengeModeID = { 556 },
         continentMapID = 113,
         mapID = 184,
@@ -553,14 +545,6 @@ local teleports = {
         name = "Seat of the Triumvirate",
         parentMapID = 882,
         spellID = { 1254551 }
-    },
-    {
-        challengeModeID = { 161 },
-        continentMapID = 572,
-        mapID = 601,
-        name = "Skyreach",
-        parentMapID = 542,
-        spellID = { 1254557, 159898 }
     },
 }
 
