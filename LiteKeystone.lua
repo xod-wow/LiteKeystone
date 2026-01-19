@@ -1228,4 +1228,95 @@ function LiteKeystone:GetUnitSummaryForMap(unit, mapID)
     end
 end
 
+function LiteKeystone:TeleportData()
+    local ChallengeModeMaps = {}
+    for id = 1, 10000 do
+        local name = C_ChallengeMode.GetMapUIInfo(id)
+        if name then
+            ChallengeModeMaps[name] = id
+        end
+    end
+
+    local TeleportSpells = {}
+    for i = 1, GetNumFlyouts() do
+        local id = GetFlyoutID(i)
+        local numSlots = select(3, GetFlyoutInfo(id))
+        for slotIndex = 1, numSlots do
+            local spellID = GetFlyoutSlotInfo(id, slotIndex)
+            local spellDescription = C_Spell.GetSpellDescription(spellID)
+            if spellDescription and spellDescription:find('Teleport to', nil, true) then
+                TeleportSpells[spellID] = spellDescription
+            end
+        end
+    end
+
+    local function GetTeleportSpells(name)
+        local out = { }
+        for id, desc in pairs(TeleportSpells) do
+            if desc:find(name, nil, true) then
+                table.insert(out, id)
+            end
+        end
+        return out
+    end
+
+    local function GetMapContinent(mapID)
+        while true do
+            local info = C_Map.GetMapInfo(mapID)
+            if not info then
+                return
+            elseif info.mapType == Enum.UIMapType.Continent then
+                return mapID, info.name
+            elseif mapID == info.parentMapID then
+                return
+            else
+                mapID = info.parentMapID
+            end
+        end
+    end
+
+    local out = {}
+
+    for tierIndex = 1, EJ_GetNumTiers()-1 do
+        EJ_SelectTier(tierIndex)
+        local dungeonIndex = 1
+        while true do
+            local instanceID, name, description = EJ_GetInstanceByIndex(dungeonIndex, false)
+            if not instanceID then break end
+
+            if ChallengeModeMaps[name] then
+                -- With luck EJ_SelectInstance has filled in the mapID return
+                EJ_SelectInstance(instanceID, false)
+                local mapID = select(8, EJ_GetInstanceByIndex(dungeonIndex, false))
+                local mapInfo = C_Map.GetMapInfo(mapID)
+
+                table.insert(out,
+                    {
+                        mapID = mapID,
+                        parentMapID = ( mapInfo and mapInfo.parentMapID or 0 ),
+                        continentMapID = GetMapContinent(mapID),
+                        name = name,
+                        spellID = GetTeleportSpells(name),
+                        challengeModeID = { ChallengeModeMaps[name] },
+                        tier = tierIndex
+                    })
+
+            end
+
+            dungeonIndex = dungeonIndex + 1
+        end
+    end
+
+    table.sort(out,
+        function (a, b)
+            if a.tier == b.tier then
+                return a.name < b.name
+            else
+                return a.tier < b.tier
+            end
+        end)
+
+    _LiteLite:TableInspect(out)
+end
+
 LiteKeystone_AddonCompartmentFunc = function () LiteKeystoneInfo:Show() end
