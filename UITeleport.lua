@@ -498,6 +498,70 @@ local teleports = {
         parentMapID = 2371,
         spellID = { 1237215, },
     },
+    {
+        challengeModeID = { 558 },
+        continentMapID = 2537,
+        mapID = 2511,
+        name = "Magisters' Terrace",
+        parentMapID = 2424,
+        spellID = { 1254572 }
+    },
+    {
+        challengeModeID = { 560 },
+        continentMapID = 2537,
+        mapID = 2501,
+        name = "Maisara Caverns",
+        parentMapID = 2437,
+        spellID = { 1254559 }
+    },
+    {
+        challengeModeID = { 559 },
+        continentMapID = 2537,
+        mapID = 2556,
+        name = "Nexus-Point Xenas",
+        parentMapID = 2405,
+        spellID = { 1254563 },
+    },
+    {
+        challengeModeID = { 557 },
+        continentMapID = 2537,
+        mapID = 2494,
+        name = "Windrunner Spire",
+        parentMapID = 2395,
+        spellID = { 1254400 }
+    },
+    {
+        challengeModeID = { 402 },
+        continentMapID = 1978,
+        mapID = 2097,
+        name = "Algeth'ar Academy",
+        parentMapID = 2025,
+        spellID = { 393273 }
+    },
+    {
+        challengeModeID = { 556 },
+        continentMapID = 113,
+        mapID = 184,
+        name = "Pit of Saron",
+        parentMapID = 118,
+        spellID = { 1254555 }
+    },
+    {
+        challengeModeID = { 239 },
+        continentMapID = 905,
+        mapID = 903,
+        name = "Seat of the Triumvirate",
+        parentMapID = 882,
+        spellID = { 1254551 }
+    },
+    {
+        challengeModeID = { 161 },
+        continentMapID = 572,
+        mapID = 601,
+        name = "Skyreach",
+        parentMapID = 542,
+        spellID = { 1254557, 159898 }
+    },
 }
 
 -- Fill names in local language
