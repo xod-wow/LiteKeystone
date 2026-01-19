@@ -72,8 +72,7 @@ function LiteKeystoneDungeonButtonMixin:Initialize(dungeon)
         self.KeyTimerDiff:SetText(nil)
     end
     self.MapTimer:SetText(DurationFormatter:Format(dungeon.mapTimer))
-    local _, isKnown = self.Icon:SetByID(dungeon.mapID)
-    self.Icon:SetShown(isKnown)
+    self.Icon:SetByID(dungeon.mapID)
 end
 
 LiteKeystoneDungeonInfoMixin = {}
