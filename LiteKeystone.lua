@@ -1026,7 +1026,7 @@ function LiteKeystone:BN_CHAT_MSG_ADDON(prefix, text, chatType, gameAccountID)
 end
 
 function LiteKeystone:CHAT_MSG_PARTY(text)
-    if text == '!keys' then
+    if not issecretvalue(text) and text == '!keys' then
         local key = self:MyKey()
         if key then
             SendChatMessage(key.link, 'PARTY', nil)
