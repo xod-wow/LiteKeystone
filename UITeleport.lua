@@ -623,12 +623,8 @@ end
 
 function LiteKeystoneTeleportIconMixin:UpdateCooldown()
     if self.spellID then
-        local info = C_Spell.GetSpellCooldown(self.spellID)
-        if info then
-            CooldownFrame_Set(self.cooldown, info.startTime, info.duration, info.isEnabled, false, info.modRate)
-        else
-            self.cooldown:Hide();
-        end
+        local duration = C_Spell.GetSpellCooldownDuration(self.spellID)
+        self.cooldown:SetCooldownFromDurationObject(duration, true)
     end
 end
 
