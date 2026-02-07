@@ -513,7 +513,7 @@
         </Anchors>
         <Layers>
           <Layer level="ARTWORK">
-            <FontString inherits="GameFontHighlight" text="Show all">
+            <FontString parentKey="Text" inherits="GameFontHighlight" text="Show all">
               <Anchors>
                 <Anchor point="RIGHT" relativePoint="LEFT" x="-4" />
               </Anchors>
@@ -521,6 +521,12 @@
           </Layer>
         </Layers>
       </CheckButton>
+      <EditBox autofocus="false" inherits="SearchBoxTemplate" parentKey="Search" letters="40">
+        <Size x="145" y="20" />
+        <Anchors>
+          <Anchor point="RIGHT" relativeKey="$parent.ShowAll.Text" relativePoint="LEFT" x="-6" />
+        </Anchors>
+      </EditBox>
     </Frames>
   </Frame>
 

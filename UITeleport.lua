@@ -674,13 +674,38 @@ end
 
 LiteKeystoneTeleportInfoMixin = {}
 
+function LiteKeystoneTeleportInfoMixin:ShouldShowTeleport(t)
+    if not t.isKnown and not self.ShowAll:GetChecked() then
+        return false
+    end
+
+    local text = self.Search:GetText()
+    -- local spellName = C_Spell.GetSpellName(t.bestSpellID)
+    if text and text ~= "" then
+        text = text:lower()
+        if t.continentMapName:lower():find(text, nil, true) then
+            return true
+        elseif t.mapName:lower():find(text, nil, true) then
+            return true
+        elseif t.parentMapName:lower():find(text, nil, true) then
+            return true
+        -- elseif spellName and spellName:lower():find(text, nil, true) then
+        --     return true
+        else
+            return false
+        end
+    end
+
+    return true
+end
+
 function LiteKeystoneTeleportInfoMixin:Update()
     local sortedTeleports = GetSortedTeleports()
     local dp = CreateTreeDataProvider()
     local subTrees = {}
     for _, t in ipairs(sortedTeleports) do
         t.bestSpellID, t.isKnown = FindBestSpell(t)
-        if t.isKnown or self.ShowAll:GetChecked() then
+        if self:ShouldShowTeleport(t) then
             if not subTrees[t.continentMapName] then
                 local data = {
                     isCategory = true,
@@ -719,6 +744,11 @@ function LiteKeystoneTeleportInfoMixin:OnLoad()
             button.Stripe:SetShown(isAlternate)
         end)
     self.ShowAll:SetScript('OnClick', function () self:Update() end)
+    self.Search:SetScript('OnTextChanged',
+        function ()
+            SearchBoxTemplate_OnTextChanged(self.Search)
+            self:Update()
+        end)
 end
 
 function LiteKeystoneTeleportInfoMixin:OnShow()
