@@ -133,7 +133,7 @@ function LiteKeystoneInfoMixin:GetAffixFrame(i)
     return frame
 end
 
-local AffixKeyLevel = { [1] = 4, [2] = 7, [3] = 10, [4] = 12 }
+local AffixKeyLevel = { 2, 5, 7, 10, 12 }
 
 function LiteKeystoneInfoMixin:UpdateAffixes()
     -- see ChallengesFrameWeeklyInfoMixin:SetUp
