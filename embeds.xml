@@ -2,4 +2,6 @@
     <Include file="Libs\LibStub\LibStub.lua" />
     <Include file="Libs\LibDeflate\LibDeflate.lua" />
     <Include file="Libs\LibOpenRaid-1.0\lib.xml" />
+    <Include file="Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml" />
+    <Include file="Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua" />
 </Ui>
