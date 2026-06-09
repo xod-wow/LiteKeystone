@@ -327,6 +327,8 @@ function LiteKeystone:Initialize()
     self:RegisterEvent('CHAT_MSG_PARTY')
     self:RegisterEvent('CHAT_MSG_PARTY_LEADER')
     self:RegisterEvent('CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN')
+    self:RegisterEvent('LFG_LIST_JOINED_GROUP')
+    self:RegisterEvent('GROUP_LEFT')
 
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
@@ -1189,12 +1191,13 @@ function LiteKeystone:SortedDungeons()
     local output = { }
 
     for _, mapID in pairs(C_ChallengeMode.GetMapTable()) do
-        local mapName, _, mapTimer = C_ChallengeMode.GetMapUIInfo(mapID)
+        local mapName, _, mapTimer, _, _, activityMap = C_ChallengeMode.GetMapUIInfo(mapID)
         local info = GetSeasonBestForMap(mapID)
         local outputRow = {
             mapID = mapID,
             mapName = mapName,
-            mapTimer = mapTimer
+            mapTimer = mapTimer,
+            isActiveLFG = (activityMap == self.currentActivityMap),
         }
         if info then
             -- Challenger's Peril adds 90s to timer (not scaled for + rating)
@@ -1317,6 +1320,21 @@ function LiteKeystone:TeleportData()
         end)
 
     _LiteLite:TableInspect(out)
+end
+
+function LiteKeystone:LFG_LIST_JOINED_GROUP(resultID, _kstringGroupName)
+    local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
+    local activityID = searchResultInfo.activityIDs[1]
+    local isWarMode = searchResultInfo.isWarMode
+    local activityInfo = C_LFGList.GetActivityInfoTable(activityID, nil, isWarMode)
+
+    if activityInfo.isMythicPlusActivity then
+        self.currentActivityMap = activityInfo.mapID
+    end
+end
+
+function LiteKeystone:GROUP_LEFT()
+    self.currentActivityMap = nil
 end
 
 LiteKeystone_AddonCompartmentFunc = function () LiteKeystoneInfo:Show() end

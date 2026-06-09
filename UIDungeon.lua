@@ -53,7 +53,11 @@ DurationFormatter:SetStripIntervalWhitespace(true)
 function LiteKeystoneDungeonButtonMixin:Initialize(dungeon)
     self.dungeon = dungeon
 
-    self.Map:SetText(dungeon.mapName)
+    if dungeon.isActiveLFG then
+        self.Map:SetText("> " .. dungeon.mapName .. " <")
+    else
+        self.Map:SetText(dungeon.mapName)
+    end
     self.OverallScore:SetText(dungeon.overallScore)
     self.KeyLevel:SetText(dungeon.level)
     if dungeon.durationSec then
