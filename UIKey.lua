@@ -64,22 +64,6 @@ function LiteKeystoneKeyInfoMixin:OnLoad()
         end)
 end
 
-function LiteKeystoneKeyInfoMixin:OnShow()
-    self:RegisterEvent('GUILD_ROSTER_UPDATE')
-    self:RegisterEvent('GROUP_ROSTER_UPDATE')
-    self:RegisterEvent('RAID_ROSTER_UPDATE')
-    LiteKeystone:RegisterCallback(self, function () self:Update() end)
-end
-
-function LiteKeystoneKeyInfoMixin:OnHide()
-    self:UnregisterAllEvents()
-    LiteKeystone:UnregisterCallback(self)
-end
-
-function LiteKeystoneKeyInfoMixin:OnEvent(event, ...)
-    self:Update()
-end
-
 
 LiteKeystoneKeyHeaderButtonMixin = {}
 

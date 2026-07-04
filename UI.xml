@@ -202,10 +202,23 @@
       <OnEvent method="OnEvent" />
       <OnEnter method="OnEnter" />
       <OnLeave function="GameTooltip_Hide" />
+      <OnSizeChanged method="OnSizeChanged" />
     </Scripts>
     <Frames>
       <Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate" />
     </Frames>
+    <Layers>
+      <Layer level="OVERLAY">
+        <Texture parentKey="ProcLoopFlipbook" atlas="UI-HUD-ActionBar-Proc-Loop-Flipbook" hidden="true">
+          <Anchors> <Anchor point="CENTER" /> </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+    <Animations>
+      <AnimationGroup parentKey="ProcLoop" looping="REPEAT">
+        <FlipBook parentKey="FlipAnim" childKey="ProcLoopFlipbook" duration="1" order="0" flipBookRows="6" flipBookColumns="5" flipBookFrames="30" flipBookFrameWidth="0" flipBookFrameHeight="0" />
+      </AnimationGroup>
+    </Animations>
   </Button>
 
   <Button name="LiteKeystoneTeleportButtonTemplate" mixin="LiteKeystoneTeleportButtonMixin" inherits="LiteKeystoneStripeButtonTemplate" virtual="true">
@@ -488,7 +501,6 @@
   <Frame name="LiteKeystoneTeleportInfoTemplate" virtual="true" mixin="LiteKeystoneTeleportInfoMixin" hidden="true">
     <Scripts>
       <OnLoad method="OnLoad" />
-      <OnShow method="OnShow" />
     </Scripts>
     <Frames>
       <ScrollFrame parentKey="ScrollBox" inherits="WoWScrollBoxList">
@@ -533,7 +545,6 @@
   <Frame name="LiteKeystoneDungeonInfoTemplate" virtual="true" mixin="LiteKeystoneDungeonInfoMixin" hidden="true">
     <Scripts>
       <OnLoad method="OnLoad" />
-      <OnShow method="OnShow" />
     </Scripts>
     <Frames>
       <Frame parentKey="Header" inherits="LiteKeystoneDungeonHeaderTemplate">
@@ -562,10 +573,7 @@
 
   <Frame name="LiteKeystoneKeyInfoTemplate" virtual="true" mixin="LiteKeystoneKeyInfoMixin" hidden="true">
     <Scripts>
-      <OnLoad method="OnLoad" />
-      <OnShow method="OnShow" />
-      <OnHide method="OnHide" />
-      <OnEvent method="OnEvent" />
+        <OnLoad method="OnLoad" />
     </Scripts>
     <Frames>
       <Frame parentKey="Header" inherits="LiteKeystoneKeyHeaderTemplate">
@@ -594,8 +602,6 @@
 
   <Frame name="LiteKeystoneLogInfoTemplate" virtual="true" mixin="LiteKeystoneLogInfoMixin" hidden="true">
     <Scripts>
-      <OnShow method="OnShow" inherit="append" />
-      <OnHide method="OnHide" inherit="append" />
       <OnLoad method="OnLoad" inherit="append" />
     </Scripts>
     <Frames>

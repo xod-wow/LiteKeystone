@@ -1330,11 +1330,13 @@ function LiteKeystone:LFG_LIST_JOINED_GROUP(resultID, _kstringGroupName)
 
     if activityInfo.isMythicPlusActivity then
         self.currentActivityMap = activityInfo.mapID
+        self:Fire()
     end
 end
 
 function LiteKeystone:GROUP_LEFT()
     self.currentActivityMap = nil
+    self:Fire()
 end
 
 LiteKeystone_AddonCompartmentFunc = function () LiteKeystoneInfo:Show() end

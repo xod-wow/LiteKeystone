@@ -55,8 +55,10 @@ function LiteKeystoneDungeonButtonMixin:Initialize(dungeon)
 
     if dungeon.isActiveLFG then
         self.Map:SetText("> " .. dungeon.mapName .. " <")
+        self.Icon:StartAnim()
     else
         self.Map:SetText(dungeon.mapName)
+        self.Icon:StopAnim()
     end
     self.OverallScore:SetText(dungeon.overallScore)
     self.KeyLevel:SetText(dungeon.level)
@@ -98,8 +100,4 @@ function LiteKeystoneDungeonInfoMixin:OnLoad()
         function (button, isAlternate)
             button.Stripe:SetShown(isAlternate)
         end)
-end
-
-function LiteKeystoneDungeonInfoMixin:OnShow()
-    self:Update()
 end

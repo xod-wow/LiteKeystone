@@ -191,6 +191,9 @@ local UpdateEvents = {
     "CHALLENGE_MODE_MAPS_UPDATE",
     "CHALLENGE_MODE_MEMBER_INFO_UPDATED",
     "WEEKLY_REWARDS_UPDATE",
+    "GUILD_ROSTER_UPDATE",
+    "GROUP_ROSTER_UPDATE",
+    "RAID_ROSTER_UPDATE",
 }
 
 function LiteKeystoneInfoMixin:OnShow()
@@ -207,11 +210,15 @@ function LiteKeystoneInfoMixin:OnShow()
 
     LiteKeystone:RequestData()
     LiteKeystone:UpdateKeyRatings()
+
+    LiteKeystone:RegisterCallback(self, self.Update)
+
     self:Update()
 end
 
 function LiteKeystoneInfoMixin:OnHide()
     FrameUtil.UnregisterFrameForEvents(self, UpdateEvents)
+    LiteKeystone:UnregisterCallback(self)
 end
 
 local RunColors = {

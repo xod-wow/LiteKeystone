@@ -32,15 +32,6 @@ function LiteKeystoneLogInfoMixin:Update()
     end
 end
 
-function LiteKeystoneLogInfoMixin:OnShow()
-    self:Update()
-    LiteKeystone:RegisterCallback(self, function () self:Update() end)
-end
-
-function LiteKeystoneLogInfoMixin:OnHide()
-    LiteKeystone:UnregisterCallback(self)
-end
-
 function LiteKeystoneLogInfoMixin:OnLoad()
     ScrollUtil.RegisterScrollBoxWithScrollBar(self.EditScroll.ScrollBox, self.ScrollBar)
 end

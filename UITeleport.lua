@@ -601,12 +601,17 @@ function LiteKeystoneTeleportIconMixin:OnLoad()
     self.cooldown:SetCountdownFont("GameFontHighlightSmall")
 end
 
+function LiteKeystoneTeleportIconMixin:OnSizeChanged(w, h)
+    self.ProcLoopFlipbook:SetSize(w*1.4, h*1.4)
+end
+
 function LiteKeystoneTeleportIconMixin:OnShow()
     self:RegisterUnitEvent('UNIT_SPELLCAST_SUCCEEDED', 'player')
 end
 
 function LiteKeystoneTeleportIconMixin:OnHide()
     self:UnregisterEvent('UNIT_SPELLCAST_SUCCEEDED')
+    self:StopAnim()
 end
 
 function LiteKeystoneTeleportIconMixin:OnEvent()
@@ -618,6 +623,18 @@ function LiteKeystoneTeleportIconMixin:OnEnter()
       GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
       GameTooltip:SetSpellByID(self.spellID)
       GameTooltip:Show()
+    end
+end
+
+function LiteKeystoneTeleportIconMixin:StartAnim()
+    self.ProcLoopFlipbook:Show()
+    self.ProcLoop:Play()
+end
+
+function LiteKeystoneTeleportIconMixin:StopAnim()
+    if self.ProcLoop:IsPlaying() then
+        self.ProcLoop:Stop()
+        self.ProcLoopFlipbook:Hide()
     end
 end
 
@@ -749,8 +766,4 @@ function LiteKeystoneTeleportInfoMixin:OnLoad()
             SearchBoxTemplate_OnTextChanged(self.Search)
             self:Update()
         end)
-end
-
-function LiteKeystoneTeleportInfoMixin:OnShow()
-    self:Update()
 end
