@@ -6,12 +6,13 @@ exclude_files = {
 -- https://luacheck.readthedocs.io/en/stable/warnings.html
 
 ignore = {
-    "11./BINDING_.*", -- Setting an undefined (Keybinding) global variable
-    "212", -- Unused argument
---  "213", -- Unused loop variable
-    "432/self", -- Shadowing a local variable
---  "542", -- empty if branch
-    "631", -- line too long
+    "11./BINDING_.*",   -- Setting an undefined (Keybinding) global variable
+    '211/_.*',          -- Unused local variable
+    '212/self',         -- Unused argument
+    '212/_.*',          -- Unused argument
+    '213/_.*',          -- Unused loop variable
+    "432/self",         -- Shadowing a local variable
+    "631",              -- line too long
 }
 
 globals = {
@@ -34,6 +35,8 @@ globals = {
 }
 
 read_globals = {
+    "_LiteLite",
+    "Ambiguate",
     "BetterDate",
     "BLUE_FONT_COLOR",
     "BNET_CLIENT_WOW",
@@ -46,8 +49,11 @@ read_globals = {
     "C_Container",
     "C_FriendList",
     "C_Item",
+    "C_LFGList",
+    "C_LFGList",
     "C_Map",
     "C_MythicPlus",
+    "C_PlayerInfo",
     "C_Spell",
     "C_Timer",
     "C_WeeklyRewards",
@@ -62,12 +68,18 @@ read_globals = {
     "CreateScrollBoxListLinearView",
     "CreateScrollBoxListTreeListView",
     "CreateTreeDataProvider",
+    "EJ_GetInstanceByIndex",
+    "EJ_GetInstanceByIndex",
+    "EJ_GetNumTiers",
+    "EJ_SelectInstance",
+    "EJ_SelectTier",
     "Enum",
     "EPIC_PURPLE_COLOR",
     "EventUtil",
     "FindValueInTableIf",
     "FONT_COLOR_CODE_CLOSE",
     "format",
+    "FrameUtil",
     "GameTooltip_Hide",
     "GameTooltip",
     "GENERIC_FRACTION_STRING",
@@ -98,6 +110,7 @@ read_globals = {
     "IsInRaid",
     "IsModifiedClick",
     "IsPlayerSpell",
+    "issecretvalue",
     "Item",
     "LE_PARTY_CATEGORY_HOME",
     "LibStub",
@@ -116,6 +129,7 @@ read_globals = {
     "RESILIENT_KEY_LEVEL",
     "ScrollBoxConstants",
     "ScrollUtil",
+    "SearchBoxTemplate_OnTextChanged",
     "SecondsFormatter",
     "SecondsFormatterMixin",
     "SELECTED_CHAT_FRAME",

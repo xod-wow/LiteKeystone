@@ -314,6 +314,7 @@ function LiteKeystone:Initialize()
     EventUtil.ContinueOnAddOnLoaded('RaiderIO', function () self:UpdateKeyRatings() end)
 
     C_ChatInfo.RegisterAddonMessagePrefix('AstralKeys')
+    C_ChatInfo.RegisterAddonMessagePrefix('LibKS')
 
     self:RegisterEvent('CHAT_MSG_ADDON')
     self:RegisterEvent('BN_CHAT_MSG_ADDON')
@@ -472,7 +473,7 @@ function LiteKeystone:ScanAndPushKeys(reason)
     end
 end
 
-function LiteKeystone:GetKeyUpdateString(key, isGuild)
+function LiteKeystone:GetKeyUpdateString(key)
     -- UpdateV9 format, no faction included
     return format('%s:%s:%d:%d:%d:%d:%d',
                    key.playerName,
@@ -790,6 +791,27 @@ function LiteKeystone.UpdateOpenRaidKeys()
     end
 end
 
+function LiteKeystone:UpdateLibKeystoneKey(keyLevel, mapID, playerRating, playerName)
+    local newKey = {
+        itemID=180653,
+        playerName=playerName,
+        playerClass='WARRIOR',
+        playerFaction=self.playerFaction,
+        mapID=mapID,
+        mapName=C_ChallengeMode.GetMapUIInfo(mapID),
+        keyLevel=keyLevel,
+        weekBest=0,
+        rating=playerRating,
+        weekNum=WeekNum(),
+        weekTime=WeekTime(),
+        source=playerName,
+    }
+    newKey.link = self:GetKeystoneLink(newKey)
+    if self:IsGuildKey(newKey) then
+        self:ReceiveKey(newKey, 'LibKeystone', true)
+    end
+end
+
 function LiteKeystone:RequestKeysFromGuild()
     if IsInGuild() then
         C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'GUILD')
@@ -1014,16 +1036,24 @@ function LiteKeystone:PLAYER_LOGIN()
     self:Initialize()
 end
 
-function LiteKeystone:CHAT_MSG_ADDON(prefix, text, chatType, sender)
-    if prefix ~= 'AstralKeys' then return end
-    self:ProcessAddonMessage(text, sender)
+function LiteKeystone:CHAT_MSG_ADDON(prefix, text, _chatType, sender)
+    if prefix == 'AstralKeys' then
+        self:ProcessAddonMessage(text, sender)
+    elseif prefix == "LibKS" then
+        sender = Ambiguate(sender, "mail")
+        local keyLevel, mapID, rating = string.match(text, "^(%d+),(%d+),(%d+)$")
+        if keyLevel and mapID and rating then
+            self:UpdateLibKeystoneKey(keyLevel, mapID, rating, sender)
+        end
+    end
 end
 
-function LiteKeystone:BN_CHAT_MSG_ADDON(prefix, text, chatType, gameAccountID)
-    if prefix ~= 'AstralKeys' then return end
-    local gameAccountInfo = C_BattleNet.GetGameAccountInfoByID(gameAccountID)
-    if IsBNetWowAccount(gameAccountInfo) then
-        self:ProcessAddonMessage(text, gameAccountID)
+function LiteKeystone:BN_CHAT_MSG_ADDON(prefix, text, _chatType, gameAccountID)
+    if prefix == 'AstralKeys' then
+        local gameAccountInfo = C_BattleNet.GetGameAccountInfoByID(gameAccountID)
+        if IsBNetWowAccount(gameAccountInfo) then
+            self:ProcessAddonMessage(text, gameAccountID)
+        end
     end
 end
 
@@ -1077,7 +1107,7 @@ function LiteKeystone:CHALLENGE_MODE_COMPLETED()
     C_MythicPlus.RequestMapInfo()
 end
 
-function LiteKeystone:ITEM_PUSH(bag, iconID)
+function LiteKeystone:ITEM_PUSH(_bag, iconID)
     if iconID == 525134 or iconID == 531324 or iconID == 4352494 then
         self:DelayScan('ITEM_PUSH')
     end
@@ -1095,7 +1125,7 @@ end
 -- ProcessItem on an item created from toLink but item: style keystone
 -- links don't have any details in them.
 
-function LiteKeystone:ITEM_CHANGED(fromLink, toLink)
+function LiteKeystone:ITEM_CHANGED(_fromLink, toLink)
     local itemID = GetItemInfoFromHyperlink(toLink)
     if IsKeystoneItem(itemID) then
         self:DelayScan('ITEM_CHANGED')
@@ -1284,7 +1314,7 @@ function LiteKeystone:TeleportData()
         EJ_SelectTier(tierIndex)
         local dungeonIndex = 1
         while true do
-            local instanceID, name, description = EJ_GetInstanceByIndex(dungeonIndex, false)
+            local instanceID, name, _description = EJ_GetInstanceByIndex(dungeonIndex, false)
             if not instanceID then break end
 
             if ChallengeModeMaps[name] then

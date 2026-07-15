@@ -289,7 +289,7 @@ function LiteKeystoneInfoMixin:UpdateActivities()
     end
 end
 
-function LiteKeystoneInfoMixin:OnEvent(event, ...)
+function LiteKeystoneInfoMixin:OnEvent(event)
     if event == 'MYTHIC_PLUS_CURRENT_AFFIX_UPDATE' then
         self:UpdateAffixes()
     else

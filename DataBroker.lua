@@ -27,7 +27,6 @@ end
 local function OnTooltipShow(tooltip)
     local score = C_ChallengeMode.GetOverallDungeonScore()
     tooltip:AddDoubleLine("LiteKeystone", score, 1, 1, 1)
-    local dungeons = LiteKeystone:SortedDungeons()
     for _, dungeon in ipairs(LiteKeystone:SortedDungeons()) do
         tooltip:AddDoubleLine(dungeon.mapName, dungeon.level or "-")
     end

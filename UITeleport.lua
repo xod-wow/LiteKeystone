@@ -745,7 +745,7 @@ function LiteKeystoneTeleportInfoMixin:OnLoad()
             local data = node:GetData()
             if data.isCategory then
                 factory("LiteKeystoneTeleportCategoryTemplate",
-                    function (button, node) -- luacheck: ignore 432
+                    function (button)
                         button.Name:SetText(data.categoryName)
                     end)
             else
