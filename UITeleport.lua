@@ -634,8 +634,8 @@ end
 function LiteKeystoneTeleportIconMixin:StopAnim()
     if self.ProcLoop:IsPlaying() then
         self.ProcLoop:Stop()
-        self.ProcLoopFlipbook:Hide()
     end
+    self.ProcLoopFlipbook:Hide()
 end
 
 function LiteKeystoneTeleportIconMixin:UpdateCooldown()
