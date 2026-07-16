@@ -1041,8 +1041,9 @@ function LiteKeystone:CHAT_MSG_ADDON(prefix, text, _chatType, sender)
         self:ProcessAddonMessage(text, sender)
     elseif prefix == "LibKS" then
         sender = Ambiguate(sender, "mail")
-        local keyLevel, mapID, rating = string.match(text, "^(%d+),(%d+),(%d+)$")
+        local keyLevel, mapID, rating = text:match("^(%d+),(%d+),(%d+)$")
         if keyLevel and mapID and rating then
+            keyLevel, mapID, rating = tonumber(keyLevel), tonumber(mapID), tonumber(rating)
             self:UpdateLibKeystoneKey(keyLevel, mapID, rating, sender)
         end
     end
