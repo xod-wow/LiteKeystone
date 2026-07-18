@@ -17,5 +17,6 @@ externals:
   Libs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate.git
   Libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
   Libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1.git
+  Libs/LibKeystone: https://github.com/BigWigsMods/LibKeystone.git
 
 enable-nolib-creation: no

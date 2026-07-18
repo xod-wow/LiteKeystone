@@ -4,4 +4,5 @@
     <Include file="Libs\LibOpenRaid-1.0\lib.xml" />
     <Include file="Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml" />
     <Include file="Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua" />
+    <Include file="Libs\LibKeystone\LibKeystone\LibKeystone.lua" />
 </Ui>

@@ -55,8 +55,8 @@ local function GetWoWGameAccountID(bnFriendIndex)
     end
 end
 
-local lor = LibStub('LibOpenRaid-1.0', true)
-
+local LOR = LibStub('LibOpenRaid-1.0', true)
+local LKS = LibStub('LibKeystone', true)
 
 --[[------------------------------------------------------------------------]]--
 
@@ -132,6 +132,17 @@ function LiteKeystone:IsGroupKey(key)
     end
 end
 
+function LiteKeystone:GetGuildMemberClass(playerName)
+    if IsInGuild() then
+        for i = 1, GetNumGuildMembers() do
+            local name, _, _, _, _, _, _, _, _, _, class = GetGuildRosterInfo(i)
+            if playerName == name then
+                return class
+            end
+        end
+    end
+end
+
 function LiteKeystone:IsGuildKey(key, requireOnline)
     if not IsInGuild() then return false end
     for i = 1, GetNumGuildMembers() do
@@ -177,7 +188,7 @@ function LiteKeystone:IsNewPlayerData(existingKey, newKey)
 end
 
 function LiteKeystone:RequestData()
-    lor.RequestKeystoneDataFromGuild()
+    LOR.RequestKeystoneDataFromGuild()
     self:RequestKeysFromGuild()
     self:RequestKeysFromFriends()
 end
@@ -314,7 +325,12 @@ function LiteKeystone:Initialize()
     EventUtil.ContinueOnAddOnLoaded('RaiderIO', function () self:UpdateKeyRatings() end)
 
     C_ChatInfo.RegisterAddonMessagePrefix('AstralKeys')
-    C_ChatInfo.RegisterAddonMessagePrefix('LibKS')
+
+    LOR.RegisterCallback(self, 'KeystoneUpdate', 'UpdateOpenRaidKeys')
+    LOR.RequestKeystoneDataFromGuild()
+
+    LKS.Register(self, function (...) self:UpdateLibKeystoneKey(...) end)
+    LKS.Request('GUILD')
 
     self:RegisterEvent('CHAT_MSG_ADDON')
     self:RegisterEvent('BN_CHAT_MSG_ADDON')
@@ -333,9 +349,6 @@ function LiteKeystone:Initialize()
 
     C_MythicPlus.RequestMapInfo()
     C_MythicPlus.RequestCurrentAffixes()
-
-    lor.RegisterCallback(self, 'KeystoneUpdate', 'UpdateOpenRaidKeys')
-    lor.RequestKeystoneDataFromGuild()
 
     self:DelayScan('Initialize')
 
@@ -764,7 +777,7 @@ end
 function LiteKeystone.UpdateOpenRaidKeys()
     local self = LiteKeystone
 
-    for unitName, info in pairs(lor.GetAllKeystonesInfo()) do
+    for unitName, info in pairs(LOR.GetAllKeystonesInfo()) do
         if not unitName:find('-', nil, true) then
             unitName = unitName .. '-' .. self.playerRealm
         end
@@ -791,17 +804,25 @@ function LiteKeystone.UpdateOpenRaidKeys()
     end
 end
 
-function LiteKeystone:UpdateLibKeystoneKey(keyLevel, mapID, playerRating, playerName)
+function LiteKeystone:UpdateLibKeystoneKey(keyLevel, mapID, rating, playerName)
+    -- LibKeystone sends us an update with just the rating for 'player' if
+    -- we don't own a keystone, which seems pretty pointless but I guess is
+    -- needed for whatever BigWigs UI it is written specifically for.
+    if keyLevel == 0 then return end
+
+    playerName = Ambiguate(playerName, "mail")
+    local oldKey = self.db.playerKeys[playerName] or {}
+    local playerClass = oldKey.playerClass or self:GetGuildMemberClass(playerName) or 'ADVENTURER'
     local newKey = {
         itemID=180653,
         playerName=playerName,
-        playerClass='WARRIOR',
-        playerFaction=self.playerFaction,
+        playerClass=playerClass,
+        playerFaction=(oldKey.playerFraction or self.playerFaction),
         mapID=mapID,
         mapName=C_ChallengeMode.GetMapUIInfo(mapID),
         keyLevel=keyLevel,
-        weekBest=0,
-        rating=playerRating,
+        weekBest=(oldKey.weekBest or 0),
+        rating=rating,
         weekNum=WeekNum(),
         weekTime=WeekTime(),
         source=playerName,
@@ -815,6 +836,7 @@ end
 function LiteKeystone:RequestKeysFromGuild()
     if IsInGuild() then
         C_ChatInfo.SendAddonMessage('AstralKeys', 'request', 'GUILD')
+        LKS.Request('GUILD')
     end
 end
 
@@ -833,6 +855,10 @@ function LiteKeystone:RequestKeysFromFriends()
             C_ChatInfo.SendAddonMessage('AstralKeys', 'BNet_query ping', 'WHISPER', nil, info.name)
         end
     end
+end
+
+function LiteKeystone:RequestKeysFromParty()
+    LKS.Request('PARTY')
 end
 
 function LiteKeystone:GetAffixes()
@@ -1039,13 +1065,6 @@ end
 function LiteKeystone:CHAT_MSG_ADDON(prefix, text, _chatType, sender)
     if prefix == 'AstralKeys' then
         self:ProcessAddonMessage(text, sender)
-    elseif prefix == "LibKS" then
-        sender = Ambiguate(sender, "mail")
-        local keyLevel, mapID, rating = text:match("^(%d+),(%d+),(%d+)$")
-        if keyLevel and mapID and rating then
-            keyLevel, mapID, rating = tonumber(keyLevel), tonumber(mapID), tonumber(rating)
-            self:UpdateLibKeystoneKey(keyLevel, mapID, rating, sender)
-        end
     end
 end
 
