@@ -1371,7 +1371,7 @@ function LiteKeystone:TeleportData()
             end
         end)
 
-    _LiteLite:TableInspect(out)
+    return out
 end
 
 function LiteKeystone:LFG_LIST_JOINED_GROUP(resultID, _kstringGroupName)

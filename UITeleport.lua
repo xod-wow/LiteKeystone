@@ -28,6 +28,10 @@
 -- depending on faction and other stuff I don't know. Probably need to handle
 -- that.
 
+-- A best effort scan using the old dynamic data can be fetched for integration
+-- into here with LiteKeystone:TeleportData()
+--
+-- /ll tinspect LiteKeystone:TeleportData()
 
 local teleports = {
     {
@@ -545,6 +549,63 @@ local teleports = {
         name = "Seat of the Triumvirate",
         parentMapID = 882,
         spellID = { 1254551 }
+    },
+    {
+        challengeModeID = { 584 },
+        continentMapID = 2537,
+        mapID = 2500,
+        name = "The Blinding Vale",
+        parentMapID = 2413,
+        spellID = { 1286801 }
+    },
+    {
+        challengeModeID = { 585 },
+        continentMapID = 2537,
+        mapID = 2572,
+        name = "Voidscar Arena",
+        parentMapID = 2405,
+        spellID = { 1286804 }
+    },
+    {
+        challengeModeID = { 586 },
+        continentMapID = 2537,
+        mapID = 2514,
+        name = "Den of Nalorakk",
+        parentMapID = 2437,
+        spellID = { 1286807 }
+    },
+    {
+        challengeModeID = { 587 },
+        continentMapID = 2537,
+        mapID = 2433,
+        name = "Murder Row",
+        parentMapID = 2393,
+        spellID = { 1286809 }
+    },
+    {
+        challengeModeID = { 588 },
+        continentMapID = 2537,
+        mapID = 2588,
+        name = "Altar of Fangs",
+        -- parentMapID = 2509, -- Vaults of Ultatek (2512 is coiled isle)
+        parentMapID = 2512,
+        spellID = { 1286812 }
+    },
+    {
+        challengeModeID = { 250 },
+        continentMapID = 875,
+        mapID = 1038,
+        name = "Temple of Sethraliss",
+        parentMapID = 864,
+        spellID = { 1286828 }
+    },
+    {
+        challengeModeID = { 249 },
+        continentMapID = 875,
+        mapID = 1004,
+        name = "Kings' Rest",
+        parentMapID = 862,
+        spellID = { 1286831 }
     },
 }
 
