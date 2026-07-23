@@ -21,6 +21,8 @@ local addonName = ...
 
 local printTag = ORANGE_FONT_COLOR_CODE.."LiteKeystone: "..FONT_COLOR_CODE_CLOSE
 
+local BetterDate = TimeUtil and TimeUtil.BetterDate or BetterDate
+
 local function printf(fmt, ...)
     local msg = string.format(fmt, ...)
     SELECTED_CHAT_FRAME:AddMessage(printTag .. msg)
