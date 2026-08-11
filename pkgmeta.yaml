@@ -9,6 +9,9 @@ ignore:
   - Libs/LibDeflate/*.toc
   - Libs/LibDeflate/*.md
   - Libs/LibStub/tests
+  - Libs/LibKeystone/.*
+  - Libs/LibKeystone/*.toc
+  - Libs/LibKeystone/LibStub
 
 externals:
   Libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
