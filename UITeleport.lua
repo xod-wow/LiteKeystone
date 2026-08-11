@@ -635,7 +635,7 @@ local function TeleportExists(t)
 end
 
 local function GetSortedTeleports()
-    local out = tFilter(GetValuesArray(teleports), TeleportExists)
+    local out = tFilter(GetValuesArray(teleports), TeleportExists, true)
 
     table.sort(out,
         function (a, b)
