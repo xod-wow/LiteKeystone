@@ -63,11 +63,17 @@ local LKS = LibStub('LibKeystone', true)
 --[[------------------------------------------------------------------------]]--
 
 LiteKeystone = CreateFrame('Frame')
+
+LiteKeystone.callbacks = {}
+LiteKeystone.messageLog = {}
+
 LiteKeystone:SetScript('OnEvent',
         function (self, e, ...)
             if self[e] then self[e](self, ...) end
         end)
 LiteKeystone:RegisterEvent('PLAYER_LOGIN')
+
+
 local regionStartTimes = {
     [ 1] = 1500390000,  -- US
     [ 2] = 0,           -- KR
@@ -300,14 +306,10 @@ end
 
 function LiteKeystone:Initialize()
 
-    self.callbacks = {}
-
     LiteKeystoneDB = LiteKeystoneDB or {}
     self.db = LiteKeystoneDB
     self.db.playerKeys = self.db.playerKeys or {}
     self.db.uiScale = self.db.uiScale or 1.0
-
-    self.messageLog = {}
 
     SlashCmdList.LiteKeystone = function (...) self:SlashCommand(...) end
     _G.SLASH_LiteKeystone1 = "/litekeystone"
