@@ -814,14 +814,18 @@ function LiteKeystone:UpdateLibKeystoneKey(keyLevel, mapID, rating, playerName)
     -- needed for whatever BigWigs UI it is written specifically for.
     if keyLevel == 0 then return end
 
-    playerName = Ambiguate(playerName, "mail")
+    if playerName:find('-', nil, true) == nil then
+        playerName = string.format('%s-%s', playerName, self.playerRealm)
+    end
+
+    self:Debug('DATA LibKeystone %s: %d %d %d', playerName, keyLevel, mapID, rating)
     local oldKey = self.db.playerKeys[playerName] or {}
     local playerClass = oldKey.playerClass or self:GetGuildMemberClass(playerName) or 'ADVENTURER'
     local newKey = {
         itemID=180653,
         playerName=playerName,
         playerClass=playerClass,
-        playerFaction=(oldKey.playerFraction or self.playerFaction),
+        playerFaction=(oldKey.playerFaction or self.playerFaction),
         mapID=mapID,
         mapName=C_ChallengeMode.GetMapUIInfo(mapID),
         keyLevel=keyLevel,
