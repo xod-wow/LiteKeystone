@@ -140,6 +140,7 @@ read_globals = {
     "tContains",
     "tFilter",
     "time",
+    'TimeUtil',
     "TIMESTAMP_FORMAT_HHMMSS_24HR",
     "tinsert",
     "UISpecialFrames",

@@ -140,6 +140,11 @@ function LiteKeystone:IsGroupKey(key)
     end
 end
 
+function LiteKeystone:IsKeyActiveLFG(key)
+    local activityMap = select(6, C_ChallengeMode.GetMapUIInfo(key.mapID))
+    return activityMapID == self.currentActivityMap
+end
+
 function LiteKeystone:GetGuildMemberClass(playerName)
     if IsInGuild() then
         for i = 1, GetNumGuildMembers() do

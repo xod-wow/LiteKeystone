@@ -706,7 +706,7 @@ function LiteKeystoneTeleportIconMixin:UpdateCooldown()
     end
 end
 
-function LiteKeystoneTeleportIconMixin:SetSpell(spellID, isKnown)
+function LiteKeystoneTeleportIconMixin:SetSpell(spellID, isKnown, showAnim)
     self.spellID = spellID
     if self.spellID then
         local info = C_Spell.GetSpellInfo(self.spellID)
@@ -716,14 +716,19 @@ function LiteKeystoneTeleportIconMixin:SetSpell(spellID, isKnown)
     self:GetNormalTexture():SetDesaturated(not isKnown)
     self:SetAttribute("spell", self.spellID)
     self:UpdateCooldown()
-    return spellID, isKnown
+    if isKnown and showAnim then
+        self:StartAnim()
+    else
+        self:StopAnim()
+    end
 end
 
-function LiteKeystoneTeleportIconMixin:SetByID(id)
+function LiteKeystoneTeleportIconMixin:SetByID(id, showAnim)
     local info = FindValueInTableIf(teleports, function (v) return tContains(v.challengeModeID, id) end)
     if info then
         local spellID, isKnown = FindBestSpell(info)
-        return self:SetSpell(spellID, isKnown)
+        self:SetSpell(spellID, isKnown, showAnim)
+        return spellID, isKnown
     end
 end
 
