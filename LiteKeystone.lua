@@ -141,8 +141,8 @@ function LiteKeystone:IsGroupKey(key)
 end
 
 function LiteKeystone:IsKeyActiveLFG(key)
-    local activityMap = select(6, C_ChallengeMode.GetMapUIInfo(key.mapID))
-    return activityMapID == self.currentActivityMap
+    local activityMapID = select(6, C_ChallengeMode.GetMapUIInfo(key.mapID))
+    return activityMapID and activityMapID == self.currentActivityMap
 end
 
 function LiteKeystone:GetGuildMemberClass(playerName)
